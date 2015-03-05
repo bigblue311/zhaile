@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CategoryDO">
+
+  <typeAlias alias="Category" type="com.zhaile.dal.model.CategoryDO"/>
+
+  <resultMap id="RM" class="Category">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="name" column="name"/>
+    <result property="description" column="description"/>
+    <result property="parentId" column="parent_id"/>
+    <result property="pinyin" column="pinyin"/>
+  </resultMap>
+
+  <select id="getAll" resultMap="RM">
+    select * from zl_system_category  
+  </select>
+  
+  <select id="getByShopId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_system_category where id in (select category_id from zl_shop_product where enable = '0' and shop_id = #shopId#)
+  </select>
+  
+  <select id="getByProdId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_system_category where id in (select category_id from zl_shop_product where enable = '0' and id = #productId#)
+  </select>
+  
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_system_category where id = #id#  
+  </select>
+  
+  <select id="getByIds" resultMap="RM">
+    select * from zl_system_category where id in
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </select>
+  
+  <select id="getByParentId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_system_category where parent_id = #parentId#  
+  </select>
+  
+  <update id="update" parameterClass="Category">
+    update zl_system_category set 
+    <dynamic>
+      <isNotEmpty property="name">  
+         <![CDATA[   
+           name = #name#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="description">  
+         <![CDATA[ 
+           description = #description#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="parentId">  
+         <![CDATA[ 
+           parent_id = #parentId#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="pinyin">  
+         <![CDATA[ 
+           pinyin = #pinyin#,
+         ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#  
+  </update>
+</sqlMap>

@@ -1,0 +1,87 @@
+<meta name="viewport" content="width=device-width, initial-scale=1" /> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Access-Control-Allow-Origin" content="*">
+<script src="http://g.tbcdn.cn/fi/bui/jquery-1.8.1.min.js"></script>
+<title>菜谱查询</title>
+<style>
+	body { font: normal 130% Helvetica, Arial, sans-serif; }
+	img { width: 100%;}
+	
+	.infoIntro{	color:grey; }
+	.infoTitle{font-size:150%;color:orangered}
+	.badge{font-style: italic;}
+</style>
+<body>
+<div id="menu">
+</div>
+</body>
+<script type="text/javascript">
+	jQuery(document).ready(function(){
+		getMenu($id);
+	});
+	
+	function getMenu(id){
+		var url = "http://apis.juhe.cn/cook/queryid";
+		var param = {"key":"e57bd2c3c142b469acafacc7dbabf1c9","dtype":"json","id":id};
+		jQuery.ajax({
+			url: url,
+			data: param,
+			dataType: "jsonp",
+			success: function(data,textStatus){
+				if(data.resultcode == 200){
+					var item = data.result.data[0];
+					jQuery("#menu").empty().append(addMenu(item));
+				}
+			}
+		});
+	}
+	
+	function addMenu(menu){
+		var id = menu.id;
+		var title = menu.title;
+		var tags = menu.tags.split(";");
+		var tag  = "";
+		for(var i=0;i<tags.length;i++){
+			if(i%13==0 && i!=0){
+				tag += "<br>";
+			}
+			tag += "<span class='badge'>"+tags[i]+"</span>&nbsp;&nbsp;";
+		}
+		var imtro = menu.imtro;
+		var ingredients = menu.ingredients.split(";");
+		var ingredient = "";
+		for(var i=0;i<ingredients.length;i++){
+			var item = ingredients[i].split(",")[0];
+			var quntity = ingredients[i].split(",")[1];
+			ingredient += "<span>"+item+"<label class='auxiliary-text'>("+quntity+")</label></span>&nbsp;&nbsp;";
+		}
+		var albums = menu.albums;
+		var html = "<div id='infoPage"+id+"'>";
+		html	+="<img src='"+albums+"' />";
+		html	+="<p class='infoTitle'>"+title+"</p>";
+		html	+="<p>"+tag+"</p>";
+		html	+="<p class='infoIntro'>"+imtro+"</p>";
+		html	+="<p>"+ingredient+"</p>";
+		html	+="</div>";
+		html	+= addSteps(menu);
+		return html;
+	}
+	
+	function addSteps(menu){
+		var id = menu.id;
+		var steps = menu.steps;
+		var html = "<div class='infoPageStep' id='infoPageStep"+id+"'>";
+		for(var i=0;i<steps.length;i++){
+			var step = steps[i];
+			var index = i+1+".";
+			var detail = step.step.replace(index,'');
+			html += "<div class='infoStep'>";
+			html += "<p><label class='stepIndex'>"+index+"</label>";
+			html += "<label class='stepDetail'>"+detail+"</label></p>";
+			html += "<img src='"+step.img+"'>";
+			html += "</div>";
+		}
+		html	+="</div>";
+		return html;
+	}
+</script>

@@ -1,0 +1,642 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<style type="text/css">
+    html,body{margin:0;padding:0;}
+    .iw_poi_title {color:#CC5522;font-size:14px;font-weight:bold;overflow:hidden;padding-right:13px;white-space:nowrap}
+    .iw_poi_content {font:12px arial,sans-serif;overflow:visible;padding-top:4px;white-space:-moz-pre-wrap;word-wrap:break-word}
+</style>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=SOfGrXIGZPvGGZOMnMyKBSwG"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/library/AreaRestriction/1.2/src/AreaRestriction_min.js"></script>
+<style>
+	#tutorialMask{
+		background: black;
+		z-index: 9999;
+		position: absolute;
+		top: 30px;
+		left: 49px;
+		width: 100%;
+		height: 100%;
+		filter: alpha(opacity=50);
+		-moz-opacity: 0.5;
+		opacity: 0.5;
+	}
+	
+	#mapInfo1{
+		position: relative;
+		top: 80px;
+		left: 80px;
+	}
+	
+	#mapInfo2{
+		position: absolute;
+		top: 30%;
+		left: 40%;
+	}
+	
+	#mapInfo3{
+		position: absolute;
+		right: 80px;
+		bottom: 80px;
+	}
+	
+	#mapInfoclose{
+		cursor: pointer;
+		position: absolute;
+		right: 30px;
+		top: 30px;
+		cursor:pointer;
+	}
+	
+	.infoWindow{
+		padding:5px;
+	}
+	
+	.infoWindow .title{
+		font-size: 15px;
+		color: red;
+		font-weight:bold;
+		margin-right: 10px;
+	}
+	
+	.infoWindow .titleLink{
+		color: blue;
+		text-decoration: none;
+	}
+	
+	.infoWindow .titleClose{
+		position: relative;
+		top: 2px;
+		left: -5px;
+		float: right;
+		cursor: pointer;
+	}
+	
+	.infoWindow .labelContent{
+		max-width: 200px;
+		word-break: break-all;
+		word-wrap: break-word;
+		white-space:normal;
+		display: block;
+		line-height:20px;
+	}
+	
+	#mapSearchResult{
+		border: 1px solid lightgrey;
+		z-index: 9999;
+		position: absolute;
+		top: 102px;
+		left: 75px;
+		width: 850px;
+		height: 350px;
+		background: white;
+	}
+	
+	#mapResultClose{
+		float: right;
+		padding: 10px;
+		cursor: pointer;
+		color: orangered;
+	}
+	
+	#mapResultPanel p{
+		padding-top:2px;
+		padding-bottom:2px;
+	}
+	
+	#mapResultPanel p:hover{
+		background:orangered;
+		color:white;
+	}
+	
+	#mapResultPanel p:hover label{
+		color:white;
+	}
+	
+	.lineTitle{
+		padding-left: 10px;
+		min-width: 550px;
+		display: inline-block;
+	}
+	
+	.lineTitle label{
+		padding-left: 10px;
+		color:lightgrey;
+	}
+	
+	.lineLink{
+		display: inline-block;
+		color: #519cea;
+		cursor: pointer;
+		padding-right: 10px;
+	}
+	
+	.lineShops{
+		display: inline-block;
+		color: #519cea;
+		cursor: pointer;
+		padding-right: 10px;
+	}
+</style>
+<div id="tutorialMask" style="display:none">
+	<img src="/img/map/mapinfo1.png" id="mapInfo1"/>
+	<img src="/img/map/mapinfo2.png" id="mapInfo2"/>
+	<img src="/img/map/mapinfo3.png" id="mapInfo3"/>
+	<img src="/img/map/mapinfoclose.png" id="mapInfoclose" onclick="closeMask()"/>
+</div>
+<div id="mapSearchResult" style="display:none">
+	<div id="mapResultClose">X 关闭</div>
+	<div id="mapResultPanel"></div>
+</div>
+<script type="text/javascript">
+	var myPosition;
+	var myPoint;
+	var shopPoint;
+	
+	var map;
+	var mapDialog;
+	
+	var windowHeight = $(window).height()-100;
+	var windowWidth = $(window).width()-100;
+	var mapHeight = windowHeight-90;
+	var mapWidth = windowWidth-52;
+	
+	var adLabel = "<a href='$zhaile.setTarget('mapMarker')' target='_blank'>  [我要标注广告(20元一天)]</a>";
+	
+	var mapContent =
+	 "<span style='margin-right:30px;float:left;'>"+
+	 "<input type='text' value='' style='width:300px;height:20px;margin-right:5px;' id='mapKeyword' onkeyup='mapSearch(event)'>"+
+	 "<input type='button' value='查找' onclick='searchMap()' style='padding:3px 10px 3px 10px;margin-top:5px;border:0px solid orange;background:#ff6f00;color:white;font-size:12px;margin-right:5px;'/>"+
+	 "<input type='button' value='我的位置' onclick='centerMe()' style='padding:3px 10px 3px 10px;margin-top:5px;border:0px solid orange;background:#ff6f00;color:white;font-size:12px;'/></span>"+
+	 "<span id='mapMsg' style='color:#ff6f00;font-size:14px;position:relative;top:5px;'>点击地图确定您的位置，我们将根据您与店铺的距离计算外卖费"+
+	 adLabel +
+	 "</span><div style='width:"+mapWidth+"px;height:"+mapHeight+"px;' id='dituContent'></div>";
+
+	 
+	 jQuery(function(){
+		 initDialog();
+		 loadCookie();
+		 if(myPoint==null){
+			 showMap();
+			 loadMask();
+		 } else {
+			 getMyAddress(myPoint);
+		 }
+		 setTimeout(fillShopInfo,2000);
+		 
+		 jQuery("#mapResultClose").click(function(){
+			 jQuery("#mapSearchResult").hide();
+		 });
+	 });
+	 
+	 function mapSearch(e){
+		 if(e.keyCode == 13) {
+			 searchMap();
+		 }
+	 }
+	 
+	 function loadMask(){
+		 var width = windowWidth+2;
+		 var height = windowHeight+40;
+		 jQuery("#tutorialMask").show();
+		 jQuery("#tutorialMask").css({
+			 "width":width,
+		 	 "height":height
+		 });
+	 }
+	 
+	 function closeMask(){
+		 jQuery("#tutorialMask").hide();
+	 }
+	 
+	 function initDialog(){
+
+		 var Overlay = BUI.Overlay;
+		 mapDialog = new Overlay.Dialog({
+				title:'我的位置',
+				width: windowWidth,
+				height: windowHeight,
+				bodyContent:mapContent,
+				closeable:false,
+				buttons:[
+				{
+					text:'关闭',
+					elCls : 'button button-primary',
+					handler : function(){
+			 			if(myPoint!=null){
+							this.close();
+						} else {
+							$("#mapMsg").empty().append('请输入您的坐标'+adLabel);
+						}
+					}
+				}],
+				listeners : {
+					'afterRenderUI' : function(){
+						initMap();//创建和初始化地图
+					}
+				}
+		 });
+	 }
+	 
+	 function saveMyPosition(lng,lat){
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/saveMyPosition.json')?lng='+ lng+'&lat='+lat
+		});
+	 }
+	 
+	 function saveShopDistance(shopId,distance){
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/saveShopDistance.json')?shopId='+ shopId+'&distance='+distance
+		});
+	 }
+	 
+	 function fillShopInfo(){
+		 jQuery(".mapInfo").each(function(){
+			var item = jQuery(this);
+			var itemDistance = item.find("span[name='mapDistance']");
+			var itemCharge = item.find("span[name='mapCharge']");
+				var shopid = itemCharge.attr("shopid");
+			var itemDuration = item.find("span[name='mapDuration']");
+			var itemDelivery = item.find("span[name='mapDelivery']");
+				var defaultCharge = itemCharge.attr("defaultCharge");
+				var isZhaileSong = defaultCharge >= 5;
+			if(isZhaileSong){
+				itemDelivery.empty().append("宅乐配送");
+			} else {
+				itemDelivery.empty().append("店家自送");
+			}
+			
+			var myPos = myPoint;
+			
+			var shopPoint;
+			var lng = itemDistance.attr("lng");
+			var lat = itemDistance.attr("lat");
+			if(lng!=null && lat!=null){
+				shopPoint = new BMap.Point(lng,lat);
+			}
+			
+			if(myPos==null||shopPoint==null){
+	    		return;
+	    	}
+			
+			var walking = new BMap.WalkingRoute(myPos);
+			walking.search(shopPoint,myPos);
+	    	walking.setSearchCompleteCallback(function (rs) {
+	    	    var plan = walking.getResults().getPlan(0);
+	    	    if(plan==null){
+	    	    	itemDistance.empty().append("未知");
+	    	    	itemCharge.empty().append(defaultCharge);
+	    	    	itemDuration.empty().append("未知");
+	    	    	return;
+	    	    }
+	    	    var distance = plan.getDistance(false);
+	    	    
+	    	    saveShopDistance(shopid,distance);
+	    	    
+	    	    itemDistance.empty().append(distance);
+	    	    
+	    	    var charge = calculateCharge(distance,isZhaileSong,defaultCharge,shopid);
+	    	    //alert(charge+" "+isZhaileSong+" "+defaultCharge);
+	    	    itemCharge.empty().append(charge);
+	    	    
+	    	    var duration = calculateDuration(distance,isZhaileSong);
+	    	    itemDuration.empty().append(duration);
+	    	    
+	    	    var allowed = jQuery(itemDistance).attr("distance");
+	    	    try{
+	    	    	allowed = parseInt(allowed);
+	    	    }catch(exception){
+	    	    	return;
+	    	    }
+	    	    
+	    		if(isDigist(distance) && isDigist(allowed)){
+	    			if(distance>=allowed){
+	    				var prodId = jQuery(itemDistance).attr("prodId");
+	    				var timestamp = currentTime();
+	    				jQuery.ajax({
+	    					type: "get",
+	    					url: '$zhaile.setTarget('/json/removeFromShoppingCar.json')?timestamp='+timestamp+'&prodId='+ prodId,
+	    					success:function(data, textStatus){
+	    						if(data.success){
+	    							var selector = ".item"+prodId;
+	    							jQuery(selector).remove();
+	    							updateTotal();
+	    						}
+	    					}
+	    				});
+	    			}
+	    		}
+	    	});
+		 });
+	 }
+	 
+	 function isDigist(str){
+		if(str == null) return false;
+		var r = /^[0-9]*[1-9][0-9]*$/
+		return r.test(str);
+	 }
+	 
+	 function calculateCharge(distance,isZhaileSong,defaultCharge,shopId){
+		 if(!isZhaileSong || shopId == $zhaileShopId){
+			 return defaultCharge;
+		 }
+		 if(distance<=1000){
+			 return 3;
+		 }
+		 return 3+getInt(distance-1000);
+	 }
+	 
+	 function calculateDuration(distance,isZhaileSong){
+		 if(!isZhaileSong){
+			 return "自送";
+		 }
+		 if(distance<=2000){
+			 return 40;
+		 }
+		 return 40+getInt(distance-1000)*5;
+	 }
+	 
+	 function getInt(s){
+		 var value = s/500;
+		 if(s%500>0){
+			 value++;
+		 }
+		 return parseInt(value);		 
+	 }
+	 
+	 function showMap(){
+		windowHeight = $(window).height()-100;
+		windowWidth = $(window).width()-100;
+		mapHeight = windowHeight-90;
+		mapWidth = windowWidth-52;
+		
+		mapDialog.set('height',windowHeight);
+		mapDialog.set('width',windowWidth);
+		
+		jQuery('#dituContent').css({"height":mapHeight,"width":mapWidth});
+		
+		mapDialog.show();
+	}
+		 
+    //创建和初始化地图函数：
+    function initMap(){
+    	loadCookie();
+        createMap();//创建地图
+        setMapEvent();//设置地图事件
+        addMapControl();//向地图添加控件
+        
+        initAd();
+
+        if(myPoint!=null){
+        	findMe(myPoint);
+        }
+    }
+    
+    function initAd(){
+    	#if($!todayMarkers)
+    		#foreach($marker in $!todayMarkers)
+    			var adPoint = new BMap.Point($marker.lng,$marker.lat);
+    			var imgSrc = '/img/map/dollar.png';
+    			#foreach($icon in $!mapIconEnum)
+					#if($icon.code == $!marker.icon)
+						imgSrc = '$icon.url';
+					#end
+				#end
+    			markShop(adPoint,'$!marker.title','$!marker.content','$!marker.address',imgSrc);
+    		#end
+    	#end
+    }
+    
+    //创建地图函数：
+    function createMap(){
+    	var p0 = 119.945919;
+		var p1 = 30.060034;
+ 		
+		map = new BMap.Map("dituContent");//在百度地图容器中创建一个地图
+		map.setDefaultCursor("url('bird.cur')");
+        var point = new BMap.Point(p0,p1);//定义一个中心点坐标
+        map.centerAndZoom(point,18);//设定地图的中心点和坐标并将地图显示在地图容器中
+        window.map = map;//将map变量存储在全局
+        
+        //设置地图限定区域
+        var leftTop = new BMap.Point(119.931317,30.074377);
+        var rightBottom = new BMap.Point(119.989671,30.023858);
+        var b = new BMap.Bounds(leftTop,rightBottom);
+    	try {	
+    		//BMapLib.AreaRestriction.setBounds(map, b);
+    	} catch (e) {
+    		alert(e);
+    	}
+    }
+    
+    //地图事件设置函数：
+    function setMapEvent(){
+        map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+        map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+        map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+        map.enableKeyboard();//启用键盘上下左右键移动地图
+		map.addEventListener("click", showMapInfo);
+    }
+    
+    //地图控件添加函数：
+    function addMapControl(){
+        //向地图中添加缩放控件
+		var ctrl_nav = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+		map.addControl(ctrl_nav);
+    }
+	
+    //添加我的位置
+    function findMe(point){
+		myPoint = point;
+		setCookie();
+		centerMe();
+		markMe(point);
+    }
+    
+    function markMe(point){
+    	if(myPosition!=null){
+			map.removeOverlay(myPosition);
+		}
+    	
+    	var imgSize = new BMap.Size(50,50);
+		var myIcon = new BMap.Icon("/img/map/logo.png", imgSize);
+		myIcon.imageSize = imgSize;
+    	
+		myPosition = new BMap.Marker(point,{icon:myIcon});
+    	
+    	//地址解析
+		var gc = new BMap.Geocoder();
+		gc.getLocation(point, function(rs){
+			var addComp = rs.addressComponents;
+			var myAddress = addComp.district + "" + addComp.street + "" + addComp.streetNumber;
+			jQuery("#mapMyAddress").empty().append(myAddress);
+			var opts = {
+			  width : 160,     // 信息窗口宽度
+			  height: 0,     // 信息窗口高度
+			  title : "我的位置", // 信息窗口标题
+			  enableMessage:false,//设置不允许信息窗发送短息
+			  enableAutoPan:true,
+			  offset:new BMap.Size(-10,-25)
+			}
+			
+			var info = myAddress+"<br>";
+			info += "<a href='$zhaile.setTarget('shops')' target='_blank' style='padding:0px 10px 3px 10px;margin-top:5px;border:0px solid orange;background:#ff6f00;color:white;font-size:12px;'>查看餐厅</a>";
+			
+			var infoWindow = new BMap.InfoWindow(info, opts);
+			
+			myPosition.addEventListener("click", function(){          
+				map.openInfoWindow(infoWindow,point); //开启信息窗口
+			});
+			
+			map.addOverlay(myPosition);
+			map.openInfoWindow(infoWindow,point); //开启信息窗口
+			
+			$("#mapMsg").empty().append(addComp.district + "" + addComp.street + "" + addComp.streetNumber + adLabel);
+		});
+    }
+    
+    function markShop(point,title,message,address,icon){    	
+    	var imgSize = new BMap.Size(50,55);
+		var myIcon = new BMap.Icon(icon, imgSize);
+		myIcon.imageSize = imgSize;
+    	var _marker = new BMap.Marker(point,{icon:myIcon});  // 创建标注
+		map.addOverlay(_marker);           // 将标注添加到地图中
+		
+		var row1  = "<p><label class='title'>"+title+"</label></p>";
+		var row2  = "<div class='labelContent'>"+message+"</div>";
+		var row3  = "<div class='labelContent'>地址: "+address+"</div>";
+		var row4 = "<img src='/img/map/arrow.png' style='position:relative;top:-50px;left:-18px' />";
+		var info = "<div class='infoWindow'>";
+		info += row1;
+		info += row2;
+		info += row3;
+		info += row4;
+		info +="</div>";
+		var _label = new BMap.Label(info,{offset:new BMap.Size(50,-20)});
+		_label.setStyle({
+			 borderColor : "lightgrey",
+			 fontFamily:"微软雅黑",
+			 width:"180px"
+		});
+		_marker.addEventListener("mouseover", function(){
+			map.removeOverlay(_label);
+			_marker.setLabel(_label);
+		});
+		
+		_marker.addEventListener("mouseout", function(){
+			setTimeout(function(){
+				map.removeOverlay(_label);
+			},3000);
+		});
+    }
+    
+    function getMyAddress(point){
+    	var gc = new BMap.Geocoder();
+		gc.getLocation(point, function(rs){
+			var addComp = rs.addressComponents;
+			var myAddress = addComp.district + "" + addComp.street + "" + addComp.streetNumber;
+			jQuery("#mapMyAddress").empty().append(myAddress);
+		});
+    }
+    
+    
+    function getDistance(myLnt,myLat, shopLnt, shopLat){
+    	var myPoint = new BMap.Point(myLnt,myLat);
+        var shopPoint = new BMap.Point(shopLnt,shopLat);
+        return getDistance(myPoint, shopPoint);
+    }
+    
+    function getDistance(myPoint, shopPoint){
+    	var walking = new BMap.WalkingRoute(map);
+    	if(myPoint==null||shopPoint==null){
+    		alert("invalid point");
+    		return;
+    	}
+    	walking.search(shopPoint,myPoint);
+    	walking.setSearchCompleteCallback(function (rs) {
+    	    var plan = walking.getResults().getPlan(0);
+    	    $("#mapMsg").append(" "+plan.getDistance(true)+" "+plan.getDuration(true) + + adLabel);
+    	});
+    }
+    
+    function centerMe(){
+    	if(myPoint!=null){
+    		map.setCenter(myPoint);
+    	}  	
+    }
+    
+	
+	function addMarker(p0,p1,title){
+		var point = new BMap.Point(p0,p1);
+		shopPoint = point;
+		var marker = new BMap.Marker(point);
+		var label = new BMap.Label(title,{"offset":new BMap.Size(-11,-20)});
+		marker.setLabel(label);
+		map.addOverlay(marker);
+		label.setStyle({
+			borderColor:"#808080",
+			color:"#333",
+			cursor:"pointer"
+		});
+	}
+
+    function showMapInfo(e){
+		findMe(e.point);
+    }
+
+	function searchMap(){
+		var local = new BMap.LocalSearch(map, {
+			renderOptions:{map: map}
+		});
+		var keyword = jQuery("#mapKeyword").val();
+		if(keyword!=null || keyword != ''){
+			local.search(keyword);
+			local.setSearchCompleteCallback(function(result){
+				jQuery("#mapResultPanel").empty();
+				for(var i=0;i<result.getCurrentNumPois();i++){
+				   	var searchpoi = result.getPoi(i);
+				   	var line = "<p>";
+				   	line += "<span class='lineTitle'><img src='./img/marker.png'/>"+searchpoi.title+"<label>"+searchpoi.address+"</label></span>";
+				   	line += "<label class='lineLink' onclick='iamHere("+searchpoi.point.lng+","+searchpoi.point.lat+")'>我就在这</label>";
+				   	line += "<label class='lineShops' onclick='goShops("+searchpoi.point.lng+","+searchpoi.point.lat+")'>附近店铺</label>";
+				   	line += "</p>";
+				   	jQuery("#mapResultPanel").append(line);
+				}
+				jQuery("#mapSearchResult").show();
+		  	});
+		}
+	}
+	
+	function iamHere(lng,lat){
+		var point = new BMap.Point(lng,lat);
+		findMe(point);
+		jQuery("#mapSearchResult").hide();
+	}
+	
+	function goShops(lng,lat){
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/saveMyPosition.json')?lng='+ lng+'&lat='+lat,
+			success:function(){
+				window.location.replace("/shops.htm");
+			}
+		});
+	}
+	
+	function setCookie(){
+		if(myPoint!=null){
+			saveMyPosition(myPoint.lng,myPoint.lat);
+		}
+	}
+	
+	function loadCookie(){
+		#if($!myLocation.lng && $!myLocation.lat)
+			var p0 = $!{myLocation.lng};
+			var p1 = $!{myLocation.lat};
+			if(p0!=null && p1!=null){
+				myPoint = new BMap.Point(p0,p1);
+				saveMyPosition(p0,p1);
+			}
+		#end
+	}
+</script>

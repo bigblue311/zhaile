@@ -1,0 +1,96 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<h1>查询条件</h1>
+<div class="doc-content">
+	<form action="$admin.setTarget('customer')" class="form-horizontal well">
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">用户昵称：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="name" id="name" value="$!name">
+				</div>
+				<label class="control-label">用户邮箱：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="email" id="email">
+				</div>
+				<label class="control-label">用户手机：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="mobile" id="mobile">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-actions offset3">
+				<button class="button button-primary">搜索</button>
+				<button type="reset" class="button">重置</button>
+			</div>
+		</div>
+	</form>
+</div>
+<h1>查询结果</h1>
+<div id="grid"></div>
+<script type="text/javascript">
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      columns = [
+		{
+			title : '序号',
+			dataIndex : 'index',
+			renderer : function(val,obj,index) {
+				return index+1;
+			},
+			width:'5%'
+		},{
+			title : '编号',
+			dataIndex : 'id',
+			width:'5%'
+		},{
+          title : '用户昵称',
+          elCls: 'left',
+          dataIndex :'name',
+		  width:'15%'
+        },{
+            title : '电子邮箱',
+            elCls: 'left',
+            dataIndex : 'email',
+  		  	width:'15%'
+       	},{
+            title : '用户手机',
+            elCls: 'left',
+            dataIndex :'mobile',
+  		  	width:'15%'
+        },{
+          title : '注册时间',
+          elCls: 'left',
+          dataIndex :'gmtCreate',
+          renderer:BUI.Grid.Format.datetimeRenderer,
+		  width:'15%'
+        },{
+            title : '最后更新时间',
+            elCls: 'left',
+            dataIndex : 'gmtModify',
+            renderer:BUI.Grid.Format.datetimeRenderer,
+  		  	width:'15%'
+       	},{
+			title : '操作',
+			elCls: 'center',
+			dataIndex : 'oper',
+			renderer : function(val,obj,index) {
+				return '<a href="$admin.setTarget("customerDetail")?id='+obj.id+'">详情</a>';
+			}
+		}],
+		data = #if($!{customerList})#noescape()$!{customerList}#end#else null #end;
+
+      var store = new Store({
+        data : data,
+      }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store
+      });
+
+    grid.render();    
+</script>

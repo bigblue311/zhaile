@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ShopCategoryDO">
+
+  <typeAlias alias="ShopCategory" type="com.zhaile.dal.model.ShopCategoryDO"/>
+
+  <resultMap id="RM" class="ShopCategory">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="shopId" column="shop_id"/>
+    <result property="cateId" column="cate_id"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_shop_category where id = #id#  
+  </select>
+  
+  <select id="getByShopId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_shop_category where shop_id = #shopId#  
+  </select>
+   
+  <insert id="insert" parameterClass="ShopCategory">
+    <![CDATA[
+    insert into zl_shop_category (
+      gmt_create,
+      gmt_modify,
+      shop_id,
+      cate_id
+    ) values (
+      now(), now(), #shopId#, #cateId#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="ShopCategory">
+    update zl_shop_category set 
+    <dynamic>
+      <isNotEmpty property="shopId">  
+      	<![CDATA[
+      		shop_id = #shopId#,
+      	]]>
+      </isNotEmpty>
+      <isNotEmpty property="cateId">  
+      	<![CDATA[
+      		cate_id = #cateId#,
+      	]]>
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_shop_category where id = #id#
+  </delete>
+  
+  <delete id="deleteByShopId" parameterClass="java.lang.Long">
+    delete from zl_shop_category where shop_id = #id#
+  </delete>
+  
+  <select id="getByCateIdCount" resultClass="java.lang.Integer"  parameterClass="java.lang.Long">
+  	SELECT count(*) FROM zl_shop_category c,zl_shop s WHERE c.cate_id = #shopCateId# AND c.shop_id = s.id AND s.enable = '0'
+  </select>
+  
+  <select id="getByCateId" resultClass="java.lang.Long"  parameterClass="java.util.HashMap">
+    SELECT t.shop_id FROM (
+		SELECT c.shop_id AS shop_id,
+			CASE WHEN 
+				SQRT(POW(s.lng-#lng#,2)+POW(s.lat-#lat#,2)) IS NULL 
+			THEN 999 
+			ELSE 
+				SQRT(POW(s.lng-#lng#,2)+POW(s.lat-#lat#,2)) 
+			END AS distance 
+			FROM zl_shop_category c,zl_shop s 
+			WHERE c.cate_id = #cateId# AND c.shop_id = s.id AND s.enable = '0'
+			ORDER BY DISTANCE
+	) AS t
+	<include refid="Common.pageSql" />
+  </select>
+</sqlMap>

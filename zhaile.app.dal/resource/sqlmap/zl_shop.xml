@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ShopDO">
+
+  <typeAlias alias="Shop" type="com.zhaile.dal.model.ShopDO"/>
+
+  <resultMap id="RM" class="Shop">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="name" column="name"/>
+    <result property="description" column="description"/>
+    <result property="gmtOpen" column="gmt_open"/>
+    <result property="gmtClose" column="gmt_close"/>
+    <result property="shopImage" column="shop_image"/>
+    <result property="charge" column="charge"/>
+    <result property="alphabet" column="alphabet"/>
+    <result property="pinyin" column="pinyin"/>
+    <result property="enable" column="enable"/>
+    <result property="lng" column="lng"/>
+    <result property="lat" column="lat"/>
+    <result property="cid1" column="cid1"/>
+    <result property="cid2" column="cid2"/>
+    <result property="cid3" column="cid3"/>
+    <result property="cid4" column="cid4"/>
+    <result property="cid5" column="cid5"/>
+    <result property="distance" column="distance"/>
+    <result property="price" column="price"/>
+    <result property="licenseType" column="license_type"/>
+    <result property="licenseImg" column="license_img"/>
+  </resultMap>
+  
+  <select id="getFull" resultMap="RM">
+    select * from zl_shop
+  </select>
+  
+  <select id="getAll" resultMap="RM">
+    select * from zl_shop where enable = '0'
+  </select>
+  
+  <select id="getAllByDistanceCount" resultClass="java.lang.Integer">
+  	select count(*) from zl_shop where enable = '0'
+  </select>
+  
+  <select id="getAllByDistance" parameterClass="java.util.HashMap" resultMap="RM">
+    select *,
+	case when sqrt(pow(lng-#lng#,2)+pow(lat-#lat#,2)) is null then 999 else sqrt(pow(lng-#lng#,2)+pow(lat-#lat#,2)) end as distance
+	from zl_shop where enable = '0' order by distance,id
+    <include refid="Common.pageSql" />
+  </select>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_shop where id = #id#
+  </select>
+  
+  <select id="getByIds" resultMap="RM">
+    select * from zl_shop where enable = '0' and id in
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </select>
+  
+  <sql id="where">
+  	<!-- <include refid="validate" /> -->
+  	<dynamic prepend="where">
+  		<isNotNull property="enable" prepend="and">
+        	<![CDATA[ 
+        	enable = #enable#
+        	]]>
+	    </isNotNull>
+  		<isNotNull property="customerId" prepend="and">
+        	<![CDATA[ 
+        	customer_id = #customerId#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="categoryId" prepend="and">
+        	<![CDATA[
+        	id in (select shop_id from zl_shop_product where enable='0' and category_id = #categoryId#)
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="categoryIds" prepend="and">
+        	id in (select shop_id from zl_shop_product where enable='0' and category_id in 
+        	<iterate open="(" close=")" conjunction="," property="categoryIds"> 
+        		<![CDATA[
+		    	#categoryIds[]# 
+		    	]]>
+		    </iterate>
+        	) 
+	    </isNotNull>
+	    <isNotNull property="ids" prepend="and">
+        	id in
+			<iterate open="(" close=")" conjunction="," property="ids" > 
+		    	#ids[]# 
+		    </iterate>
+	    </isNotNull>
+	    <isNotNull property="valid">
+	    	<isEqual property="valid" compareValue="true" prepend="and">
+	    	<![CDATA[
+        	gmt_open < curtime() and gmt_close > curtime()
+        	 ]]>
+        	</isEqual>
+	    </isNotNull>
+	    <isNotNull property="keyword" prepend="and">
+        	<![CDATA[ 
+        	name like concat('%',#keyword#,'%') or pinyin like concat('%',#keyword#,'%')
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="alphabet" prepend="and">
+        	<![CDATA[ 
+        	alphabet = #alphabet#
+        	]]>
+	    </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="keyword">
+  	<isNull property="customerId">
+  	<isNull property="categoryId">
+  	<isNull property="valid">
+  	<isNull property="alphabet">
+        <include refid="Common.validModify" />
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_shop 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_shop
+	<include refid="where" />
+  </select>
+  
+  <select id="getDisabledList" resultClass="java.lang.Long">
+    select id from zl_shop where enable = '1'
+  </select>
+  
+  <select id="getBestSell10" resultMap="RM">
+   	select s.* FROM zl_transaction_order o,zl_shop s where s.enable='0' and o.shop_id=s.id group by o.shop_id order by count(o.shop_id) desc limit 10
+  </select>
+  
+  <select id="getRandom" parameterClass="java.util.HashMap" resultMap="RM">
+  	<![CDATA[
+  	SELECT * FROM zl_shop AS t1 
+  	JOIN (SELECT ROUND(RAND() * (
+  		(SELECT MAX(id) FROM zl_shop where shop_image is not null)-
+  		(SELECT MIN(id) FROM zl_shop where shop_image is not null))+
+  		(SELECT MIN(id) FROM zl_shop where shop_image is not null)) AS tid) AS t2
+	WHERE t1.id >= t2.tid 
+	and t1.shop_image is not null and t1.shop_image <> '' and t1.enable = '0' 
+	and t1.gmt_open < curtime() and t1.gmt_close > curtime() and
+	]]>
+	<isNotEmpty property="categoryId">
+       	<![CDATA[
+       	t1.id in (select shop_id from zl_shop_product where enable = '0' and category_id = #categoryId#)
+	    ]]>
+    </isNotEmpty>
+    <isNotEmpty property="categoryIds">
+       	t1.id in (select shop_id from zl_shop_product where enable = '0' and category_id in 
+       	<iterate open="(" close=")" conjunction="," property="categoryIds" > 
+       		<![CDATA[
+	    	#categoryIds[]#
+	    	]]>
+	    </iterate>
+       	) 
+    </isNotEmpty>
+    <![CDATA[LIMIT #count#]]>
+  </select>
+   
+  <insert id="insert" parameterClass="Shop">
+    <![CDATA[
+    insert into zl_shop (
+      gmt_create,
+      gmt_modify,
+      customer_id,
+      name,
+      description,
+      gmt_open,
+      gmt_close,
+      shop_image,
+      charge,
+      alphabet,
+      pinyin,
+      enable,
+      lng,
+      lat,
+      cid1,
+      cid2,
+      cid3,
+      cid4,
+      cid5,
+      distance,
+      price,
+      license_type,
+      license_img
+    ) values (
+      now(), now(), #customerId#, #name#, #description#, 
+      time_format(#gmtOpen#, '%H:%i:%s') ,
+      time_format(#gmtClose#, '%H:%i:%s'),
+      #shopImage# , #charge#, #alphabet# , #pinyin#, '0', #lng#, #lat#,
+      #cid1#,#cid2#,#cid3#,#cid4#,#cid5#, #distance#, #price#, #licenseType#, #licenseImg#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="Shop">
+    update zl_shop set 
+    <dynamic>
+      <isNotEmpty property="name">  
+         <![CDATA[   
+           name = #name#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="customerId">  
+         <![CDATA[   
+           customer_id = #customerId#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="description">  
+         <![CDATA[ 
+           description = #description#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="shopImage">  
+         <![CDATA[ 
+           shop_image = #shopImage#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="gmtOpen">  
+         <![CDATA[ 
+           gmt_open = time_format(#gmtOpen#, '%H:%i:%s') ,
+      	 ]]>
+      </isNotEmpty>
+      <isNotEmpty property="gmtClose">  
+         <![CDATA[   
+           gmt_close = time_format(#gmtClose#, '%H:%i:%s'),
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="charge">  
+         <![CDATA[   
+           charge = #charge#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="alphabet">  
+         <![CDATA[   
+           alphabet = #alphabet#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="pinyin">  
+         <![CDATA[   
+           pinyin = #pinyin#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="enable">  
+         <![CDATA[   
+           enable = #enable#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="lng">  
+         <![CDATA[   
+           lng = #lng#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="lat">  
+         <![CDATA[   
+           lat = #lat#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cid1">  
+         <![CDATA[   
+           cid1 = #cid1#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cid2">  
+         <![CDATA[   
+           cid2 = #cid2#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cid3">  
+         <![CDATA[   
+           cid3 = #cid3#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cid4">  
+         <![CDATA[   
+           cid4 = #cid4#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cid5">  
+         <![CDATA[   
+           cid5 = #cid5#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="distance">  
+         <![CDATA[   
+           distance = #distance#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="price">  
+         <![CDATA[   
+           price = #price#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="licenseType">  
+         <![CDATA[   
+           license_type = #licenseType#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="licenseImg">  
+         <![CDATA[   
+           license_img = #licenseImg#,
+         ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#  
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_shop where id = #id#
+  </delete>
+  
+  <update id="softDeleteById" parameterClass="java.lang.Long">
+    update zl_shop set enable = '1' where id = #id#
+  </update>
+  
+  <update id="recoverById" parameterClass="java.lang.Long">
+    update zl_shop set enable = '0' where id = #id#
+  </update>
+  
+  <update id="autoDisable">
+  	update zl_shop set enable='1',gmt_modify = now()
+  		 where enable = '0' and id IN 
+  	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </update>
+  
+  <update id="autoEnable">
+  	update zl_shop set enable='0',gmt_modify = now()
+  		 where enable = '1' and id IN 
+  	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </update>
+  
+  <update id="clearShopBinding" parameterClass="Shop">
+  	update zl_shop set 
+    <dynamic>
+      <isNotEmpty property="cid1">  
+         <![CDATA[   
+           cid1 = '',
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cid2">  
+         <![CDATA[   
+           cid2 = '',
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cid3">  
+         <![CDATA[   
+           cid3 = '',
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cid4">  
+         <![CDATA[   
+           cid4 = '',
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cid5">  
+         <![CDATA[   
+           cid5 = '',
+         ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#
+  </update>
+</sqlMap>

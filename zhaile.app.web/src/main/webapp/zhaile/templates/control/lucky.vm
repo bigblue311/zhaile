@@ -1,0 +1,63 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+#set ($categoryCache = $cacheTools.getCategorycache())
+<script type="text/javascript">					
+jQuery(document).ready(function(){	
+	var luckyData = [
+	#if($!prodList)
+		#foreach($prod in $prodList)
+		#set ($shop = $categoryCache.getShop($!prod.shopId.toString()))
+        {
+			'src':'$!prod.imgS',
+			'shopName':'$!shop.name',
+			'shopLink' : '$zhaile.setTarget('shop')?id=$shop.id',
+			'charge': $!shop.charge,
+			'title':'$!prod.name',
+			'price': $!prod.price,
+			'desc' : '$!prod.description',
+			'valid': $!cacheTools.isShopValid($!shop.id),			
+			'href':'$zhaile.setTarget('product')?id=$!prod.id',
+			'jsonUrl': '$zhaile.setTarget('/json/addToShoppingCar.json')?prodId=$!prod.id&quantity=1'
+		}
+		#if(${velocityCount} != $prodList.size())
+			,
+		#end
+		#end
+   	#end
+   	];
+	
+	function loadRandomData(){
+		var timestamp = currentTime();
+		var url = "$zhaile.setTarget('/json/randomProduct.json')?timestamp="+timestamp;
+		jQuery.ajax({
+			type: "get",
+			url: url,
+			success:function(data, textStatus){
+				jQuery(window).scroll(function(){
+				       var scrollTop = getScrollTop();
+					   var floorCount = jQuery(".lucky_floor").size();
+				       if(scrollTop > 500 * floorCount){
+				    	   var randomData = new Array();
+				    	   for(var i=0;i<12;i++) {
+				    		   if(data.length>0){
+				    			   randomData.push(data.shift());
+				    		   }
+				    	   }
+				    	   if(randomData.length==12){
+				    		   jQuery("#luckyDiv").feelLucky(randomData);
+				    	   }
+				   	   }
+				});
+			}
+		});
+	}
+		
+	jQuery("#luckyDiv").feelLucky(luckyData);
+	loadRandomData();
+	
+	jQuery("#freshLucky").click(function(){
+		jQuery("#luckyDiv").empty();
+		jQuery("#luckyDiv").feelLucky(luckyData);
+		loadRandomData();
+	});
+});
+</script>

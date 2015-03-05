@@ -1,0 +1,19 @@
+﻿<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+#set ($adCache = $cacheTools.getAdvertisementcache())
+#set ($categoryCache = $cacheTools.getCategorycache())
+<div class="header-wrap">
+	<div class="navwrap">
+		<div id="nav">
+			<div class="navbar clearfix">
+				<span class="navbt"><label id="zhaileContact" class="auxiliary-text" style="color:white">电话：$systemCache.getConfig('ZHAILE_PHONE').value $systemCache.getConfig('ZHAILE_MOBILE').value</label></span>
+				<a #if($!menuN == "0")class="current"#end href="$zhaile.setTarget('index')">首页</a>
+				<a target="_blank" href="$zhaile.setTarget('adcard.vm')">乐享卡</a>
+				<a target="_blank" href="$zhaile.setTarget('adcard2.vm')">VIP卡</a>
+				<a target="_blank" href="http://www.fyzhaile.com/img/nianhuo/index.html">抢年货</a>
+			</div>
+			<div class="pros subpage">
+				<h2><a style="color:white" href="$zhaile.setTarget('shops')" target="_blank" style="color:white;">查看附近店铺</a></h2>
+			</div>
+		</div>
+	</div>
+</div>

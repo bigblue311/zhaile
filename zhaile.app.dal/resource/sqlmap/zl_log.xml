@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="LogDO">
+
+  <typeAlias alias="Log" type="com.zhaile.dal.model.LogDO"/>
+
+  <resultMap id="RM" class="Log">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="opTime" column="op_time"/>
+    <result property="opType" column="op_type"/>
+  </resultMap>
+  
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_log where id = #id#  
+  </select>
+  
+  <select id="getByIds" resultMap="RM">
+    select * from zl_log where id in
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </select>
+  
+  <insert id="insert" parameterClass="Log">
+    <![CDATA[
+    insert into zl_log (
+      gmt_create,
+      gmt_modify,
+      customer_id,
+      op_time,
+      op_type
+    ) values (
+      now(), now(), #customerId#, now(), #opType#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+    <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+		<isNotNull property="customerId" prepend="and">
+        	<![CDATA[
+        	customer_id = #customerId#
+        	]]> 
+	    </isNotNull>  
+	    <isNotNull property="opType" prepend="and">
+	        <![CDATA[
+	        op_type = #opType#
+	        ]]> 
+	    </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="customerId">
+    <isNull property="opType">
+    <include refid="Common.validModify" />
+	</isNull>
+	</isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_log 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getLog" parameterClass="java.util.HashMap" resultMap="RM">
+    select count(*) from zl_log 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_log
+	<include refid="where" />
+  </select>
+</sqlMap>

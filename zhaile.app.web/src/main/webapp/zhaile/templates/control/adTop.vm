@@ -1,0 +1,55 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+#set($top =  $cacheTools.getValidTop())
+#set ($adCache = $cacheTools.getAdvertisementcache())
+<style>
+	#scrollingTop{
+		position: fixed;
+		top:0;
+		left:0;
+		width:2000px;
+		height:0px;
+		overflow:hidden;
+		z-index:99999;
+		padding-top:50px;
+	}
+</style>
+<div id="scrollingTop" style="display:none;background:$adCache.getAd(74).type">
+	<img src="$adCache.getAd(74).imgSrc" class="wechatMain" alt="$adCache.getAd(74).content"/>
+</div>
+<script type="text/javascript">
+jQuery(document).ready(function(){
+	var windowWidth =  document.body.offsetWidth;
+	if(window.location == "$zhaile.setTarget('')" || window.location == "$zhaile.setTarget('index')") {
+		#if($cacheTools.getSwitch('AD_TOP_CLOSE_SWITCH'))
+			var display = 'false';
+		#else
+			var display = $.cookie('adtopDisplay');
+		#end
+		if(windowWidth>1000 && display!='true') {
+			reloadWindowSize();
+			jQuery(window).resize(reloadWindowSize);
+			jQuery("#scrollingTop").slideToggle();
+			var myDate=new Date();
+			myDate.setTime(myDate.getTime() + (24 * 60 * 60 * 1000));
+			$.cookie('adtopDisplay', 'true', { expires: myDate });
+		}
+	}
+	
+	jQuery("#scrollingTop").click(function(){
+		#if($cacheTools.getSwitch('AD_TOP_CLOSE_SWITCH'))
+		#else
+			jQuery("#scrollingTop").slideToggle();
+		#end
+		
+	});
+	
+	function reloadWindowSize(){
+		var windowWidth =  document.body.offsetWidth;
+		var windowHeight =  document.body.offsetHeight;
+		jQuery('#scrollingTop').css({
+			width:windowWidth,
+			height:windowHeight
+		});
+	}
+});
+</script>

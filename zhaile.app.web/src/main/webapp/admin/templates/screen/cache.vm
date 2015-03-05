@@ -1,0 +1,100 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<h1>系统配置</h1>
+#set ($systemCache = $cacheTools.getSystemConfigcache())
+<div>上次加载时间：$cacheTools.timestamp <a href="$admin.setTarget('cache')?command=reload">重新加载</a> <a href="$admin.setTarget('cache')?command=reindex">重新拼音</a><label class="auxiliary-text">更新后不会立即生效，必须点击重新加载才会生效</label></div>
+<div id="grid"></div>
+#set ($group = $form.systemConfig.defaultInstance)
+<form action="$admin.setTarget('cache')" method="post" id="update_form">
+	$csrfToken.hiddenField
+	<input type="hidden" name="action" value="updateSystemConfigAction"/>  
+	<input type="hidden" name="event_submit_do_update" value="true"/>
+	<input type="hidden" id="id" name="$group.id.key" value=""/>
+	<input type="hidden" id="key" name="$group.key.key" value=""/>
+	<input type="hidden" id="value" name="$group.value.key" value=""/>
+	<input type="hidden" id="description" name="$group.description.key" value=""/>
+</form>
+<script type="text/javascript">
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      columns = [
+		{
+			title : 'id',
+			dataIndex : 'id',
+			visible: false
+		},{
+          title : 'KEY',
+          elCls: 'left',
+          dataIndex :'key',
+          width:'20%'
+        },{
+          title : 'VALUE',
+          elCls: 'left',
+          dataIndex :'value',
+          editor : {
+				xtype : 'text'
+		  },
+          width:'30%'
+        },{
+          title : '描述',
+          elCls: 'left',
+          dataIndex : 'description',
+          editor : {
+				xtype : 'text'
+		  },
+          width:'45%'
+     	},{
+			title : '操作',
+			elCls: 'center',
+			dataIndex : 'oper',
+			renderer : function() {
+				return '<span class="grid-command btn-edit">编辑</span>'
+			}
+		}],
+      	data = [
+				#foreach($systemConfig in $systemCache.getAll())
+					{
+						id:'$systemConfig.id',
+						key:'$systemConfig.key',
+						value:'$systemConfig.value',
+						description:'$systemConfig.description'
+					}
+					#if(${velocityCount} != $systemCache.getAll().size())
+					,
+					#end
+				#end
+             ];
+
+      var store = new Store({
+        data : data,
+        listeners : {
+        	'update' : updateFunction
+        }
+      }),
+      editing = new Grid.Plugins.RowEditing({
+			triggerCls : 'btn-edit',
+			triggerSelected : false
+	  }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        plugins : [editing],
+        store : store
+      });
+
+    grid.render();
+    
+    function updateFunction(e){
+    	var id = e.record.id;
+    	var key = e.record.key;
+    	var value = e.record.value;
+    	var description = e.record.description;
+    	jQuery("#id").val(id);
+    	jQuery("#key").val(key);
+    	jQuery("#value").val(value);
+    	jQuery("#description").val(description);
+    	jQuery("#update_form").submit();
+    }
+</script>

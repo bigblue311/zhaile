@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<style type="text/css">
+		.pickbox{width:224px;height:500px;float:left}
+		#allmap{width:800px;height:500px;float:left}
+		.pickbox div{
+			text-align:left;
+		}
+		
+		.pickbox label{
+			font-size:13px;
+		}
+		
+		.pickbox input[type="text"]{
+			width:200px;
+			font-size:13px;
+		}
+		
+		.pickbox textarea{
+			width:200px;
+			height:100px;
+			font-size:13px;
+		}
+		
+		.pickbox select{
+			width:180px;
+			font-size:13px;
+		}
+		
+		.pickbox input[type="button"]{
+			border: 1px solid #ff6f00;
+			background: #ff6f00;
+			margin-top: 10px;
+			color: white;
+		}
+		
+		#sampleIcon{
+			position: relative;
+			top: -192px;
+			left: 180px;
+			width: 30px;
+			height: 37px;
+		}
+		
+		#_mapSearchResult{
+			border: 1px solid lightgrey;
+			z-index: 9999;
+			position: absolute;
+			top: 107px;
+			left: 374px;
+			width: 812px;
+			height: 350px;
+			background: white;
+			text-align:left;
+		}
+		
+		#_mapResultClose{
+			float: right;
+			padding: 10px;
+			cursor: pointer;
+			color: orangered;
+		}
+		
+		#_mapResultPanel p{
+			padding-top:2px;
+			padding-bottom:2px;
+		}
+		
+		#_mapResultPanel p:hover{
+			background:orangered;
+			color:white;
+		}
+		
+		#_mapResultPanel p:hover label{
+			color:white;
+		}
+		
+		#_mapMarkerSearchKey{
+			position: relative;
+			top: -32px;
+			left: 172px;
+			display: inline-block;
+			height: 22px;
+		}
+	</style>
+</head>
+<body>
+	#set ($group = $form.mapMarker.defaultInstance)
+	<div id="form" class="pickbox">
+	
+	<form action="$zhaile.setTarget('mapMarker')" method="post" id="mapMarkerForm">
+		$csrfToken.hiddenField
+		<input type="hidden" name="action" value="userAction"/>  
+		<input type="hidden" name="event_submit_do_mark" value="true"/>
+		<div><input id="_mapMarkerSearchbox" type="text" value="" onkeyup="_mapSearch(event)"><input type="button" value="搜索" id="_mapMarkerSearchKey" onclick="_searchMap()"></div>
+		<div>坐标:<br>
+			<input readonly id="lng" name="$!group.lng.key" type="text" style="width:91px" class="placeholder" placeholder="点击地图"/>&nbsp;
+			<input readonly id="lat" name="$!group.lat.key" type="text" style="width:91px" class="placeholder" placeholder="确定坐标"/>
+		</div>
+		<div>标题:<input id="title" maxlength="5" name="$!group.title.key" type="text" value="" class="placeholder formInput" placeholder="标注标题"></div>
+		<div>
+		有效期：<br>
+		<input type="text" class="calendar" name="$!group.validFrom.key" id="validFrom" style="width:85px;" class="placeholder formInput" placeholder="开始日期">
+		至
+		<input type="text" class="calendar" name="$!group.validTo.key" id="validTo" style="width:85px;" class="placeholder formInput" placeholder="结束日期">
+		</div>
+		<div>电话:<input id="contact" maxlength="20" name="$!group.contact.key" type="text" value="" class="placeholder" placeholder="您的联系电话"></div>
+		<div>地址:<input id="address" maxlength="50" name="$!group.address.key" type="text" value="" class="placeholder" placeholder="您的地址"></div>
+		<div>图标:</div>
+		<div>
+			<select	id="icon" name="$!group.icon.key" class="formInput">
+				#foreach($icon in $!mapIconEnum)
+					<option value="$icon.code" imgSrc="$icon.url">$icon.desc</option>
+				#end
+			</select>
+		</div>
+		<div>内容:</div>
+		<div><textarea id="content" name="$!group.content.key" maxlength="50" class="placeholder formInput" placeholder="标注内容，我们将根据有效期计算费用，计费标准为20元每天每点"></textarea></div>
+		<div>
+			<input type="button" value="提交" onclick="validate()">
+		</div>
+		<div>
+			<img id="sampleIcon" src="/img/map/dollar.png"></img>
+		</div>
+	</form>
+	</div>
+	<div id="allmap">
+	</div>
+	<div id="_mapSearchResult" style="display:none">
+		<div id="_mapResultClose">X 关闭</div>
+		<div id="_mapResultPanel"></div>
+	</div>
+	<script type="text/javascript">
+	// 百度地图API功能
+	var _map;
+	var _marker;
+	var _label;
+	
+	jQuery(function(){
+		var Calendar = BUI.Calendar;
+		
+		var validFrom = new Calendar.DatePicker({
+			  trigger:'#validFrom',
+			  selectedDate : new Date(),
+			  autoRender : true
+		});
+		
+		var validTo = new Calendar.DatePicker({
+			  trigger:'#validTo',
+			  selectedDate : new Date(),
+			  autoRender : true
+		});
+		
+		initMapMarker();
+		
+		jQuery("#icon").change(function(){
+			imgSrc = jQuery("#icon option:selected").attr("imgSrc");
+			jQuery("#sampleIcon").attr("src",imgSrc);
+		});
+		
+		jQuery(".formInput").change(createIcon);
+		
+		jQuery("#_mapResultClose").click(function(){
+			 jQuery("#_mapSearchResult").hide();
+		 });
+	});
+	
+	function initMapMarker(){
+		_map = new BMap.Map("allmap");
+		_map.centerAndZoom(new BMap.Point(119.951398,30.063112), 15);
+		_map.enableScrollWheelZoom(true);
+		
+		var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+		var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+		
+		_map.addControl(top_left_control);        
+		_map.addControl(top_left_navigation);     
+		
+		_map.addEventListener("click", showInfo);
+	}
+	
+	function showInfo(e){
+		jQuery("#lng").val(e.point.lng);
+		jQuery("#lat").val(e.point.lat);
+		createIcon();
+		jQuery("#_mapSearchResult").hide();
+	}
+	
+	function _iamHere(lng,lat){
+		jQuery("#lng").val(lng);
+		jQuery("#lat").val(lat);
+		createIcon();
+	}
+	
+	function _mapSearch(e){
+		 if(e.keyCode == 13) {
+			 _searchMap();
+		 }
+	 }
+	
+	function createIcon(){
+		var lng = jQuery("#lng").val();
+		var lat = jQuery("#lat").val();
+		if(lng == '' || lat == ''){
+			return;
+		}
+		var point = new BMap.Point(lng,lat);
+		var imgSrc = jQuery("#icon option:selected").attr("imgSrc");
+		var imgSize = new BMap.Size(50,55);
+		var myIcon = new BMap.Icon(imgSrc, imgSize);
+		myIcon.imageSize = imgSize;
+		
+		if(_marker!=null){
+			_map.removeOverlay(_marker);
+		}
+		_marker = new BMap.Marker(point,{icon:myIcon});  // 创建标注
+		_map.addOverlay(_marker);           // 将标注添加到地图中
+		var title = jQuery("#title").val();
+		var message = jQuery("#content").val();
+		var address = jQuery("#address").val();
+		
+		var row1  = "<p><label class='title'>"+title+"</label></p>";
+		var row2  = "<div class='labelContent'>"+message+"</div>";
+		var row3  = "<div class='labelContent'>地址: "+address+"</div>";
+		var row4 = "<img src='/img/map/arrow.png' style='position:relative;top:-50px;left:-18px' />";
+		
+		var info = "<div class='infoWindow'>";
+		info += row1;
+		info += row2;
+		info += row3;
+		info += row4;
+		info +="</div>";
+		_label = new BMap.Label(info,{offset:new BMap.Size(50,-20)});
+		_label.setStyle({
+			 borderColor : "lightgrey",
+			 fontFamily:"微软雅黑",
+			 width:"180px"
+		});
+		_marker.addEventListener("mouseover", function(){
+			_map.removeOverlay(_label);
+			_marker.setLabel(_label);
+		});
+		
+		_marker.addEventListener("mouseout", function(){
+			setTimeout(function(){
+				_map.removeOverlay(_label);
+			},3000);
+		});
+	}
+	
+	function validate(){
+		var lng = jQuery("#lng").val();
+		var lat = jQuery("#lat").val();
+		
+		if(lng==''||lat==''){
+			alert('请点击地图确认');
+			return;
+		}
+		
+		var validFrom = jQuery("#validFrom").val();
+		var validTo = jQuery("#validTo").val();
+		if(validFrom==''||validTo==''){
+			alert('请选择有效日期');
+			return;
+		}
+	    var a = (Date.parse(validTo) - Date.parse(validFrom)) / 3600 / 1000 / 24 + 1;
+	    if (a < 1) {
+	        alert("结束日期必须小于开始日期");
+	        return;
+	    }
+	    var charge = a * 20;
+		
+		var title = jQuery("#title").val();
+		if(title==''){
+			alert('请输入标题');
+			return;
+		}
+		
+		var content = jQuery("#content").val();
+		if(content==''){
+			alert('请输入标题');
+			return;
+		}
+		
+		var contact = jQuery("#contact").val();
+		if(contact==''){
+			alert('请输入联系方式');
+			return;
+		}
+		
+		var address = jQuery("#address").val();
+		if(address==''){
+			alert('请输入联系地址');
+			return;
+		}
+		var message = validFrom+"至"+validTo+"的费用为"+charge+"元是否确认";
+		BUI.Message.Confirm(message, function() {
+			jQuery("#mapMarkerForm").submit();
+		}, 'question');
+	}
+	
+	function _searchMap(){
+		var local = new BMap.LocalSearch(_map, {
+			renderOptions:{map: _map}
+		});
+		var keyword = jQuery("#_mapMarkerSearchbox").val();
+		if(keyword!=null || keyword != ''){
+			local.search(keyword);
+			local.setSearchCompleteCallback(function(result){
+				jQuery("#_mapResultPanel").empty();
+				for(var i=0;i<result.getCurrentNumPois();i++){
+				   	var searchpoi = result.getPoi(i);
+				   	var line = "<p>";
+				   	line += "<span class='lineTitle'><img src='./img/marker.png'/>"+searchpoi.title+"<label>"+searchpoi.address+"</label></span>";
+				   	line += "<label class='lineLink' onclick='_iamHere("+searchpoi.point.lng+","+searchpoi.point.lat+")'>我就在这</label>";
+				   	line += "</p>";
+				   	jQuery("#_mapResultPanel").append(line);
+				}
+				jQuery("#_mapSearchResult").show();
+		  	});
+		}
+	}
+	</script>
+</body>
+</html>

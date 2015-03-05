@@ -1,0 +1,12 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<form action="$admin.setTarget('login')" method="post" id="logout_form">
+	$csrfToken.hiddenField
+	<input type="hidden" name="action" value="loginAction"/>  
+	<input type="hidden" name="event_submit_do_logout" value="true"/>
+	<a class="auxiliary-text" id="logoutLink" href="#">注销</a>
+</form>
+<script type="text/javascript">
+	jQuery('#logoutLink').click(function(){
+		jQuery("#logout_form").submit();
+	});
+</script>

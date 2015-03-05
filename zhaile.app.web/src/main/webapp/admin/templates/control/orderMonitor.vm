@@ -1,0 +1,99 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<div id="embed">
+</div>
+<div id="monitoringMenu">
+</div>
+<script type="text/javascript">
+	var blinkTimer;
+
+	function getMonitoringMsg(){
+		var timestamp = currentTime();
+		jQuery.ajax({
+			type: "get",
+			url: "$admin.setTarget('/json/orderAlert.json')?timestamp="+timestamp,
+			success:function(data, textStatus){
+				var itemList = "<p>更新时间: "+currentTime()+"</p>";
+				itemList += "<p>今日销售("+data.totalNetPay+"元)</p>";
+				itemList += "<p>总外卖费("+data.totalCharge+"元)</p>";							
+				itemList += "<ul>";
+				var blinkRequired = false;
+				var paymentStatusList = data.statusList;
+				#if($!auth.isZhaile)
+				itemList += "<li><a href='$admin.setTarget('comment')?gmtModifyStart="+currentDate()+"&gmtModifyEnd="+currentDate()+ "' " + 
+								"class='auxiliary-text' style='color:blue'>"+
+								"<i class='icon-chevron-right'></i>今日评论("+data.totalComment+"条)</a></li>";
+				itemList += "<li><a href='$admin.setTarget('mapMarker')?status=0" + "' " + 
+								"class='auxiliary-text' style='color:blue'>"+
+								"<i class='icon-chevron-right'></i>标注请求("+data.mapMarkerTaskCount+"个)</a></li>";
+				#end
+				itemList += "<li><i class='icon-chevron-right'></i>有效订单("+data.totalCount+"个)</li>";
+				for(var i=0;i<paymentStatusList.length;i++){
+					var msg = "";
+					if(paymentStatusList[i].success){
+						if(i==0 && paymentStatusList[i].count>0){
+							var embed = "<embed loop=false autostart=true height=0 width=0 src='../wav/new.mp3'";
+							embed += "hidden=\"true\"/>";
+							jQuery("#embed").empty().append(embed);
+						}
+						msg = "<a href='$admin.setTarget('payment')?gmtModifyStart="+currentDate()+"&gmtModifyEnd="+currentDate()+
+								"&status="+paymentStatusList[i].statusCode+"' "+
+								"class='auxiliary-text' style='color:"+paymentStatusList[i].color+"'>"+
+								"<i class='icon-chevron-right'></i>订单"+paymentStatusList[i].statusDesc+"("+paymentStatusList[i].count+"个)</a>";
+					} else {
+						blinkRequired = true;
+						msg = "<i class='icon-remove'></i><label style='color:red'>"+paymentStatusList[i].msg+"</label>";
+					}
+					itemList += "<li>"+msg+"</li>";
+				}
+				itemList += "</ul>";
+				jQuery("#monitoringMenu").empty().append(itemList);
+				blink(blinkRequired);
+			}
+		});
+	}
+	
+	function currentDate(){
+		var d = new Date(),str = '';
+		 str += d.getFullYear()+'-';
+		 str += getTimeStr(d.getMonth() + 1)+'-';
+		 str += getTimeStr(d.getDate());
+		return str;
+	}
+	
+	function currentTime(){
+		var d = new Date(),str = '';
+		 str += d.getFullYear()+'-';
+		 str += getTimeStr(d.getMonth() + 1)+'-';
+		 str += getTimeStr(d.getDate())+' ';
+		 str += getTimeStr(d.getHours())+':'; 
+		 str += getTimeStr(d.getMinutes())+':'; 
+		 str += getTimeStr(d.getSeconds()); 
+		return str;
+	}
+
+	function getTimeStr(t){
+		if(t < 10){
+			return "0"+t;
+		} else {
+			return t;
+		}
+	}
+	
+	function blinkFunc(){
+		jQuery("#monitoringMenu").toggle();
+	}
+	
+	function blink(required){
+		if(required){
+			blinkTimer = setInterval("blinkFunc()",1000);
+		} else {
+			if(blinkTimer!=null){
+				blinkTimer.clearInterval("blinkFunc()");
+				blinkTimer = null;
+			} 
+		}
+	}
+	getMonitoringMsg();
+	
+	setInterval("getMonitoringMsg()",10000);
+</script>

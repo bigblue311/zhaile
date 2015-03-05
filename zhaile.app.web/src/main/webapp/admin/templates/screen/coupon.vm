@@ -1,0 +1,528 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<h1>查询条件</h1>
+<style>
+	.btn{
+		cursor:pointer;
+	}
+</style>
+<div class="doc-content">
+	<form action="$admin.setTarget('coupon.vm')" class="form-horizontal well" id="queryForm">
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">卡券名称：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="couponName" value="$!couponQuery.couponName">
+					<input type="hidden" name="page" id="page" value="$!couponQuery.page">
+					<input type="hidden" name="shopId" id="shopId" value="$!couponQuery.shopId">
+				</div>
+				<label class="control-label">店铺名称：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="keyword" value="$!couponQuery.keyword">
+				</div>
+				<label class="control-label">满就送：</label>
+				<div class="controls">
+					<select name="fullsent">
+						<option selected value="">全部</option>
+						<option 
+							#if($!couponQuery.fullsent)
+								#if($!couponQuery.fullsent!='0')
+									selected
+								#end
+							#end 
+							value="0">是</option>
+						<option 
+							#if($!couponQuery.fullsent)
+								#if($!couponQuery.fullsent=='0')
+									selected
+								#end
+							#end 
+							value="1">否</option>
+					</select>
+				</div>
+				<label class="control-label">可购买：</label>
+				<div class="controls">
+					<select name="sales">
+						<option selected value="">全部</option>
+						<option 
+							#if($!couponQuery.sales)
+								#if($!couponQuery.sales!='0')
+									selected
+								#end
+							#end 
+							value="0">是</option>
+						<option 
+							#if($!couponQuery.sales)
+								#if($!couponQuery.sales=='0')
+									selected
+								#end
+							#end 
+							value="1">否</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">支持找零：</label>
+				<div class="controls">
+					<select name="chargable">
+						<option selected value="">全部</option>
+						<option 
+							#if($!couponQuery.chargable)
+								#if($!couponQuery.chargable=='0')
+									selected
+								#end
+							#end 
+							value="0">支持</option>
+						<option 
+							#if($!couponQuery.chargable)
+								#if($!couponQuery.chargable=='1')
+									selected
+								#end
+							#end 
+							value="1">不支持</option>
+					</select>
+				</div>
+				<label class="control-label">支持充值：</label>
+				<div class="controls">
+					<select name="topupable">
+						<option selected value="">全部</option>
+						<option 
+							#if($!couponQuery.topupable)
+								#if($!couponQuery.topupable=='0')
+									selected
+								#end
+							#end 
+							value="0">支持</option>
+						<option 
+							#if($!couponQuery.topupable)
+								#if($!couponQuery.topupable=='1')
+									selected
+								#end
+							#end 
+							value="1">不支持</option>
+					</select>
+				</div>
+				<label class="control-label">支持退款：</label>
+				<div class="controls">
+					<select name="refundable">
+						<option selected value="">全部</option>
+						<option 
+							#if($!couponQuery.refundable)
+								#if($!couponQuery.refundable=='0')
+									selected
+								#end
+							#end 
+							value="0">支持</option>
+						<option 
+							#if($!couponQuery.refundable)
+								#if($!couponQuery.refundable=='1')
+									selected
+								#end
+							#end 
+							value="1">不支持</option>
+					</select>
+				</div>
+				<label class="control-label">抵外卖费：</label>
+				<div class="controls">
+					<select name="deductable">
+						<option selected value="">全部</option>
+						<option 
+							#if($!couponQuery.deductable)
+								#if($!couponQuery.deductable=='0')
+									selected
+								#end
+							#end 
+							value="0">支持</option>
+						<option 
+							#if($!couponQuery.deductable)
+								#if($!couponQuery.deductable=='1')
+									selected
+								#end
+							#end 
+							value="1">不支持</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-actions offset3">
+				<button class="button button-primary">搜索</button>
+				<button type="reset" class="button">重置</button>
+			</div>
+		</div>
+	</form>
+</div>
+<h1>查询结果&nbsp;&nbsp;<button class="btnCouponAdd button button-info button-small">新增卡券...</button></h1>
+<div id="grid"></div>
+$control.setTemplate("paging.vm")
+<div style="display:none" id="fileUploder">
+<div id="fileploadFrom">
+		<input type="hidden" id="itemPath" value=""/>
+		<input type="hidden" id="itemId" value=""/>
+		<div id="J_Uploader"></div>
+		<div>上传的图片，只能是JPG或者PNG格式的，且注意尺寸<label id="allowedWidth"></label>*<label id="allowedHeight"></label></div>
+		<div id="imgSize">图片尺寸为<label id="imgWidth"></label>*<label id="imgHeight"></label></div>
+		<img src="" id="imgPreview" />
+</div>	
+</div>
+<div style="display:none" id="shopEdit">
+<form id="couponEditForm">
+	<div class="row">
+		<div style="float:right">
+			<img id="imgSrc" src="" style="border:1px solid lightgrey;width:200px;height:128px"><br>
+			<button imgWidth="200" imgHeight="128" imgId="imgSrc" class="btnUpload button button-danger button-small">上传卡券图片...</button>
+		</div>
+        <div>
+          <p>
+            <label>卡券名称：</label><input id="cardName" data-rules="{required:true,max:20}" type="text" style="margin-left:4px;">
+            <select id="enable" class="input-small">
+            	<option value="0">有效</option>
+            	<option value="1">无效</option>
+            </select>
+          </p>
+          <p>
+            <label>店铺编号：</label><input id="shopId" data-rules="{required:true,max:100}" type="text" value="$!couponQuery.shopId" style="margin-left:4px;">
+          </p>
+          <p>
+            <label>卡券面值：</label><input id="amount" data-rules="{required:true,number:true}" type="text" style="margin-left:4px;">元
+          </p>
+          <p>
+            <label>卡券数量：</label><input id="total" data-rules="{required:true,number:true}" type="text" style="margin-left:4px;">张
+          </p>
+          <p>
+            <label>有效日期：</label><input id="validLength" data-rules="{required:true,number:true}" type="text" value="" style="margin-left:4px;">
+            <select id="validUnit" class="input-small">
+            	#foreach($dateUnit in $DateUnitEnum)
+				<option value="$!dateUnit.code">$!dateUnit.desc</option>
+				#end
+            </select>
+          </p>
+          <p>
+            <label>每人限购：</label><input id="limitBuy" data-rules="{required:true,number:true}" type="text" style="width:70px;margin-left:4px;">张
+            <label class="auxiliary-text">每人限购数量，0表示没有限制</label>
+          </p>
+          <p>
+            <label>允许找零：</label>
+            <select id="chargable" class="input-small select">
+            	<option value="0" tip="卡内余额可以累积使用，属于多次消费类型">可以找零</option>
+            	<option value="1" tip="一次性消费完所有金额，不额外找零钱，属于一次性消费">不能找零</option>
+            </select>
+            <label class="auxiliary-text">卡内余额可以累积使用，属于多次消费类型</label>
+          </p>
+          <p>
+            <label>允许充值：</label>
+            <select id="topupable" class="input-small select">
+            	<option value="0" tip="卡内余额可以被充值，重复使用">可以充值</option>
+            	<option value="1" tip="卡内余额不可以被充值，一次性使用">不能充值</option>
+            </select>
+            <label class="auxiliary-text">卡内余额可以被充值，重复使用</label>
+          </p>
+          <p>
+            <label>允许退款：</label>
+            <select id="refundable" class="input-small select">
+            	<option value="0" tip="卡内余额可以被退现金">可以退款</option>
+            	<option value="1" tip="卡内余额不可以被退现金">不能退款</option>
+            </select>
+            <label class="auxiliary-text">卡内余额可以被退现金</label>
+          </p>
+          <p>
+            <label>抵外卖费：</label>
+            <select id="deductable" class="input-normal select">
+            	<option value="0" tip="可以抵用外卖费,每家店扣一次">可抵外卖费</option>
+            	<option value="1" tip="不可抵用外卖费">不可抵外卖费</option>
+            </select>
+            <input id="deductCount" data-rules="{required:true,number:true}" type="text" style="width:20px;margin-left:4px;text-align: center;margin-right: 4px;">次
+            <label class="auxiliary-text">可以抵用外卖费,每家店扣一次</label>
+          </p>
+          <p>
+            <label>满就送卡：</label><input id="fullsent" type="text" value="0" data-rules="{required:true,number:true}" style="width:70px;margin-left:4px;">元
+            <label class="auxiliary-text">满多少金额就送该卡，当值为0时表示不参与满就送</label>
+          </p>
+          <p>
+            <label>购买金额：</label><input id="sales" type="text" value="0" data-rules="{required:true,number:true}" style="width:70px;margin-left:4px;">元
+            <label class="auxiliary-text">可以在网站购买获得，当值为0时表示该卡不能被购买</label>
+          </p>
+          <p>
+            <label>使用规则：</label>
+	          <textarea name="" id="couponDesc" data-rules="{max:500}" class="control-row4 input-large"></textarea>
+	      </p>
+    	</div>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+	BUI.use('bui/form',function(Form){
+	      new Form.Form({
+	        srcNode : '#couponEditForm'
+	      }).render();
+	});
+
+	BUI.use('bui/uploader',function (Uploader) {
+    
+    var uploader = new Uploader.Uploader({
+        render: '#J_Uploader',
+        url: '$admin.setTarget('/upload/fileUpload.json')',
+        isSuccess: function(result){
+        	if(result.success){
+        		var url = result.dataObject;
+				jQuery("#imgPreview").attr("src",url);
+				jQuery("#imgPreview").load(function(){
+	          			var allowedWidth = jQuery("#allowedWidth").text();
+	          			var allowedHeight = jQuery("#allowedHeight").text();
+	          		
+	          			var width = jQuery("#imgPreview").width();
+	          			var height = jQuery("#imgPreview").height();
+	          		
+	          			jQuery("#imgWidth").empty().append(width);
+	          			jQuery("#imgHeight").empty().append(height);
+	          		
+	          			if(allowedWidth!=width || allowedHeight!=height){
+	          				alert('图片的尺寸不符合要求!');
+	          				return false;
+	          			} else {
+	          				jQuery("#itemPath").val(url);
+	          				return true;
+	          			}
+				});
+        	} else {
+        		alert(result.message);
+        		return false;
+        	}
+        }
+      }).render();
+    });
+	
+	function validateFrom(){
+   	 	var errorCount = jQuery.find('.x-field-error').length;
+   	 	return errorCount == 0;
+    }
+	
+	jQuery(document).ready(function(){
+		var Overlay = BUI.Overlay;
+	    
+		var couponDialog = new Overlay.Dialog({
+	        title:'新建卡券',
+	        width:600,
+	        height:600,
+	        contentId:'couponEditForm',
+	        success:function () {
+	       	if(validateFrom()){
+	       		couponCallback();
+	        }}
+	   });
+		
+		var uploadDialog = new Overlay.Dialog({
+	        title:'文件上传',
+	        width:600,
+	        height:600,
+	        contentId:'fileploadFrom',
+	        success:function () {
+	        	var imgId = jQuery("#itemId").val();
+	        	var imgPath = jQuery("#itemPath").val();
+	        	jQuery("#"+imgId).attr("src",imgPath);
+	        	uploadDialog.close();
+	        }
+	   });
+		
+	   jQuery(".select").change(function(){
+		   var label = jQuery(this).parent().find(".auxiliary-text");
+		   label.empty().append($(this).children('option:selected').attr('tip')); 
+	   });
+		
+	   jQuery(".btnCouponAdd").click(function(){
+		   	couponDialog.show();
+	   });
+		
+		jQuery(".btnUpload").click(function(){
+		   	var imgWidth = jQuery(this).attr("imgWidth");
+		   	var imgHeight = jQuery(this).attr("imgHeight");
+		   	var imgId = jQuery(this).attr("imgId");
+		   	
+		   	jQuery("#allowedWidth").empty().append(imgWidth);
+		   	jQuery("#allowedHeight").empty().append(imgHeight);
+		   	if(imgId!=""){
+		   		jQuery("#itemId").val(imgId);
+		   	}
+		   	
+		   	uploadDialog.show();
+	    });
+		
+		function couponCallback(){
+			var name = jQuery(".bui-stdmod-body #cardName").val();
+			var enable = jQuery(".bui-stdmod-body #enable").val();
+	  	 	var validLength = jQuery(".bui-stdmod-body #validLength").val();
+	  	 	var validUnit = jQuery(".bui-stdmod-body #validUnit").val();
+	  	 	var shopId = jQuery(".bui-stdmod-body #shopId").val();
+	  	 	var amount = jQuery(".bui-stdmod-body #amount").val();
+	  	 	var total = jQuery(".bui-stdmod-body #total").val();
+	  	 	var limitBuy = jQuery(".bui-stdmod-body #limitBuy").val();
+	  	 	var chargable = jQuery(".bui-stdmod-body #chargable").val();
+	  	 	var topupable = jQuery(".bui-stdmod-body #topupable").val();
+	  	 	var refundable = jQuery(".bui-stdmod-body #refundable").val();
+	  	 	var deductable = jQuery(".bui-stdmod-body #deductable").val();
+	  	 	var deductCount = jQuery(".bui-stdmod-body #deductCount").val();
+	  	 	var fullsent = jQuery(".bui-stdmod-body #fullsent").val();
+	  	 	var sales = jQuery(".bui-stdmod-body #sales").val();
+	  	 	var imgSrc = jQuery(".bui-stdmod-body #imgSrc").attr("src");
+	  	 	var couponDesc = jQuery(".bui-stdmod-body #couponDesc").val();
+	    	 
+	 	   	var timestamp = currentTime();
+	 	    var para = "?timestamp="+timestamp;
+	 	    para += "&name="+encodeURIComponent(name);
+	 	   	para += "&enable="+enable;
+	 	    para += "&validLength="+validLength;
+	 	    para += "&validUnit="+validUnit;
+	 	    para += "&shopId="+shopId;
+	 	    para += "&amount="+amount;
+	 	    para += "&total="+total;
+	 	    para += "&limitBuy="+limitBuy;
+	 	    para += "&chargable="+chargable;
+	 	    para += "&topupable="+topupable;
+	 	    para += "&refundable="+refundable;
+	 	    para += "&deductable="+deductable;
+	 	    para += "&deductCount="+deductCount;
+	 	    para += "&fullsent="+fullsent;
+	 	    para += "&sales="+sales;
+	 	   	para += "&couponDesc="+couponDesc;
+	 	    para += "&imgSrc="+imgSrc;
+
+	 	    jQuery.ajax({
+	 			type: "get",
+	 			url: '$admin.setTarget('/json/createCouponMeta.json')'+ para,
+	 			success:function(data, textStatus){
+	 				couponDialog.close();
+				   	jQuery("#queryForm").submit();
+	 			}
+	 		});
+	    }
+	});
+	
+	jQuery(".del").click(function(){
+		BUI.Message.Alert('所有发的该卡都会被删除,确定要删除吗?',function() {
+            var id = jQuery(this).attr("couponId");
+            jQuery.ajax({
+	 			type: "get",
+	 			url: '$admin.setTarget('/json/deleteCouponMeta.json')?id='+ id,
+	 			success:function(data, textStatus){
+				   	jQuery("#queryForm").submit();
+	 			}
+	 		});
+          },'question');
+	});
+
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      columns = [
+		{
+		   title : '序号',
+		   dataIndex : 'displayid',
+		   renderer : function(val,obj,index) {
+			return index+1;
+		   },
+	       width:'10%'
+		},{
+            title : '图片',
+            elCls: 'left',
+            dataIndex :'imgSrc',
+            renderer : function(val,obj,index) {
+				var html = "";
+				if(obj!=null){
+					var imgSrc = obj.imgSrc;
+					html += "<img src='"+imgSrc+"' eventId='"+obj.id+"' style='width:200px;height:128px'/>";
+				}
+				return html;
+		    },
+            width:'25%'
+        },{
+          title : '卡券编号',
+          elCls: 'left',
+          dataIndex :'id',
+          width:'15%'
+        },{
+          title : '名称',
+          elCls: 'left',
+          dataIndex :'name',
+          width:'10%'
+        },{
+          title : '有效时间',
+          elCls: 'left',
+          dataIndex :'valid',
+          renderer:function(val,obj,index) {
+				var html = "";
+				if(obj!=null){
+					var validLength = obj.validLength;
+					var validUnit = obj.validUnit;
+					#foreach($dateUnit in $DateUnitEnum)
+						if(validUnit == '$dateUnit.code'){
+							html += validLength+"$dateUnit.desc";
+						}
+					#end
+				}
+				return html;
+		  },
+          width:'15%'
+        },{
+            title : '状态',
+            elCls: 'left',
+            dataIndex : 'enable',
+            renderer:function(val,obj,index) {
+				var html = "";
+				if(obj!=null){
+					var enable = obj.enable;
+					var locked = obj.locked;
+					if(enable == '0') {
+						html += "<label style='color:green'>有效</label>";
+					} else {
+						html += "<label style='color:red'>无效</label>";
+					}
+				}
+				return html;
+		    },
+            width:'15%'
+       	},{
+			title : '操作',
+			elCls: 'center',
+			dataIndex : 'oper',
+			renderer : function(val,obj,index) {
+				return '<a href="$admin.setTarget("couponDetail")?id='+obj.id+'">详情</a> <a class="btn del" couponId="'+obj.id+'">删除</a>';
+			},
+			width: '20%'
+		}],
+		data = #if($!{couponList})#noescape()$!{couponList}#end#else null #end;
+
+      var store = new Store({
+        data : data,
+      }),
+      cascade = new Grid.Plugins.Cascade({
+		    renderer : function(record){
+		    	var chargable = record.chargable == '0'?'支持找零':'不支持找零';
+		    	var topupable = record.topupable == '0'?'支持充值':'不支持充值';
+		    	var refundable = record.refundable == '0'?'支持退款':'不支持退款';
+		    	var deductable = record.deductable == '0'?'支持抵外卖费':'不支持抵外卖费';
+		    	deductable = deductable + record.deductCount + '次';
+		    	var fullsent = record.fullsent == '0'?'不支持满就送':'满'+record.fullsent+'就送';
+		    	var sales = record.sales=='0'?'不支持购买':'购买金额为'+record.sales;
+		    	var amount = '面值为'+record.amount+'元';
+		    	var limitBuy = record.limitBuy=='0'?'不限获得':'每人限获得'+record.limitBuy+'张';
+		    	var total = '共计'+record.total+'张';
+		    	var couponDesc = record.couponDesc;
+		    	var result = '<div><p>&nbsp;' + chargable + '</p>';
+		    	result    += '<p>&nbsp;'+topupable+'</p><p>&nbsp;'+refundable+'</p><p>&nbsp;'+deductable+'</p>';
+		    	result    += '<p>&nbsp;'+fullsent+'</p><p>&nbsp;'+sales+'</p><p>&nbsp;'+amount+'</p>';
+		    	result    += '<p>&nbsp;'+limitBuy+'</p><p>&nbsp;'+total+'</p><p>&nbsp;'+couponDesc+'</p></div>';
+		    	return result;
+		    }
+	  }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store,
+        plugins : [cascade]
+      });
+
+    grid.render();    
+</script>

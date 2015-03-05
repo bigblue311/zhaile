@@ -1,0 +1,83 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<div class="doc-content">
+	<form action="$admin.setTarget('searchLog.vm')" class="form-horizontal well" id="queryForm">
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">客户ID：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="customerId" value="$!searchLogQuery.customerId">
+					<input type="hidden" name="page" id="page" value="$!searchLogQuery.page">
+				</div>
+				<label class="control-label">关键字：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="keyword" value="$!searchLogQuery.keyword">
+				</div>
+				<label class="control-label">搜索时间：</label>
+				<div class="controls">
+					<input type="text" class="calendar" name="gmtModifyStart" id="gmtModifyStart" value="$!searchLogQuery.gmtModifyStart">
+					至
+					<input type="text" class="calendar" name="gmtModifyEnd" id="gmtModifyEnd" value="$!searchLogQuery.gmtModifyEnd">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-actions offset3">
+				<button class="button button-primary">搜索</button>
+				<button type="reset" class="button">重置</button>
+			</div>
+		</div>
+	</form>
+</div>
+<h1>搜索统计</h1>
+<div id="grid"></div>
+$control.setTemplate("paging.vm")
+<script type="text/javascript">
+		var Calendar = BUI.Calendar;
+		
+		var gmtModifyStart = new Calendar.DatePicker({
+		  trigger:'#gmtModifyStart',
+		  selectedDate : new Date(),
+		  autoRender : true
+		});
+		
+		var gmtModifyEnd = new Calendar.DatePicker({
+			  trigger:'#gmtModifyEnd',
+			  selectedDate : new Date(),
+			  autoRender : true
+		});
+
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      columns = [
+		{
+			title : '序号',
+			renderer : function(val,obj,index) {
+				return index+1;
+			}
+		},{
+          title : '关键词',
+          elCls: 'left',
+          dataIndex :'keyword',
+          width: 300
+        },{
+          title : '点击次数',
+          elCls: 'left',
+          dataIndex :'clickCount',
+          width: 200
+        }],
+        data = #if($!{logSearchList})#noescape()$!{logSearchList}#end#else null #end;
+
+      var store = new Store({
+        data : data
+      }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store
+      });
+
+    grid.render();
+</script>

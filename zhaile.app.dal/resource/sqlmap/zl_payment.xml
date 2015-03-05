@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="PaymentDO">
+
+  <typeAlias alias="Payment" type="com.zhaile.dal.model.PaymentDO"/>
+
+  <resultMap id="RM" class="Payment">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="netpay" column="netpay"/>
+    <result property="charge" column="charge"/>
+    <result property="serviceType" column="service_type"/>
+    <result property="status" column="status"/>
+    <result property="received" column="received"/>
+    <result property="comment" column="comment"/>
+    <result property="contact" column="contact"/>
+    <result property="employeeId" column="employee_id"/>
+    <result property="source" column="source"/>
+    <result property="smsStatus" column="sms_status"/>
+    <result property="smsMobile" column="sms_mobile"/>
+    <result property="mapAdd" column="map_add"/>
+    <result property="lng" column="lng"/>
+    <result property="lat" column="lat"/>
+    <result property="ip" column="ip"/>
+    <result property="paymentType" column="payment_type"/>
+    <result property="paymentStatus" column="payment_status"/>
+    <result property="paymentCode" column="payment_code"/>
+    <result property="paymentResp" column="payment_resp"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_transaction_payment where id = #id#  
+  </select>
+  
+  <select id="getByIds" resultMap="RM">
+    select * from zl_transaction_payment where id in
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </select>
+   
+  <insert id="insert" parameterClass="Payment">
+    <![CDATA[
+    insert into zl_transaction_payment (
+      gmt_create,
+      gmt_modify,
+      customer_id,
+      netpay,
+      charge,
+      service_type,
+      status,
+      received,
+      comment,
+      contact,
+      employee_id,
+      source,
+      sms_status,
+      sms_mobile,
+      map_add,
+      lng,
+      lat,
+      ip,
+      payment_type,
+      payment_status,
+      payment_code,
+      payment_resp
+    ) values (
+      now(), now(), #customerId#, #netpay#, #charge#, #serviceType#, #status#, 
+      #received#, #comment#, #contact#, #employeeId#, #source#, '0', #smsMobile#, 
+      #mapAdd#, #lng#, #lat#, #ip#, #paymentType#, #paymentStatus#, #paymentCode#, #paymentResp#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <update id="update" parameterClass="Payment">
+    update zl_transaction_payment set 
+    <dynamic>
+      <isNotEmpty property="customerId">  
+         <![CDATA[
+           customer_id = #customerId#,
+         ]]>
+      </isNotEmpty>
+      <isNotEmpty property="netpay">  
+         <![CDATA[
+           netpay = #netpay#,
+         ]]>
+      </isNotEmpty>   
+      <isNotEmpty property="charge">  
+         <![CDATA[
+           charge = #charge#,
+         ]]>
+      </isNotEmpty> 
+      <isNotEmpty property="serviceType">  
+         <![CDATA[
+           service_type = #serviceType#,
+         ]]>
+      </isNotEmpty>
+      <isNotEmpty property="status">  
+         <![CDATA[
+           status = #status#,
+         ]]>
+      </isNotEmpty>  
+      <isNotEmpty property="received">  
+         <![CDATA[
+           received = #received#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="comment">  
+         <![CDATA[
+           comment = #comment#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="contact">  
+         <![CDATA[
+           contact = #contact#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="employeeId">  
+         <![CDATA[
+           employee_id = #employeeId#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="source">  
+         <![CDATA[
+           source = #source#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="smsStatus">  
+         <![CDATA[
+           sms_status = #smsStatus#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="smsMobile">  
+         <![CDATA[
+           sms_mobile = #smsMobile#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="mapAdd">  
+         <![CDATA[
+           map_add = #mapAdd#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="lng">  
+         <![CDATA[
+           lng = #lng#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="lat">  
+         <![CDATA[
+           lat = #lat#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="paymentStatus">  
+         <![CDATA[
+           payment_status = #paymentStatus#,
+         ]]> 
+      </isNotEmpty>
+       <isNotEmpty property="paymentCode">  
+         <![CDATA[
+           payment_code = #paymentCode#,
+         ]]> 
+      </isNotEmpty>
+       <isNotEmpty property="paymentResp">  
+         <![CDATA[
+           payment_resp = #paymentResp#,
+         ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#  
+  </update>
+  
+  <update id="expireSms" >
+  	<![CDATA[
+  	update zl_transaction_payment set sms_status = '4' where (sms_status in ('0','1') or sms_status is null) and date_add(gmt_create,interval 1 hour) < now();
+  	]]>
+  </update>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+  		<isNotNull property="id" prepend="and">
+        	<![CDATA[
+        	id = #id#
+        	]]> 
+	    </isNotNull>
+		<isNotNull property="customerId" prepend="and">
+        	<![CDATA[
+        	customer_id = #customerId#
+        	]]> 
+	    </isNotNull>
+	    <isNotNull property="customerName" prepend="and">
+        	<![CDATA[
+        	customer_id in (select c.id from (select id from zl_customer where name like 
+        		concat('%',#customerName#,'%')
+        	) as c)
+        	]]> 
+	    </isNotNull>
+	    <isNotNull property="shopName" prepend="and">
+        	<![CDATA[
+        	id in (
+        		select payment_id from zl_transaction_order where prod_id in (
+				select id from zl_shop_product where enable = '0' and shop_id in (
+				select shop.id from (select id from zl_shop where enable = '0' and name like concat('%',#shopName#,'%')) as shop
+				))
+        	)
+        	]]> 
+	    </isNotNull>
+	    <isNotNull property="shopId" prepend="and">
+        	id in (
+        		select payment_id from zl_transaction_order where prod_id in (
+				select id from zl_shop_product where enable = '0' and shop_id in (
+				<iterate open="(" close=")" conjunction="," property="shopId"> 
+		    		#shopId[]#
+		    	</iterate>
+				))
+        	)
+	    </isNotNull>
+	    <isNotNull property="prodName" prepend="and">
+        	<![CDATA[
+        	id in (
+        		select payment_id from zl_transaction_order where prod_id in (
+				select product.id from (select id from zl_shop_product where enable = '0' and name like concat('%',#prodName#,'%')) as product
+				)
+        	)
+        	]]> 
+	    </isNotNull>
+	    <isNotEmpty property="status" prepend="and">
+        	status in 
+        	<iterate open="(" close=")" conjunction="," property="status"> 
+		    	#status[]#
+		    </iterate>
+	    </isNotEmpty>
+	    <isNotEmpty property="employeeId" prepend="and">
+        	employee_id = #employeeId#
+	    </isNotEmpty>
+	    <isNotEmpty property="source" prepend="and">
+        	source = #source#
+	    </isNotEmpty>
+	    <isNotEmpty property="smsStatus" prepend="and">
+        	sms_status = #smsStatus#
+	    </isNotEmpty>
+	    <isNotEmpty property="smsMobile" prepend="and">
+        	sms_mobile = #smsMobile#
+	    </isNotEmpty>
+	    <isNotEmpty property="paymentType" prepend="and">
+        	payment_type = #paymentType#
+	    </isNotEmpty>
+	    <isNotEmpty property="paymentStatus" prepend="and">
+        	payment_status = #paymentStatus#
+	    </isNotEmpty>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="customerId">
+  	<isNull property="customerName">
+  	<isNull property="prodName">
+  	<isNull property="shopName">
+  	<isEmpty property="status">
+  	<isNull property="id">
+  	<isNull property="employeeId">
+  	<isEmpty property="shopId">
+  	<isNull property="source">
+  	<isNull property="smsStatus">
+  	<isNull property="smsMobile">
+  	<isNull property="paymentType">
+  	<isNull property="paymentStatus">
+        <include refid="Common.validModify" />
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isEmpty>
+    </isNull>
+    </isNull>
+    </isEmpty>
+    </isNull>
+    </isNull>
+    </isNull>
+	</isNull>
+  </sql>
+  
+  <select id="getTotalNetpay" parameterClass="java.util.HashMap" resultClass="java.lang.Double">
+    select sum(netpay) from zl_transaction_payment 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getTotalCharge" parameterClass="java.util.HashMap" resultClass="java.lang.Double">
+    select sum(charge) from zl_transaction_payment 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_transaction_payment 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_transaction_payment
+	<include refid="where" />
+  </select>
+</sqlMap>

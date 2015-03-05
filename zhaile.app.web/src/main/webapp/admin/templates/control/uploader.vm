@@ -1,0 +1,79 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<div style="display:none" id="fileUploder">
+	<div id="fileploadFrom">
+			<input type="hidden" id="itemPath" value=""/>
+			<input type="hidden" id="itemId" value=""/>
+			<div id="J_Uploader"></div>
+			<div>上传的图片，只能是JPG或者PNG格式的，且注意尺寸<label id="allowedWidth"></label>*<label id="allowedHeight"></label></div>
+			<div id="imgSize">图片尺寸为<label id="imgWidth"></label>*<label id="imgHeight"></label></div>
+			<img src="" id="imgPreview" />
+	</div>	
+</div>
+<script>
+jQuery(document).ready(function(){
+    jQuery(".btnUpload").click(function(){
+	   	var imgWidth = jQuery(this).attr("imgWidth");
+	   	var imgHeight = jQuery(this).attr("imgHeight");
+	   	var imgId = jQuery(this).attr("imgId");
+	   	
+	   	jQuery("#allowedWidth").empty().append(imgWidth);
+	   	jQuery("#allowedHeight").empty().append(imgHeight);
+	   	if(imgId!=""){
+	   		jQuery("#itemId").val(imgId);
+	   	}
+	   	uploadDialog.show();
+    });
+    
+    var Overlay = BUI.Overlay;
+    var uploadDialog = new Overlay.Dialog({
+        title:'文件上传',
+        width:1000,
+        height:600,
+        contentId:'fileploadFrom',
+        success:function () {
+        	var imgId = jQuery("#itemId").val();
+        	var imgPath = jQuery("#itemPath").val();
+        	jQuery("#"+imgId).attr("src",imgPath);
+        	uploadDialog.close();
+        }
+	});
+});
+
+BUI.use('bui/uploader',function (Uploader) {
+	var uploader = new Uploader.Uploader({
+        render: "#J_Uploader",
+        url: "$admin.setTarget('/upload/fileUpload.json')",
+        isSuccess: function(result){
+        	if(result.success){
+        		var url = result.dataObject;
+				jQuery("#imgPreview").attr("src",url);
+				jQuery("#imgPreview").load(function(){
+	          			var allowedWidth = jQuery("#allowedWidth").text();
+	          			var allowedHeight = jQuery("#allowedHeight").text();
+	          		
+	          			var width = jQuery("#imgPreview").width();
+	          			var height = jQuery("#imgPreview").height();
+	          		
+	          			jQuery("#imgWidth").empty().append(width);
+	          			jQuery("#imgHeight").empty().append(height);
+	          			
+	          			var previewWidth = 200;
+	          			var previewHeight = (200 / width) * height;
+	          			if(allowedWidth!=width || allowedHeight!=height){
+	          				jQuery('#imgPreview').css({"height":previewHeight,"width":previewWidth});
+	          				alert('图片的尺寸不符合要求!');
+	          				return false;
+	          			} else {
+	          				jQuery('#imgPreview').css({"height":previewHeight,"width":previewWidth});
+	          				jQuery("#itemPath").val(url);
+	          				return true;
+	          			}
+				});
+        	} else {
+        		alert(result.message);
+        		return false;
+        	}
+        }
+      }).render();
+});
+</script>

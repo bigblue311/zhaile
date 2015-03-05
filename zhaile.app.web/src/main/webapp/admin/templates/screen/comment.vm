@@ -1,0 +1,117 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<h1>查询条件</h1>
+<div class="doc-content">
+	<form action="$admin.setTarget('comment')" class="form-horizontal well">
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">评论时间：</label>
+				<div class="controls">
+					<input type="text" class="calendar" name="gmtModifyStart" id="gmtModifyStart" value="$!commentQueryFormBean.gmtModifyStart">
+					至
+					<input type="text" class="calendar" name="gmtModifyEnd" id="gmtModifyEnd" value="$!commentQueryFormBean.gmtModifyEnd">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-actions offset3">
+				<button class="button button-primary">搜索</button>
+				<button type="reset" class="button">重置</button>
+			</div>
+		</div>
+	</form>
+</div>
+<h1>查询结果</h1>
+<div id="grid"></div>
+<script type="text/javascript">
+		var Calendar = BUI.Calendar;
+		
+		var gmtModifyStart = new Calendar.DatePicker({
+		  trigger:'#gmtModifyStart',
+		  selectedDate : new Date(),
+		  autoRender : true
+		});
+		
+		var gmtModifyEnd = new Calendar.DatePicker({
+			  trigger:'#gmtModifyEnd',
+			  selectedDate : new Date(),
+			  autoRender : true
+		});
+
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      columns = [
+		{
+			title : '序号',
+			dataIndex : 'id',
+			renderer : function(val,obj,index) {
+				return index+1;
+			},
+	        width:'2%'
+		},{
+          title : '评论时间',
+          elCls: 'left',
+          dataIndex :'gmtModify',
+          renderer:BUI.Grid.Format.datetimeRenderer,
+          width:'13%'
+        },{
+          title : '用户名称',
+          elCls: 'left',
+          dataIndex :'customer',
+	  renderer : function(val,obj,index) {
+		var customer = "";
+		if(obj.customerId!=null) {
+			customer  += "<a href='$admin.setTarget('customerDetail')?id="+obj.customerId+"'>"+obj.customerName+"</a>";
+		} else {
+			customer  += obj.customerName;
+		}
+		if(obj.customerMobile!=null) {
+			customer  += "("+obj.customerMobile+")";
+		}
+		return customer;
+	  },
+          width:'20%'
+        },{
+          title : '店铺名称',
+          elCls: 'left',
+          dataIndex : 'shop',
+	  renderer : function(val,obj,index) {
+		var shop = "";
+		if(obj.shopId!=null) {
+			shop += "<a href='$admin.setTarget('shopDetail')?id="+obj.shopId+"'>"+ obj.shopName +"</a>";
+		} else {
+			shop += obj.shopName;
+		}
+		if(obj.star != null) {
+			shop += "("+obj.star+")";
+		}
+		return shop;
+	  },
+          width:'15%'
+     	},{
+            title : '评论',
+            elCls: 'left',
+            dataIndex :'comment',
+            width:'50%'
+        }],
+	data = #if($!{commentList})#noescape()$!{commentList}#end#else null #end;
+
+      var store = new Store({
+        data : data
+      }),
+      cascade = new Grid.Plugins.Cascade({
+		    renderer : function(record){
+		    	return '<div><p>&nbsp;客户评论：' + record.comment + '</p><p>&nbsp;联系方式: </p>'+record.contact+'</div>';
+		    }
+	  }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store,
+        plugins : [cascade]
+      });
+
+      grid.render();
+</script>

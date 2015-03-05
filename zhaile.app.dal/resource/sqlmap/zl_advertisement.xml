@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="AdvertisementDO">
+
+  <typeAlias alias="Advertisement" type="com.zhaile.dal.model.AdvertisementDO"/>
+
+  <resultMap id="RM" class="Advertisement">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="content" column="content"/>
+    <result property="link" column="link"/>
+    <result property="validFrom" column="valid_from"/>
+    <result property="validTo" column="valid_to"/>
+    <result property="gmtOpen" column="gmt_open"/>
+    <result property="gmtClose" column="gmt_close"/>
+    <result property="type" column="type"/>
+    <result property="position" column="position"/>
+    <result property="imgSrc" column="img_src"/>
+    <result property="clickCount" column="click_count"/>
+  </resultMap>
+
+  <select id="getAll" resultMap="RM">
+    select * from zl_system_ad  
+  </select>
+  
+  <update id="click" parameterClass="Advertisement">
+    <![CDATA[
+    update zl_system_ad set click_count = click_count + 1 where id = #id#
+    ]]>
+  </update>
+  
+  <update id="update" parameterClass="Advertisement">
+    update zl_system_ad set 
+    <dynamic>
+      	content = #content#,
+      <isNotEmpty property="link">  
+         <![CDATA[   
+           link = #link#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="type">  
+         <![CDATA[   
+           type = #type#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="position">  
+         <![CDATA[   
+           position = #position#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="imgSrc">  
+         <![CDATA[   
+           img_src = #imgSrc#,
+         ]]> 
+      </isNotEmpty>
+    </dynamic>
+    	gmt_modify = now()
+    where
+      id = #id#
+  </update>
+</sqlMap>

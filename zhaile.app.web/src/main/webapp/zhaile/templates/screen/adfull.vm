@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="app">
+<head>
+	<meta charset="utf-8" />
+	#set ($adCache = $cacheTools.getAdvertisementcache())
+	<title>宅乐网</title>
+	<link rel="icon" href="img/favicon.ico" mce_href="img/favicon.ico" type="image/x-icon"/>
+	<link rel="shortcut icon" href="img/favicon.ico" mce_href="img/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+	<link rel="stylesheet" href="http://www.fyzhaile.com/styles/jquery.fullPage.css">
+	<style>
+		.section { text-align: center; font: 50px "Microsoft Yahei"; color: #fff;height:100%;background-size:contain;}
+		#if($adCache.getAd(77).link == 1)
+			.section1 img { position: relative; left: -120%;}
+		#elseif($adCache.getAd(77).link == 2)
+			.section1 img { position: relative; right: -120%;}
+		#elseif($adCache.getAd(77).link == 3)
+			.section1 img { display: none;}
+			.section1 img { position: relative; top: -120%;}
+		#elseif($adCache.getAd(77).link == 4)
+			.section1 img { position: relative; bottom: -120%;}
+		#elseif($adCache.getAd(77).link == 5)
+			.section1 img { display: none;}
+		#end
+		
+		#if($adCache.getAd(78).link == 1)
+			.section2 img { position: relative; left: -120%;}
+		#elseif($adCache.getAd(78).link == 2)
+			.section2 img { position: relative; right: -120%;}
+		#elseif($adCache.getAd(78).link == 3)
+			.section2 img { display: none;}
+			.section2 img { position: relative; top: -120%;}
+		#elseif($adCache.getAd(78).link == 4)
+			.section2 img { position: relative; bottom: -120%;}
+		#elseif($adCache.getAd(78).link == 5)
+			.section2 img { display: none;}
+		#end
+		
+		#if($adCache.getAd(79).link == 1)
+			.section3 img { position: relative; left: -120%;}
+		#elseif($adCache.getAd(79).link == 2)
+			.section3 img { position: relative; right: -120%;}
+		#elseif($adCache.getAd(79).link == 3)
+			.section3 img { display: none;}
+			.section3 img { position: relative; top: -120%;}
+		#elseif($adCache.getAd(79).link == 4)
+			.section3 img { position: relative; bottom: -120%;}
+		#elseif($adCache.getAd(79).link == 5)
+			.section3 img { display: none;}
+		#end
+		
+		#if($adCache.getAd(80).link == 1)
+			.section4 img { position: relative; left: -120%;}
+		#elseif($adCache.getAd(80).link == 2)
+			.section4 img { position: relative; right: -120%;}
+		#elseif($adCache.getAd(80).link == 3)
+			.section4 img { display: none;}
+			.section4 img { position: relative; top: -120%;}
+		#elseif($adCache.getAd(80).link == 4)
+			.section4 img { position: relative; bottom: -120%;}
+		#elseif($adCache.getAd(80).link == 5)
+			.section4 img { display: none;}
+		#end
+		
+		#if($adCache.getAd(81).link == 1)
+			.section5 img { position: relative; left: -120%;}
+		#elseif($adCache.getAd(81).link == 2)
+			.section5 img { position: relative; right: -120%;}
+		#elseif($adCache.getAd(81).link == 3)
+			.section5 img { display: none;}
+			.section5 img { position: relative; top: -120%;}
+		#elseif($adCache.getAd(81).link == 4)
+			.section5 img { position: relative; bottom: -120%;}
+		#elseif($adCache.getAd(81).link == 5)
+			.section5 img { display: none;}
+		#end
+		body{padding:0px;margin:0px;}
+		.section img{height:100%;}
+		#fullPage-nav span,.fullPage-slidesNav span{border-color:grey}
+		#fullPage-nav span,.fullPage-tooltip{color:grey}
+		#fullPage-nav li .active span,.fullPage-slidesNav .active span{background:grey}
+	</style>
+	<script src="http://a.tbcdn.cn/s/bui/jquery-1.8.1.min.js"></script>
+	<script src="http://www.fyzhaile.com/javascripts/jquery-ui-1.10.3.min.js"></script>
+	<script src="http://www.fyzhaile.com/javascripts/jquery.fullPage.min.js"></script>
+	<script src="http://www.fyzhaile.com/javascripts/cookie.js"></script>
+	<script>
+		$(document).ready(function() {
+			var myDate=new Date();
+			myDate.setTime(myDate.getTime() + (24 * 60 * 60 * 1000));
+			$.cookie('adfullDisplay', 'true', {expires: myDate});
+			$.fn.fullpage({
+				slidesColor: ['$adCache.getAd(77).type', '$adCache.getAd(78).type', '$adCache.getAd(79).type', '$adCache.getAd(80).type', '$adCache.getAd(81).type','#fff'],
+				anchors: ['page1', 'page2', 'page3', 'page4', 'page5','page6'],
+				navigation: true,
+				navigationPosition: 'right',
+				afterLoad: function(anchorLink, index){
+					if(index == 1){
+						#if($adCache.getAd(77).link == 1)
+							$('.section1').find('img').delay(300).animate({
+								left: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(77).link == 2)
+							$('.section1').find('img').delay(300).animate({
+								right: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(77).link == 3)
+							$('.section1').find('img').fadeIn(300);
+							$('.section1').find('img').delay(300).animate({
+								top: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(77).link == 4)
+							$('.section1').find('img').delay(300).animate({
+								bottom: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(77).link == 5)
+							$('.section1').find('img').fadeIn(2000);
+						#end
+					}
+					if(index == 2){
+						#if($adCache.getAd(78).link == 1)
+							$('.section2').find('img').delay(300).animate({
+								left: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(78).link == 2)
+							$('.section2').find('img').delay(300).animate({
+								right: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(78).link == 3)
+							$('.section2').find('img').fadeIn(300);
+							$('.section2').find('img').delay(300).animate({
+								top: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(78).link == 4)
+							$('.section2').find('img').delay(300).animate({
+								bottom: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(78).link == 5)
+							$('.section2').find('img').fadeIn(2000);
+						#end
+					}
+					if(index == 3){
+						#if($adCache.getAd(79).link == 1)
+							$('.section3').find('img').delay(300).animate({
+								left: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(79).link == 2)
+							$('.section3').find('img').delay(300).animate({
+								right: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(79).link == 3)
+							$('.section3').find('img').fadeIn(300);
+							$('.section3').find('img').delay(300).animate({
+								top: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(79).link == 4)
+							$('.section3').find('img').delay(300).animate({
+								bottom: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(79).link == 5)
+							$('.section3').find('img').fadeIn(2000);
+						#end
+					}
+					if(index == 4){
+						#if($adCache.getAd(80).link == 1)
+							$('.section4').find('img').delay(300).animate({
+								left: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(80).link == 2)
+							$('.section4').find('img').delay(300).animate({
+								right: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(80).link == 3)
+							$('.section4').find('img').fadeIn(300);
+							$('.section4').find('img').delay(300).animate({
+								top: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(80).link == 4)
+							$('.section4').find('img').delay(300).animate({
+								bottom: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(80).link == 5)
+							$('.section4').find('img').fadeIn(2000);
+						#end
+					}
+					if(index == 5){
+						#if($adCache.getAd(81).link == 1)
+							$('.section5').find('img').delay(300).animate({
+								left: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(81).link == 2)
+							$('.section5').find('img').delay(300).animate({
+								right: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(81).link == 3)
+							$('.section5').find('img').fadeIn(300);
+							$('.section5').find('img').delay(300).animate({
+								top: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(81).link == 4)
+							$('.section5').find('img').delay(300).animate({
+								bottom: '0'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(81).link == 5)
+							$('.section5').find('img').fadeIn(2000);
+						#end
+					}
+					if(index == 6){
+						window.location.replace('/');
+					}
+				},
+				onLeave: function(index, direction){
+					if(index == '1'){
+						#if($adCache.getAd(77).link == 1)
+							$('.section1').find('img').delay(300).animate({
+								left: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(77).link == 2)
+							$('.section1').find('img').delay(300).animate({
+								right: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(77).link == 3)
+							$('.section1').find('img').fadeOut(300);	
+							$('.section1').find('img').delay(300).animate({
+								top: '-120%'
+							}, 1500, 'easeOutExpo');
+							
+						#elseif($adCache.getAd(77).link == 4)
+							$('.section1').find('img').delay(300).animate({
+								bottom: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(77).link == 5)
+							$('.section1').find('img').fadeOut(2000);
+						#end
+					}
+					if(index == '2'){
+						#if($adCache.getAd(78).link == 1)
+							$('.section2').find('img').delay(300).animate({
+								left: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(78).link == 2)
+							$('.section2').find('img').delay(300).animate({
+								right: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(78).link == 3)
+							$('.section2').find('img').fadeOut(300);
+							$('.section2').find('img').delay(300).animate({
+								top: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(78).link == 4)
+							$('.section2').find('img').delay(300).animate({
+								bottom: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(78).link == 5)
+							$('.section2').find('img').fadeOut(2000);
+						#end
+					}
+					if(index == '3'){
+						#if($adCache.getAd(79).link == 1)
+							$('.section3').find('img').delay(300).animate({
+								left: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(79).link == 2)
+							$('.section3').find('img').delay(300).animate({
+								right: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(79).link == 3)
+							$('.section3').find('img').fadeOut(300);	
+							$('.section3').find('img').delay(300).animate({
+								top: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(79).link == 4)
+							$('.section3').find('img').delay(300).animate({
+								bottom: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(79).link == 5)
+							$('.section3').find('img').fadeOut(2000);
+						#end
+					}
+					if(index == '4'){
+						#if($adCache.getAd(80).link == 1)
+							$('.section4').find('img').delay(300).animate({
+								left: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(80).link == 2)
+							$('.section4').find('img').delay(300).animate({
+								right: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(80).link == 3)
+							$('.section4').find('img').fadeOut(300);
+							$('.section4').find('img').delay(300).animate({
+								top: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(80).link == 4)
+							$('.section4').find('img').delay(300).animate({
+								bottom: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(80).link == 5)
+							$('.section4').find('img').fadeOut(2000);
+						#end
+					}
+					if(index == '5'){
+						#if($adCache.getAd(81).link == 1)
+							$('.section5').find('img').delay(300).animate({
+								left: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(81).link == 2)
+							$('.section5').find('img').delay(300).animate({
+								right: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(81).link == 3)
+							$('.section5').find('img').fadeOut(300);
+							$('.section5').find('img').delay(300).animate({
+								top: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(81).link == 4)
+							$('.section5').find('img').delay(300).animate({
+								bottom: '-120%'
+							}, 1500, 'easeOutExpo');
+						#elseif($adCache.getAd(81).link == 5)
+							$('.section5').find('img').fadeOut(2000);
+						#end
+					}
+				}
+			});
+		});
+	</script>
+
+</head>
+<body>
+<div class="section section1" style="background:url('$adCache.getAd(77).imgSrc')  no-repeat center;background-size:contain;">
+	#if($adCache.getAd(77).content)
+		<img src="$adCache.getAd(77).content">
+	#end
+</div>
+<div class="section section2" style="background:url('$adCache.getAd(78).imgSrc')  no-repeat center;background-size:contain;">
+	#if($adCache.getAd(78).content)
+		<img src="$adCache.getAd(78).content">
+	#end
+</div>
+<div class="section section3" style="background:url('$adCache.getAd(79).imgSrc')  no-repeat center;background-size:contain;">
+	#if($adCache.getAd(79).content)
+		<img src="$adCache.getAd(79).content">
+	#end
+</div>
+<div class="section section4" style="background:url('$adCache.getAd(80).imgSrc')  no-repeat center;background-size:contain;">
+	#if($adCache.getAd(80).content)
+		<img src="$adCache.getAd(80).content">
+	#end
+</div>
+<div class="section section5" style="background:url('$adCache.getAd(81).imgSrc')  no-repeat center;background-size:contain;">
+	#if($adCache.getAd(81).content)
+		<img src="$adCache.getAd(81).content">
+	#end
+</div>
+<div class="section section6">
+</div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<div class="wp">
+	<ul id="slider" class="slider" style="top: 0px;">
+		#foreach($comment in $commentList)
+		<li style="opacity: 1;">
+			<p class="fl"><img width="60px" src="./img/headimg/default_headImg.jpg" alt=""></p>
+			<p class="comment">
+				#if($!$comment.customer)$comment.customer.name#else游客#end • $dateTools.DateToString($!comment.comment.gmtCreate) ($!comment.comment.star分)
+				<br><label style='font-size:13px;'>$!comment.comment.content</label>
+			</p>
+		</li>
+		#end
+	</ul>
+</div>
+<!-- 
+<div id="paging" class="page"></div>
+<script type="text/javascript">
+$(function(){
+    $("#paging").pagination({
+        items: 100,
+        itemsOnPage: 20,
+		currentPage: 1,
+		formId: 'comment',
+        cssStyle: 'light-theme'
+    });
+});
+</script> -->
+<div class="quiz">
+	#set ($group = $form.comment.defaultInstance)
+	<h3>我要评论</h3>
+	<div class="quiz_content">
+		<form action="" method="post" id="comment" method="post">
+			$csrfToken.hiddenField
+			<input type="hidden" name="pageNumber" value="1"/>
+			<input type="hidden" name="$group.likeLevel.key" value="0"/>
+			<input type="hidden" name="$group.prodId.key" value="$prodId"/>
+			<input type="hidden" name="$group.shopId.key" value="$shopId"/>
+			<input type="hidden" id="starNum" name="$group.star.key" value=""/>
+			<input type="hidden" name="action" value="userAction"/>  
+			<input type="hidden" name="event_submit_do_comment" value="true"/> 
+			<div class="goods-comm">
+				<div class="goods-comm-stars">
+					<span class="star_l comment">满意度：</span>
+					<div id="rate-comm-1" class="rate-comm">
+						<ul class="rater-star" style="background-image: url(./img/comment/stars.jpg); height: 24px; width: 120px;">
+							<li class="rater-star-item-tips" style="width: 120px; z-index: 7;"></li>
+							<li class="rater-star-item-current" style="background-image: url(./img/comment/stars.jpg); height: 24px; width: 0px; z-index: 6;"></li>
+							<li class="rater-star-item" style="height: 24px; width: 24px; z-index: 5; background-image: url(./img/comment/stars.jpg);">
+								<div class="popinfo" style="left: 0px;">
+									<div class="info-box comment">1分&nbsp;很不满意
+										<div>商品样式和质量都非常差，太令人失望了！</div>
+									</div>
+								</div>
+							</li>
+							<li class="rater-star-item" style="height: 24px; width: 48px; z-index: 4; background-image: url(./img/comment/stars.jpg);">
+								<div class="popinfo" style="left: 24px;">
+									<div class="info-box comment">2分&nbsp;不满意
+										<div>商品样式和质量不好，不能满足要求。</div>
+									</div>
+								</div>
+							</li>
+							<li class="rater-star-item" style="height: 24px; width: 72px; z-index: 3; background-image: url(./img/comment/stars.jpg);">
+								<div class="popinfo" style="left: 48px;">
+									<div class="info-box comment">3分&nbsp;一般
+										<div>商品样式和质量感觉一般。</div>
+									</div>
+								</div>
+							</li>
+							<li class="rater-star-item" style="height: 24px; width: 96px; z-index: 2; background-image: url(./img/comment/stars.jpg);">
+								<div class="popinfo" style="left: 72px;">
+									<div class="info-box comment">4分&nbsp;满意
+										<div>商品样式和质量都比较满意，符合我的期望。</div>
+									</div>
+								</div>
+							</li>
+							<li class="rater-star-item" style="height: 24px; width: 120px; z-index: 1; background-image: url(./img/comment/stars.jpg);">
+								<div class="popinfo" style="left: 96px;">
+									<div class="info-box comment">5分&nbsp;非常满意
+										<div>我很喜欢！商品样式和质量都很满意，太棒了！</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="l_text">
+				<label class="m_flo comment">内  容：</label>
+				<textarea maxlength="200" name="$group.content.key" id="" class="text"></textarea>
+				<span class="tr comment">字数限制为1-200个</span>
+			</div>
+			<input type="hidden" name="$group.customerId.key" value="$!loginUser.id"/>
+			<button class="button button-primary" type="submit">提交评论</button>
+		</form>
+	</div><!--quiz_content end-->
+</div><!--quiz end-->

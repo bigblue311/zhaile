@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CustomerFavDO">
+
+  <typeAlias alias="CustomerFav" type="com.zhaile.dal.model.CustomerFavDO"/>
+
+  <resultMap id="RM" class="CustomerFav">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="shopId" column="shop_id"/>
+    <result property="prodId" column="prod_id"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_customer_fav where id = #id#
+  </select>
+  
+  <insert id="insert" parameterClass="CustomerFav">
+    <![CDATA[
+    insert into zl_customer_fav (
+      gmt_create,
+      gmt_modify,
+      customer_id,
+      shop_id,
+      prod_id
+    ) values (
+      now(), now(), #customerId#, #shopId#, #prodId#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="CustomerFav">
+    update zl_customer_fav set 
+    <dynamic>
+      <isNotEmpty property="shopId">  
+      	<![CDATA[
+      		shop_id = #shopId#,
+      	]]>
+      </isNotEmpty>
+      <isNotEmpty property="prodId">  
+      	<![CDATA[
+      		prod_id = #prodId#,
+      	]]>
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_customer_fav where id = #id#
+  </delete>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+		<isNotNull property="customerId" prepend="and">
+        	<![CDATA[
+        	customer_id = #customerId#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="shopId" prepend="and">
+        	<![CDATA[
+        	shop_id = #shopId#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="prodId" prepend="and">
+        	<![CDATA[
+        	prod_id = #prodId#
+        	]]>
+	    </isNotNull>
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="customerId">
+  	<isNull property="shopId">
+  	<isNull property="prodId">
+        @@sql not allowed
+	</isNull>
+	</isNull>
+	</isNull>
+  </sql>
+  
+  <delete id="recycle">
+  	delete from zl_customer_fav where shop_id in 
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </delete>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_customer_fav
+    <include refid="where" />
+  </select>
+</sqlMap>

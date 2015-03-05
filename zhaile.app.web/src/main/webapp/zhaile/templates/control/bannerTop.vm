@@ -1,0 +1,319 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+#set ($categoryCache = $cacheTools.getCategorycache())
+#set ($shopList = $categoryCache.getAllShops())
+#set ($categoryL2List = $categoryCache.getL2())
+<table style="width:1024px;background:white;margin: auto;">
+	<tr>
+		<td valign="bottom" style="width:205px" align="left">
+			<a href="\"><img src = "$adCache.getAd(75).imgSrc" alt="富阳宅乐网LOGO" style="height:60px"/></a>
+		</td>
+		<td style="width:600px;" valign="bottom" align="left">
+			<table>
+				<tr>
+					<td colspan="4">
+					 <br>
+					</td>
+				</tr>
+				<tr>
+					<td id="s1" bgcolor="#EA5414" style="margin-right:0px;padding-right:0px">
+					</td>
+					<td id="shopSelector" bgcolor="#EA5414" style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px">
+						<input type="hidden" id="selectedShop" value="0" name="selectedShop">
+					</td>
+					<td id="cateSelector" bgcolor="#EA5414"  style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px">
+						<input type="hidden" id="selectedCate" value="0" name="selectedCate">
+					</td>
+					<td id="searchBtn" style="cursor:pointer;color:white;padding-right:10px" bgcolor="#EA5414">
+						<b>&nbsp;<i class="icon-search icon-white"></i>&nbsp;搜索</b>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4">
+						我的位置：<img src="./img/marker.png"/><span class="auxiliary-text" id="mapMyAddress"></span>
+						<a href="javascript:showMap()" class="showMap" >[更换坐标]</a>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td valign="middle" align="right" style="display:''">
+			<table>
+				<tr>
+					<td>
+					 <br>
+					</td>
+				</tr>
+				<tr>
+					<td align="right">
+					#if($!loginUser)
+					<a class="auxiliary-text" target="_blank" href="$zhaile.setTarget('my/member')"><img src="img/myzhaile.jpg"/></a>
+					#else
+						#if($cacheTools.getSwitch('QQ_LOGIN_SWITCH'))
+						<!-- <a href="#" onclick="showLogin()" class="auxiliary-text"><img src="img/qqLogin.jpg" alt="腾讯QQ登录"/></a> -->
+						#end
+					#end
+					<a href="$zhaile.setTarget('order')" target="_blank" class="auxiliary-text"><img src="img/shoppingCar.jpg" alt="我的购物车"/></a>
+					</td>
+				</tr>
+				<tr>
+					<td align="right">
+						#if($!loginUser)
+						<label class="auxiliary-text" >欢迎你，$!loginUser.name</label>&nbsp;&nbsp;<a class="auxiliary-text" id="logoutLink" href="#">注销</a>
+						#end
+						&nbsp;
+					</td>
+				</tr>
+			</table>
+		</td>
+		<!-- 
+		<td id="bannerTop_td_myZhaile" style="display:''">
+			<a href="#" class="auxiliary-text"><i class="icon-user"></i>&nbsp;我的宅乐网</a>
+		</td> -->
+		<td id="bannerTop_td_myShoppingCar" valign="middle" align="right" style="display:''">
+			
+		</td>
+	</tr>
+</table>
+<form action="$zhaile.setTarget('index')" method="post" id="logout_form">
+	$csrfToken.hiddenField
+	<input type="hidden" name="action" value="userAction"/>  
+	<input type="hidden" name="event_submit_do_logout" value="true"/>
+</form>
+<style>	
+	#s1 .bui-combox-input{
+		border-top: 1px solid #EA5414;
+		border-left: 1px solid #EA5414;
+		border-bottom: 1px solid #EA5414;
+		border-right:0px;
+		height: 20px;
+	}
+	
+	.bui-list-picker thead{
+		display:none;
+	}
+	
+	.clumn1{
+		width:60%;
+		cursor:pointer;
+	}
+	
+	.clumn2{
+		width:30%;
+		cursor:pointer;
+	}
+	
+	.clumn3{
+		width:10%;
+		color:red;
+		cursor:pointer;
+	}
+	
+	#shopSelector .bui-select{
+		border:0px;
+		padding:0px;
+		margin:0px;
+	}
+	
+	#shopSelector .bui-select-input{
+		border:0px;
+		height: 20px;
+		width:90px;
+	}
+	
+	#cateSelector .bui-select{
+		border:0px;
+		padding:0px;
+		margin:0px;
+	}
+	
+	#cateSelector .bui-select-input{
+		border:0px;
+		height: 20px;
+		width:50px;
+	}
+	
+	.bui-combox{
+		border:0px;
+	}
+	
+	.bui-select-list{
+		height:400px;
+		width:137px;
+	}
+	
+	#shopSelector .bui-select .x-icon{
+		height:22px;
+		width:22px;
+		border:0px;
+		background:white;
+	}
+	
+	#cateSelector .bui-select .x-icon{
+		height:22px;
+		width:22px;
+		border:0px;
+		background:white;
+	}
+</style>
+<script type="text/javascript">
+jQuery(document).ready(function (){
+	var Select = BUI.Select,
+    Picker = BUI.Picker,
+    Grid = BUI.Grid;
+	
+	var columns = [
+	               {dataIndex :'keyword', elCls:'left clumn1'},
+	               {dataIndex :'shopName', elCls:'right auxiliary-text clumn2'},
+	               {dataIndex :'price', elCls:'right clumn3'}
+	             ],
+	
+	grid = new Grid.SimpleGrid({
+	   	 idField : 'keyword', //设置作为key 的字段，放到valueField中
+	     columns : columns,
+	     innerBorder: false,
+	     textGetter: function(item){ //返回选中的文本
+	  	   return item.keyword;
+	     }
+	}),
+	
+	picker = new Picker.ListPicker({
+	    width:500,  //指定宽度
+	    children : [grid] //配置picker内的列表
+	});
+	
+ 	var suggest = new Select.Suggest({
+	    render:'#s1',
+	    name:'suggest',
+	 	width:'300',
+	 	forceFit:false,
+	 	picker : picker,
+	 	listeners : {
+			'keyup' : suggestFunction
+		}
+ 	});
+ 	suggest.render();
+ 	
+ 	function suggestFunction(e){
+ 		if(event.keyCode == 13) {
+ 			searchClick();
+ 			return;
+ 		}
+ 		showSuggest();
+ 	}
+ 	
+ 	var shops = [
+ 	             {text:'所有店铺',value:'0'}
+			#foreach($shop in $shopList)
+				#if($cacheTools.isShopValid($!shop.id))
+				 ,{text:'$shop.name',value:'$!shop.id'}
+				#end
+			#end
+ 	];
+ 	
+ 	var shopSelector = new Select.Select({
+	        render:'#shopSelector',
+	        valueField:'#selectedShop',
+	        width:'120px',
+	        forceFit:false,
+	        items:shops
+	      });
+ 	#if($!shopId)
+ 		jQuery('#selectedShop').val('$shopId');
+ 	#end
+ 	shopSelector.render();
+ 	
+ 	var cates = [
+ 	             {text:'所有分类',value:'0'}
+ 	        #foreach($category in $categoryL2List)
+				 ,{text:'$category.name',value:'$!category.id'}
+			#end
+ 	];
+ 	
+ 	var cateSelector = new Select.Select({
+	        render:'#cateSelector',
+	        valueField:'#selectedCate',
+	        width:'80px',
+	        forceFit:false,
+	        items:cates
+	      });
+ 	#if($!categoryId)
+ 		jQuery('#selectedCate').val('$categoryId');
+ 	#end
+ 	cateSelector.render();
+ 	
+ 	shopSelector.on('change', function(ev){
+ 		var timestamp = currentTime();
+ 		var shopId = ev.item.value;
+ 		if(shopId == '0'){
+ 			shopId = null;
+ 		}
+ 		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/getCategorys.json')?timestamp='+timestamp+'&shopId='+shopId,
+			success:function(data, textStatus){
+				
+				var item = [{text:'所有分类',value:'0'}];
+				for(var i=0;i<data.length;i++) {
+					item.push({text:data[i].name,value:data[i].id});
+				}
+				cateSelector.set('items',item);
+				cateSelector.render();
+			}
+		});
+ 	});
+ 	
+ 	function showSuggest(){
+ 		var timestamp = currentTime();
+ 		var text = jQuery("input[name='suggest']").val();
+ 		var shopId = shopSelector.getSelectedValue();
+ 		if(shopId == '0'){
+ 			shopId = null;
+ 		}
+ 		var cateId = cateSelector.getSelectedValue();
+ 		if(cateId == '0'){
+ 			cateId = null;
+ 		}
+ 		text = encodeURIComponent(text);
+ 		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/keywordAutoComplete.json')?timestamp='+timestamp+'&word='+ text+'&shopId='+shopId+'&categoryId='+cateId,
+			success:function(data, textStatus){
+				grid.set('items',data);
+			}
+		});
+ 	}
+ 	
+ 	
+ 	jQuery('#searchBtn').click(searchClick);
+ 	
+ 	function searchClick(){
+ 		var text = jQuery("input[name='suggest']").val();
+ 		var shopId = shopSelector.getSelectedValue();
+ 		if(shopId == '0'){
+ 			shopId = null;
+ 		}
+ 		var cateId = cateSelector.getSelectedValue();
+ 		if(cateId == '0'){
+ 			cateId = null;
+ 		}
+ 		search(text,shopId,cateId);
+ 	}
+ 	
+ 	jQuery(".showMap").click(function(){
+ 		showMap();
+ 	});
+ 		
+ 	
+ 	#if($!loginUser)
+ 		jQuery('#logoutLink').click(function(){
+ 			if(QC.Login.check()){//如果已登录
+ 				QC.Login.signOut();
+ 			}
+ 			jQuery('#logout_form').submit();
+ 	 	});
+ 	#end
+ 	
+ 	#if($!keyword)
+ 		jQuery("input[name='suggest']").val('$!keyword');
+ 	#end
+});
+</script>

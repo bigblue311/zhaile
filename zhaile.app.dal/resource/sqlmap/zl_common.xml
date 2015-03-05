@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Common">
+	<sql id="orderById">
+		order by id desc
+	</sql>
+	
+	<sql id="orderByModify">
+		order by gmt_modify desc
+	</sql>
+	
+	<sql id="queryModify">
+		<isNotNull property="gmtModifyStart" prepend="and">
+	    	<![CDATA[
+        	gmt_modify >= #gmtModifyStart#
+        	 ]]>
+        </isNotNull>
+        <isNotNull property="gmtModifyEnd" prepend="and">
+	    	<![CDATA[
+        	gmt_modify <= #gmtModifyEnd#
+        	 ]]>
+        </isNotNull>
+	</sql>
+	
+	<sql id="validModify">
+		<isNull property="gmtModifyStart">
+	    <isNull property="gmtModifyEnd">
+	        @@sql not allowed
+		</isNull>
+		</isNull>
+	</sql>
+	
+	<sql id="pageSql">
+		limit #pageSize# offset #start# 
+	</sql>
+</sqlMap>

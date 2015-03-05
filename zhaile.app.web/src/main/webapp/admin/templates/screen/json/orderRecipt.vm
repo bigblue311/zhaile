@@ -1,0 +1,82 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<div style='text-align:center'><h1>宅乐网外卖小票</h1></div>
+<br><br>
+#set ($employeeCache = $cacheTools.getEmployeecache())
+#set ($orderList = $paymentVO.orderList)
+#set ($customer = $paymentVO.customer.customer)
+#set ($payment = $paymentVO.payment)
+#set ($employee = $employeeCache.getEmployee($payment.employeeId))
+#set ($totalPay = ($payment.charge+$payment.netpay))
+#set ($paymentType = $payment.paymentType)
+#set ($paymentCode = $payment.paymentCode)
+#foreach($orderVO in $orderList)
+	#set ($prod = $orderVO.prod.productDO)
+	#set ($shop = $orderVO.prod.shopVO.shopDO)
+	#set ($order = $orderVO.order)
+	#set ($subTotal = ($order.price * $order.quantity))
+	<table style='width:500px;'>
+		<tr>
+			<td style='text-align:left;font-weight:normal;'>
+				${velocityCount}.
+				<a href="$zhaile.setTarget('shop')?id=$shop.id" target="_blank" class="auxiliary-text">$!shop.name</a> 
+				- <a href="$zhaile.setTarget('product')?id=$prod.id" target="_blank" class="auxiliary-text">$!prod.name</a> * $order.quantity
+			</td>
+			<td style='text-align:right;font-weight:normal;'>$subTotal ($order.price * $order.quantity) 元</td>
+		</tr>
+	</table>
+#end
+<table style='width:500px;'>
+	<tr>
+		<td style='text-align:left;font-weight:normal;'>合计</td>
+		<td style='text-align:right;font-weight:normal;'>$payment.netpay 元</td>
+	</tr>
+</table>
+<table style='width:500px;'>
+	<tr>
+		<td style='text-align:left;font-weight:normal;'>外卖服务费</td>
+		<td style='text-align:right;font-weight:normal;'>$payment.charge 元</td>
+	</tr>
+</table>
+<table style='width:500px;'>
+	<tr>
+		<td style='text-align:left;font-weight:normal;'>共计</td>
+		<td style='text-align:right;font-weight:normal;'><b>$totalPay 元</b></td>
+	</tr>
+</table>
+<table style='width:500px;'>
+	<tr>
+		<td style='text-align:left;font-weight:normal;'>支付方式</td>
+		<td style='text-align:right;font-weight:normal;'>
+			<b>
+			#if($paymentType == '0')
+				货到付款
+			#elseif($paymentType == '1')
+				<img src='/img/thridPart/alipay.gif' alt='支付宝' width='68'/>
+			#end
+			</b>
+		</td>
+	</tr>
+</table>
+<br>
+<table style='width:500px;'>
+	<tr>
+		<td style='text-align:left;font-weight:normal;'>
+			联系方式:$payment.contact
+		</td>
+	</tr>
+</table>
+<br>
+<table style='width:500px;'>
+	<tr>
+		<td style='text-align:left;font-weight:normal;'>订餐时间:$dateTools.DateToString($payment.gmtCreate)</td>
+	</tr>
+</table>
+<br>
+<table style='width:500px;'>
+	<tr>
+		<td style='text-align:left;font-weight:normal;'>地图地址:$!payment.mapAdd</td>
+	</tr>
+	<tr>
+		<td style='text-align:left;font-weight:normal;'>备注:$!payment.comment</td>
+	</tr>
+</table>

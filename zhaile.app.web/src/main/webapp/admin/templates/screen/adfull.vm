@@ -1,0 +1,199 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<h1>${title}</h1>
+#set ($adCache = $cacheTools.getAdvertisementcache())
+<div>上次加载时间：$cacheTools.timestamp <a href="$admin.setTarget('adfull.vm')?command=reload">重新加载</a><label class="auxiliary-text">更新后不会立即生效，必须点击重新加载才会生效</label></div>
+<div id="grid"></div>
+#set ($group = $form.systemConfig.defaultInstance)
+<form action="$admin.setTarget('adfull.vm')" method="post" id="update_form">
+	$csrfToken.hiddenField
+	<input type="hidden" name="action" value="updateSystemConfigAction"/>  
+	<input type="hidden" name="event_submit_do_update" value="true"/>
+	<input type="hidden" id="id" name="$group.id.key" value="95"/>
+	<input type="hidden" id="key" name="$group.key.key" value="AD_FULL_SWITCH"/>
+	#set($cacheValue = 'OFF')
+	#if($cacheTools.getSwitch('AD_FULL_SWITCH'))
+		#set($cacheValue = 'OFF')
+	#else
+		#set($cacheValue = 'ON')
+	#end
+	<input type="hidden" id="value" name="$group.value.key" value="$cacheValue"/>
+	<input type="hidden" id="description" name="$group.description.key" value="首页全屏滚动公告 ON/OFF"/>
+</form>
+<div style="display:none" id="focusImg">
+	<div id="focusImgFrom">
+		<div class="row">
+	          <p>
+	        	<img id="imgSrc" src="" style="border:1px solid lightgrey;width:${previewWidth}px;height:${previewHeight}px"><br>
+				<button imgWidth="${allowedWidth}" imgHeight="${allowedHeight}" imgId="imgSrc" class="btnUpload button button-danger button-small">上传背景图片...</button>
+	         	<input type="hidden" id="id" value=""/>
+	            <input type="hidden" id="position" value=""/>
+	          </p>
+	          <p>
+	        	<img id="content" src="" style="border:1px solid lightgrey;width:${previewWidth}px;height:${previewHeight}px"><br>
+				<button imgWidth="${allowedWidth}" imgHeight="${allowedHeight}" imgId="content" class="btnUpload button button-danger button-small">上传内容图片...</button>
+				<button class="button button-info button-small" onclick="clearContentImg()">清除图片</button>
+	          </p>
+	          <p>
+	            <label>背景底色：</label><input id="type" type="text" />
+	          </p>
+	          <p>
+	            <label>动画效果：</label>
+				<select id="link">
+					#foreach($animationType in $AnimationTypeEnum)
+						<option value="$animationType.code">$animationType.desc</option>
+					#end
+				</select>
+	          </p>
+	    </div>
+	</div>
+</div>
+<script type="text/javascript">
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      columns = [
+		{
+			title : '背景图片',
+            elCls: 'left',
+            dataIndex :'imgSrc',
+            renderer : function(val,obj,index) {
+				var html = "";
+				if(obj!=null){
+					html += "<img src='"+val+"' style='width:${previewWidth}px;height:${previewHeight}px'/>";
+				}
+				return html;
+		    },
+            width:'25%'
+		},{
+			title : '内容图片',
+            elCls: 'left',
+            dataIndex :'content',
+            renderer : function(val,obj,index) {
+				var html = "";
+				if(obj!=null){
+					html += "<img src='"+val+"' style='width:${previewWidth}px;height:${previewHeight}px'/>";
+				}
+				return html;
+		    },
+            width:'25%'
+		},{
+            title : '背景底色',
+            elCls: 'left',
+            dataIndex : 'type',
+           	renderer : function(val,obj,index) {
+         		var html = val+"&nbsp;&nbsp;<span style='display:inline-block;background:"+val+";width:50px;'>&nbsp;</span>";
+         		return html;
+         	},
+            width:'15%'
+       	},{
+            title : '动画效果',
+            elCls: 'left',
+            dataIndex : 'link',
+            renderer:function(val,obj,index) {
+				if(obj!=null){
+					#foreach($animationType in $AnimationTypeEnum)
+						if(val == '$animationType.code'){
+							return "$animationType.desc";
+						}
+					#end
+				}
+				return "无动画";
+		  	},
+            width:'15%'
+       	},{
+            title : '点击次数',
+            elCls: 'left',
+            dataIndex : 'clickCount',
+            width:'15%'
+       	},{
+			title : '操作',
+			elCls: 'center',
+			width: '15%',
+			dataIndex : 'oper',
+			renderer : function(val,obj,index) {
+				var btn = "";
+				if(obj!=null){
+					btn += "<span class='grid-command' onclick=\"updateFunction('"+obj.id+"',";
+					btn += "'"+obj.link+"',";
+					btn += "'"+obj.imgSrc+"',";
+					btn += "'"+obj.type+"',";
+					btn += "'"+obj.content+"',";
+					btn += "'"+obj.position+"')\"";
+					btn += " >修改</span> ";
+					btn += "<span class='grid-command' onclick=\"jQuery('#update_form').submit()\">";
+					btn += "#if($cacheTools.getSwitch('AD_FULL_SWITCH'))关闭#else开启#end";
+					btn += "</span> ";
+				}
+				return btn;
+			}
+		}],
+		data = #if($!{adList})#noescape()$!{adList}#end#else null #end;
+
+      var store = new Store({
+        data : data
+      }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store
+      });
+
+    grid.render();
+    
+    var Overlay = BUI.Overlay;
+    
+	var adDialog = new Overlay.Dialog({
+	     title:'广告编辑',
+	     width:1000,
+	     height:600,
+	     contentId:'focusImgFrom',
+	     success:function () {
+	     	eventCallback();
+	     }
+	});
+
+	 function eventCallback(){
+	  	var id = jQuery(".bui-stdmod-body #id").val();
+	   	var content = jQuery(".bui-stdmod-body #content").attr("src");
+	   	var link = jQuery(".bui-stdmod-body #link").val();
+	   	var type = jQuery(".bui-stdmod-body #type").val();
+		type = encodeURIComponent(type);
+	   	var imgSrc = jQuery(".bui-stdmod-body #imgSrc").attr("src");
+	   	var position = jQuery(".bui-stdmod-body #position").val();
+		var timestamp = currentTime();
+		var para = "timestamp="+timestamp+"&id="+id+"&content="+content+"&link="+link+"&imgSrc="+imgSrc+"&type="+type+"&position="+position;
+		jQuery.ajax({
+			type: "get",
+			url: '$admin.setTarget('/json/updateSystemAd.json')?'+ para,
+			success:function(data, textStatus){
+				adDialog.close();
+				window.location.reload();
+			}
+		});
+	 }
+	  
+	function updateFunction(id,link,imgSrc,type,content,position) {
+	 	adDialog.show();
+	 	jQuery(".bui-stdmod-body #id").val(id);
+		var options = "";
+		#foreach($animationType in $AnimationTypeEnum)
+			if(link == '${animationType.code}'){
+				options += "<option selected value='${animationType.code}'>${animationType.desc}</option>";
+			} else {
+				options += "<option value='${animationType.code}'>${animationType.desc}</option>";
+			}
+		#end
+		jQuery(".bui-stdmod-body #link").empty().append(options);
+		jQuery(".bui-stdmod-body #type").val(type);
+		jQuery(".bui-stdmod-body #content").attr("src",content);
+		jQuery(".bui-stdmod-body #imgSrc").attr("src",imgSrc);
+		jQuery(".bui-stdmod-body #position").val(position);
+	}
+	
+	function clearContentImg(){
+		jQuery(".bui-stdmod-body #content").attr("src","");
+	}
+</script>
+$control.setTemplate("uploader.vm")

@@ -1,0 +1,353 @@
+#set ($group = $form.login.defaultInstance)
+#set ($regGroup = $form.register.defaultInstance)
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<div id="header">
+	<ul class="login fr">
+		#if(!$!loginUser)
+		<li class="openlogin"><a href="javascript:void(0);"><i class="icon-user icon-white"></i>&nbsp;登录</a></li>
+		<li class="reg"><a href="javascript:void(0);">注册</a></li>
+		#end
+	</ul>
+</div>
+
+
+<div class="loginmask"></div>
+
+<div id="loginalert">
+	
+	<div class="pd20 loginpd">
+		<h3><i class="closealert fr"></i></h3><div class="clear"></div>
+		<div class="loginwrap">
+			<div class="loginh">
+				<div class="fl">会员登录</div>
+				<div class="fr">还没有账号<a id="sigup_now" href="javascript:void(0);">立即注册</a></div>
+			</div>
+			#if (!$group.loginId.valid)
+        		<h3><span class="login_warning">$group.loginId.message</span></h3><div class="clear"></div>
+    		#end
+    		#if (!$group.password.valid)
+        		<h3><span class="login_warning">$group.password.message</span></h3><div class="clear"></div>
+    		#end
+			<form action="$zhaile.setTarget('index')" method="post" id="login_form">
+				$csrfToken.hiddenField
+				<input type="hidden" name="action" value="userAction"/>  
+				<input type="hidden" name="event_submit_do_login" value="true"/> 			
+				<div class="logininput">
+					<input type="text" name="$group.loginId.key" class="loginusername placeholder" value="" placeholder="$group.loginId.displayName" />
+					<input type="password" name="$group.password.key" class="loginuserpasswordt placeholder" value="" placeholder="$group.password.displayName" />
+				</div>
+				<div class="loginbtn">
+					<div class="loginsubmit fl">
+						<input type="submit" value="登录" class="btn" />
+						#if($cacheTools.getSwitch('QQ_LOGIN_SWITCH'))
+						<input id="qql" type="button" value="QQ帐号登录" onclick="showLogin()" class="btn" alt="腾讯QQ登录"/>
+						#end
+					</div>
+					<!-- <div class="fl" style="margin:26px 0 0 0;"><input id="bcdl" type="checkbox" checked />保持登录</div>
+					<div class="fr" style="margin:26px 0 0 0;"><a href="#">忘记密码?请联系客服</a></div>  -->
+					<div class="clear"></div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div><!--loginalert end-->
+
+
+<div id="reg_setp">
+	<div class="back_setp">返回</div>
+	<div class="blogo"><img src="img/logo_L.jpg" style="width:250px;height:125px"/></div>
+	<div id="setp_quicklogin">
+		<form action="$zhaile.setTarget('index')" method="post" id="regForm">
+			$csrfToken.hiddenField
+			<input type="hidden" name="action" value="userAction"/>  
+			<input type="hidden" name="event_submit_do_regist" value="true"/> 
+			<div class="logininput">
+				<span id="errMsg"></span>
+				<span id="checkMsg"></span>
+				<div class="controls  control-row-auto">
+				<input type="text" name="$regGroup.loginId.key" 
+						class="loginusername checkExist placeholder" 
+						id="name" value="" 
+						placeholder="$regGroup.loginId.displayName" 
+						data-rules="{required:true}" data-messages="{required:'请输入用户名'}"/>
+				</div>		
+				<input type="hidden" id="exist" value="false"/>
+				
+				<div class="controls  control-row-auto">
+				<input type="text" name="$regGroup.email.key" 
+						class="loginusername checkExist placeholder"
+						id="email" value="" placeholder="$regGroup.email.displayName" 
+						data-rules="{email:true}" data-messages="{email:'请输正确的邮箱地址'}"/>
+				</div>
+						
+				<div class="controls  control-row-auto">
+				<input type="text" name="$regGroup.mobile.key" 
+						class="loginusername checkExist placeholder" 
+						id="mobile" value="" placeholder="$regGroup.mobile.displayName" 
+						data-rules="{regexp:/^(1(([35][0-9])|(47)|[5][036789]|[8][01236789]))\d{8}$/}" data-messages="{regexp:'请输入正确的手机号码'}"/>
+				</div>
+						
+				<div class="controls  control-row-auto">		
+				<input type="password" name="$regGroup.password.key" 
+						class="loginuserpasswordt placeholder"
+						id="pwd1" value="" placeholder="$regGroup.password.displayName" 
+						data-rules="{required:true}" data-messages="{required:'请输入密码'}"/>		
+				<input type="password" 
+						class="loginuserpasswordt placeholder"
+						id="pwd2" value="" placeholder="请再输一次密码" 
+						data-rules="{equalTo:'#pwd1'}" data-messages="{equalTo:'两次密码不一致'}"/>
+				</div>				
+			</div>
+			<div class="loginbtn">
+				<div><input id="confirm" type="checkbox" checked />&nbsp;我已阅读<a href="#" id="confirmLink" style="color:#EA5414">注册条款</a></div>
+				<div class="loginsubmit fl regBtnfl">
+					<input id="regBtn" type="button" value="注册" class="btn" />
+					#if($cacheTools.getSwitch('QQ_LOGIN_SWITCH'))
+					<input id="qql" type="button" value="QQ帐号登录" onclick="showLogin()" class="btn"/>
+					#end
+				</div>
+				<div class="clear"></div>
+			</div>
+		</form>
+	</div>
+</div><!--reg_setp end-->
+<div style="display:none" id="contract">
+<div style="width:1000px;height:500px;overflow-y:auto">
+<h2>尊敬的用户，欢迎阅读富阳宅乐网服务协议</h2>
+<p>本服务协议双方为富阳麦腾电子商务有限公司旗下网站“富阳宅乐网”（下称“富阳宅乐网”）与富阳宅乐网网站用户，本服务协议具有合同效力。</p>
+<p>本服务协议内容包括协议正文及所有富阳宅乐网已经发布的或将来可能发布的各类规则。所有规则为协议不可分割的一部分，与协议正文具有同等法律效力。</p>
+<p>用户在使用富阳宅乐网提供的各项服务的同时，承诺接受并遵守各项相关规则的规定。富阳宅乐网有权根据需要不时地制定、修改本协议或各类规则，如本协议有任何变更，富阳宅乐网将在网站上刊载公告，通知予用户。如用户不同意相关变更，必须停止使用“服务”。经修订的协议一经在富阳宅乐网网站公布后，立即自动生效。各类规则会在发布后生效，亦成为本协议的一部分。登录或继续使用“服务”将表示用户接受经修订的协议。除另行明确声明外，任何使“服务”范围扩大或功能增强的新内容均受本协议约束。</p>
+<h2>特别注意：</h2>
+<p>用户确认本服务协议后，本服务协议即在用户和富阳宅乐网之间产生法律效力。请用户务必在注册之前认真阅读全部服务协议内容，如有任何疑问，可向富阳宅乐网咨询。
+无论用户事实上是否在注册之前认真阅读了本服务协议，只要用户点击协议正本下方的“确认”按钮并按照富阳宅乐网注册程序成功注册为用户，用户的行为仍然表示其同意并签署了本服务协议。
+本协议不涉及用户与富阳宅乐网其它用户之间因网站上交易而产生的法律关系及法律纠纷。</p>
+<h2>富阳宅乐网的用户：</h2>
+<p>用户为具备完全民事行为能力的自然人，或者是具有合法经营资格的实体组织。
+无民事行为能力人、限制民事行为能力人以及无经营或特定经营资格的组织不当注册为富阳宅乐网用户或超过其民事权利或行为能力范围从事交易的，其与富阳宅乐网之间的服务协议效力由富阳宅乐网认定，富阳宅乐网有权认定该协议无效立即注销该用户，并追究其使用富阳宅乐网“服务”的一切法律责任；富阳宅乐网亦有权要求其监护人、实际控制人、承继实体等相关主体履行合同，并承担富阳宅乐网的损失。
+</p>
+<h2>富阳宅乐网用户分为富阳宅乐网商户和普通用户：</h2>
+<h3>1. 富阳宅乐网商户的定义：</h3>
+<p>在富阳宅乐网订餐交易平台开通有经营权的店铺，发布产品信息，为普通用户提供服务的商家。</p>
+<h3>2. 普通用户的定义：</h3>
+<p>所有享受富阳宅乐网服务的个人用户为富阳宅乐网普通用户。</p>
+<h2>用户注册：</h2>
+<p>用户注册是指用户登录富阳宅乐网网站，并按要求填写相关信息并确认同意履行相关用户协议的过程。</p>
+<p>用户因进行交易而接受的有偿服务或接触富阳宅乐网网站服务器而发生的所有应纳税赋，以及一切硬件、软件、服务及其他方面的费用均由用户负责支付。富阳宅乐网网站仅作为订餐、订外卖、订商品、下达送达指令的交易场所以及配送者。</p>
+<h2>富阳宅乐网积分规则</h2>
+<p>为了感谢广大富阳宅乐网用户的支持，同时营造健康、时尚、有序的订餐、定外卖网站络交易平台，富阳宅乐网网站推出积分系统，对订餐用户实行消费积分回馈、推广积分赠送和对虚假用户进行积分处罚等。</p>
+<p>富阳宅乐网积分规则就是建立在此基础上的一整套完善的积分奖励和处罚体系；</p>
+<h2>富阳宅乐网礼品：</h2>
+<p>富阳宅乐网推出的积分兑换礼品，主要为实物礼品和现金。用户在提交礼品兑换的申请后，经富阳宅乐网确认并发出礼品后，富阳宅乐网保证普通礼品的品质和电子礼品为专柜正品，礼品不再提供退换货服务，电子礼品的后续保修服务请联系厂家。</p>
+<h2>富阳宅乐网网站上订餐、定外卖系统：</h2>
+<p>由富阳宅乐网自主开发，提供给用户进行网站上交易的平台软件，用户可以使用此系统进行订单和积分管理、商户可以使用此系统进行店铺和外卖信息的发布和订单管理。</p>
+<h2>用户的权利和义务</h2>
+<p>富阳宅乐网为商户及用户提供交易平台。富阳宅乐网不保证产品质量、安全、合法性、交易方履行其在贸易协议项下的各项义务的能力。富阳宅乐网只承担配送义务。</p>
+<p>为了给广大商家和用户营造一个健康、有序的外卖交易平台，富阳宅乐网倡导诚信交易，竭力提供准确真实的商贸信息，并且提醒用户应该通过自己的谨慎判断确定登录的商户的产品及相关信息的准确性。</p>
+<h3>普通用户的权利：</h3>
+<p>用户有权利拥有自己在富阳宅乐网网站的用户名及密码，并有权利使用自己的用户名及密码随时登录富阳宅乐网网站订餐、订外卖交易平台。用户不得以任何形式擅自转让或授权他人使用自己的富阳宅乐网网站用户名，由于用户自身泄密而导致的损失，由用户自己负责；</p>
+<p>用户有权利通过订餐及推广富阳宅乐网网站获得消费积分和推广积分，并使用积分兑换礼品；</p>
+<p>用户有权利使用商户在线和富阳宅乐网商户在线取得直接联系，以获得最新的菜品信息和相关增值服务；</p>
+<p>用户有权利对富阳宅乐网商户的服务做出评价和投诉，并提出建议和意见；</p>
+<p>用户在富阳宅乐网网站上订餐、订外卖交易过程中如与其他用户因交易产生纠纷，可以请求富阳宅乐网从中予以协调。用户如发现其他用户有违法或违反本服务协议的行为，可以向富阳宅乐网进行反映要求处理。如用户因网站上订餐、订外卖交易与其他用户产生诉讼的，用户有权通过司法部门要求富阳宅乐网提供相关资料；</p>
+<h3>普通用户的义务：</h3>
+<p>用户有义务在注册时提供自己的真实资料，并保证诸如电子邮件地址、联系电话、联系地址、邮政编码等内容的有效性及安全性，保证富阳宅乐网及其他用户可以通过上述联系方式与自己进行联系。同时，用户也有义务在相关资料实际变更时及时更新有关注册资料。用户保证不以他人资料在富阳宅乐网网站进行注册或认证。若用户使用虚假电话、姓名、地址或冒用他人信息使用富阳宅乐网订餐服务，富阳宅乐网将做出相应处罚或屏蔽IP地址的处理；对富阳宅乐网造成经济损失的，富阳宅乐网将保留追究法律责任的权利；</p>
+<p>用户不应在富阳宅乐网网站上订餐、订外卖交易平台上恶意评价其他用户，或采取不正当手段提高自身的信用度或降低其他用户的信用度；</p>
+<p>富阳宅乐网商户承诺自己在使用富阳宅乐网网站时实施的所有行为均遵守国家法律、法规和富阳宅乐网的相关规定以及各种社会公共利益或公共道德。如有违反导致任何法律后果的发生，富阳宅乐网商户将以自己的名义独立承担所有相应的法律责任；</p>
+<p>富阳宅乐网商户同意，不对富阳宅乐网网站上任何资料作商业性利用，包括但不限于在未经富阳宅乐网事先书面批准的情况下，以复制、传播等方式使用在富阳宅乐网网站上展示的任何资料；</p>
+<p>富阳宅乐网商户同意接收来自富阳宅乐网网站或者富阳宅乐网网站合作伙伴发出的邮件、信息。</p>
+<h3>富阳宅乐网商户的权利：</h3>
+<p>富阳宅乐网商户有权利根据本服务协议的规定以及富阳宅乐网网站上发布的相关规则利用富阳宅乐网网站上订餐、订外卖交易平台，登记新店铺、上传店铺信息及公布外卖信息、参加网站上产品促销、与其他用户订立产品买卖合同、评价其他用户的信用、参加富阳宅乐网的有关活动以及有权享受富阳宅乐网提供的其他的有关信息服务；</p>
+<p>富阳宅乐网商户可以使用富阳宅乐网网站的其他有偿服务；</p>
+<h3>富阳宅乐网商户的义务：</h3>
+<p>富阳宅乐网商户应当及时更新网站上发布的外卖产品及价格，保证交易的准确性和及时性；</p>
+<p>富阳宅乐网商户应当最大程度做好普通用户的服务工作，保证外卖产品的优秀品质；</p>
+<p>富阳宅乐网商户应当最大限度的确定订单信息的真实性，富阳宅乐网网站协助商户追究违规用户的责任。但对于虚假订单造成的损失，属于不可抗力范畴，富阳宅乐网商户为此承担全部责任；</p>
+<p>富阳宅乐网商户应当保证在使用富阳宅乐网网站上订餐、订外卖交易平台进行交易过程中遵守诚实信用的原则，不在订餐、订外卖交易过程中采取不正当竞争行为，不扰乱网站上订餐、订外卖交易的正常秩序，不从事与网站上订餐、订外卖交易无关的行为；</p>
+<p>富阳宅乐网商户在富阳宅乐网网站上订餐、订外卖交易平台上不得发布各类违法或违规信息；</p>
+<p>富阳宅乐网商户在富阳宅乐网网站上订餐、订外卖交易平台上不得买卖国家禁止销售的或限制销售的产品、不得买卖侵犯他人知识产权或其他合法权益的产品，也不得买卖违背社会公共利益或公共道德的、或是富阳宅乐网认为不适合在富阳宅乐网网站上销售的物品。具体内容详见《禁止和限制销售产品规则》；</p>
+<p>富阳宅乐网商户承诺自己在使用富阳宅乐网网站时实施的所有行为均遵守国家法律、法规和富阳宅乐网的相关规定以及各种社会公共利益或公共道德。如有违反导致任何法律后果的发生，富阳宅乐网商户将以自己的名义独立承担所有相应的法律责任；</p>
+<p>富阳宅乐网商户同意，不对富阳宅乐网网站上任何资料作商业性利用，包括但不限于在未经富阳宅乐网事先书面批准的情况下，以复制、传播等方式使用在富阳宅乐网网站站上展示的任何资料；</p>
+<p>富阳宅乐网商户同意接收来自富阳宅乐网网站或者富阳宅乐网网站合作伙伴发出的邮件、信息；</p>
+<p>富阳宅乐网商户对由于其自身提供的产品、服务给用户造成的人身、财产、精神等一切损害承担所有责任。</p>
+<h2>富阳宅乐网的权利和义务</h2>
+<h3>富阳宅乐网的权利：</h3>
+<p>对于用户在富阳宅乐网网站上订餐、订外卖交易平台上的不当行为或其它任何富阳宅乐网认为应当终止服务的情况，富阳宅乐网有权随时做出删除相关信息、终止服务提供等处理，而无须征得用户的同意。</p>
+<p>用户在富阳宅乐网网站上订餐、订外卖交易过程中如与其他用户因交易产生纠纷，请求富阳宅乐网从中予以调处，经富阳宅乐网审核后，富阳宅乐网有权通过电话或电子邮件联系向纠纷双方了解情况，并将所了解的情况通过电话或电子邮件互相通知对方；</p>
+<p>富阳宅乐网有权对用户的注册资料及交易行为进行查阅，发现注册资料或订餐、订外卖交易行为中存在任何问题或怀疑，均有权向用户发出询问及要求改正的通知或者直接做出删除等处理；</p>
+<p>经国家生效法律文书或行政处罚决定确认用户存在违法行为，或者富阳宅乐网有足够事实依据可以认定用户存在违法或违反服务协议行为的，富阳宅乐网有权在富阳宅乐网订餐、订外卖交易平台及所在网站站上以网站络发布形式公布用户的违法行为；</p>
+<p>对于用户在富阳宅乐网订餐、订外卖交易平台发布的下列各类信息，富阳宅乐网有权在不通知用户的前提下进行删除或采取其他限制性措施，包括但不限于以规避费用为目的的信息；以炒作信用为目的的信息；富阳宅乐网有理由相信存在欺诈等恶意或虚假内容的信息；富阳宅乐网有理由相信与网站上订餐、订外卖交易无关或不是以订餐、订外卖交易为目的的信息；富阳宅乐网有理由相信存在恶意或其他试图扰乱正常订餐、订外卖交易秩序因素的信息；富阳宅乐网有理由相信该信息违反公共利益或可能严重损害富阳宅乐网和其他用户合法利益的；</p>
+<p>许可使用权。用户以此授予富阳宅乐网独家的、全球通用的、永久的、免费的许可使用权利(并有权对该权利进行再授权)，使富阳宅乐网有权(全部或部份地)使用、复制、修订、改写、发布、翻译、分发、执行和展示用户公示于网站的各类信息或制作其派生作品，和/或以现在已知或日后开发的任何形式、媒体或技术，将上述信息纳入其他作品内；富阳宅乐网上的所有自创作品版权均属于富阳宅乐网，任何人不得抄袭及未经许可进行商业使用。</p>
+<p>富阳宅乐网会在用户的电脑上设定或取用富阳宅乐网cookies。 富阳宅乐网允许那些在富阳宅乐网网站页上发布广告的公司到用户电脑上设定或取用 cookies 。 在用户登录时获取资料，富阳宅乐网使用cookies可为用户提供个性化服务。 如果拒绝所有 cookies，用户将不能使用需要登录的富阳宅乐网产品及服务内容。</p>
+<h3>富阳宅乐网的义务：</h3>
+<p>富阳宅乐网有义务在现有技术上维护整个网站上订餐、订外卖交易平台的正常运行，并努力提升和改进技术，使用户网站上订餐、订外卖交易活动得以顺利进行。</p>
+<p>对用户在注册使用富阳宅乐网网站上订餐、订外卖交易平台中所遇到的与交易或注册有关的问题及反映的情况，富阳宅乐网应及时做出回复。</p>
+<p>因网站上订餐、订外卖交易平台的特殊性，富阳宅乐网没有义务对所有用户的注册资料、所有的交易行为以及与交易有关的其他事项进行事先审查，但如存在下列情况：</p>
+<p>① 用户或其他第三方通知富阳宅乐网，认为某个具体用户或具体交易事项可能存在重大问题；</p>
+<p>②用户或其他第三方向富阳宅乐网告知订餐、订外卖交易平台上有违法或不当行为的，富阳宅乐网以普通非专业交易者的知识水平标准对相关内容进行判别，可以明显认为这些内容或行为具有违法或不当性质的；富阳宅乐网有权根据不同情况选择保留或删除相关信息或继续、停止对该用户提供服务，并追究相关法律责任。</p>
+<p>用户因在富阳宅乐网网站上订餐、订外卖交易与其他用户产生诉讼的，用户通过司法部门或行政部门依照法定程序要求富阳宅乐网提供相关资料，富阳宅乐网应积极配合并提供有关资料；</p>
+<h2>服务的中断和终止</h2>
+<p>1.用户同意，富阳宅乐网可自行全权决定以任何合法理由 (包括但不限于富阳宅乐网认为用户已违反本协议的字面意义和精神，或以不符合本协议的字面意义和精神的方式行事，或用户在超过90天的时间内未以用户的账号及密码登录网站等) 终止用户的“服务”密码、账户 (或其任何部份) 或用户对“服务”的使用，并删除（不再保存）用户在使用“服务”中提交的任何资料。同时富阳宅乐网可自行全权决定，在发出通知或不发出通知的情况下，随时停止提供“服务”或其任何部份。账号终止后，富阳宅乐网没有义务为用户保留原账号中或与之相关的任何信息，或转发任何未曾阅读或发送的信息给用户或第三方。此外，用户同意，富阳宅乐网不就终止用户接入“服务”而对用户或任何第三者承担任何责任；</p>
+
+<p>2. 如用户向富阳宅乐网提出注销富阳宅乐网网站注册用户身份时，经富阳宅乐网审核同意，由富阳宅乐网注销该注册用户，用户即解除与富阳宅乐网的服务协议关系。但注销该用户账号后，富阳宅乐网仍保留下列权利：</p>
+<p>用户注销后，富阳宅乐网有权保留该用户的注册资料及以前的交易行为记录。</p>
+<p>用户注销后，如用户在注销前在富阳宅乐网订餐、订外卖交易平台上存在违法行为或违反合同的行为，富阳宅乐网仍可行使本服务协议所规定的权利。</p>
+
+<p>3. 在下列情况下，富阳宅乐网可以通过注销用户的方式终止服务：</p>
+<p>在用户违反本服务协议相关规定时，富阳宅乐网有权终止向该用户提供服务。富阳宅乐网将在中断服务时通知用户。但如该用户在被富阳宅乐网终止提供服务后，再一次直接或间接或以他人名义注册为富阳宅乐网用户的，富阳宅乐网有权再次单方面终止向该用户提供服务；</p>
+<p>如富阳宅乐网通过用户提供的信息与用户联系时，发现用户在注册时填写的电子邮箱已不存在或无法接收电子邮件的，经富阳宅乐网以其他联系方式通知用户更改，而用户在三个工作日内仍未能提供新的电子邮箱地址的，富阳宅乐网有权终止向该用户提供服务；</p>
+<p>一旦富阳宅乐网发现用户注册资料中主要内容是虚假的，富阳宅乐网有权随时终止向该用户提供服务；</p>
+<p>本服务协议终止或更新时，用户明示不愿接受新的服务协议的；</p>
+<p>其它富阳宅乐网认为需终止服务的情况。</p>
+
+<p>4.服务中断、终止之前用户交易行为的处理</p>
+<p>因用户违反法律法规或者违反服务协议规定而致使富阳宅乐网中断、终止对用户服务的，对于服务中断、终止之前用户交易行为依下列原则处理：</p>
+<p>服务中断、终止之前，用户已经上传至富阳宅乐网网站的产品尚未交易或尚未交易完成的，富阳宅乐网有权在中断、终止服务的同时删除此项物品的相关信息；</p>
+<p>服务中断、终止之前，用户已经就其他用户出售的具体产品做出要约，但交易尚未结束，富阳宅乐网有权在中断或终止服务的同时删除该用户的相关要约；</p>
+<p>服务中断、终止之前，用户已经与另一用户就具体交易达成一致，富阳宅乐网可以不删除该项交易，但富阳宅乐网有权在中断、终止服务的同时将用户被中断或终止服务的情况通知用户的交易对方。</p>
+<h2>责任范围</h2>
+<p>1.用户明确理解和同意，富阳宅乐网不对因下述任一情况而导致的任何损害赔偿承担责任，包括但不限于利润、商誉、使用、数据等方面的损失或其他无形损失的损害赔偿 (无论富阳宅乐网是否已被告知该等损害赔偿的可能性)：</p>
+<p>使用或未能使用“服务”；</p>
+<p>第三方未经批准的接入或第三方更改用户的传输资料或数据；</p>
+<p>第三方对“服务”的声明或关于“服务”的行为；或非因富阳宅乐网的原因而引起的与“服务”有关的任何其他事宜，包括疏忽。</p>
+
+<p>2.用户明确理解并同意，如因其违反有关法律或者本协议之规定，使富阳宅乐网遭受任何损失，受到任何第三方的索赔，或任何行政管理部门的处罚，用户应对富阳宅乐网提供补偿，包括合理的律师费用、评估费、公证费、诉讼费、保全费等。</p>
+<h2>隐私权政策</h2>
+<h3>1. 适用范围：</h3>
+<p>在用户注册富阳宅乐网账户时，用户根据富阳宅乐网要求提供的个人注册信息；</p>
+<p>在用户使用富阳宅乐网服务，参加富阳宅乐网活动，或访问富阳宅乐网网站页时，富阳宅乐网自动接收并记录的用户浏览器上的服务器数值，包括但不限于IP地址等资料及用户要求取用的网站页记录；</p>
+<p>富阳宅乐网收集到的用户在富阳宅乐网进行订餐、订外卖交易的有关资料，包括但不限于出价、购买、产品登录、信用评价及违规记录；</p>
+<p>富阳宅乐网通过合法途径从商业伙伴处取得的用户个人资料。</p>
+
+<h3>2. 信息使用：</h3>
+<p>富阳宅乐网不会向任何人出售或出借用户的个人信息，除非事先得到用户得许可；</p>
+<p>富阳宅乐网亦不允许任何第三方以任何手段收集、编辑、出售或者无偿传播用户的个人信息。任何用户如从事上述活动，一经发现，富阳宅乐网有权立即终止与该用户的服务协议，查封其账号；</p>
+<p>为服务用户的目的，富阳宅乐网可能通过使用用户的个人信息，向用户提供服务，包括但不限于向用户发出产品和服务信息，或者与富阳宅乐网合作伙伴（包括微信平台、qq平台等）共享信息以便他们向用户发送有关其产品和服务的信息。</p>
+
+<h3>3. 信息披露：</h3>
+<p>用户的个人信息将在下述情况下部分或全部被披露：</p>
+<p>经用户同意，向第三方披露；</p>
+<p>如用户是合资格的知识产权投诉人并已提起投诉，应被投诉人要求，向被投诉人披露，以便双方处理可能的权利纠纷；</p>
+<p>根据法律的有关规定，或者行政或司法机构的要求，向第三方或者行政、司法机构披露；</p>
+<p>如果用户出现违反中国有关法律或者网站政策的情况，需要向第三方披露；</p>
+<p>为提供你所要求的产品和服务，而必须和第三方分享用户的个人信息；</p>
+<p>其他富阳宅乐网根据法律或者网站政策认为合适的披露；</p>
+<p>在富阳宅乐网网站上创建的某一订餐、订外卖交易中，如交易任何一方履行或部分履行了订餐、订外卖交易义务并提出信息披露请求的，富阳宅乐网有权可以决定向该用户提供其交易对方的联络方式等必要信息，以促成订餐、订外卖交易的完成或纠纷的解决。</p>
+
+<h3>4. 信息安全：</h3>
+<p>富阳宅乐网账户均有密码保护功能，请妥善保管用户的账户及密码信息；</p>
+<p>在使用富阳宅乐网服务进行网站上订餐、订外卖交易时，用户不可避免的要向订餐、订外卖交易对方或潜在的订餐、订外卖交易对方提供自己的个人信息，如联络方式或者邮政地址。请用户妥善保护自己的个人信息，仅在必要的情形下向他人提供；</p>
+<p>如果用户发现自己的个人信息泄密，尤其是富阳宅乐网账户或及密码发生泄露，请用户立即联络富阳宅乐网客服，以便富阳宅乐网采取相应措施。</p>
+
+<h3>5. Cookie的使用：</h3>
+<p>通过富阳宅乐网所设Cookie所取得的有关信息，将适用本政策；</p>
+<p>在富阳宅乐网上发布广告的公司通过广告在用户电脑上设定的Cookies，将按其自己的隐私权政策使用。</p>
+
+<h3>6. 编辑和删除个人信息的权限：</h3>
+<p>用户可以点击我的富阳宅乐网对用户的个人信息进行编辑和删除，除非富阳宅乐网另有规定。</p>
+
+<h3>7. 政策修改：</h3>
+<p>富阳宅乐网保留对本政策做出不时修改的权利。</p>
+</div>
+</div>
+<script type="text/javascript">
+jQuery(document).ready(function(){
+	var k=!0;
+
+	jQuery(".loginmask").css("opacity",0.8);
+	
+	if(jQuery.browser.version <= 6){
+		jQuery('#reg_setp,.loginmask').height(jQuery(document).height());
+	}
+	
+	jQuery(".thirdlogin ul li:odd").css({marginRight:0});	
+	
+	jQuery(".openlogin").click(function(){
+		k&&"0px"!=jQuery("#loginalert").css("top")&& (jQuery("#loginalert").show(),jQuery(".loginmask").fadeIn(500),jQuery("#loginalert").animate({top:0},400,"easeOutQuart"));
+	});
+	
+	jQuery(".loginmask,.closealert").click(function(){
+		k&&(k=!1,jQuery("#loginalert").animate({top:-600},400,"easeOutQuart",function(){jQuery("#loginalert").hide();k=!0}),jQuery(".loginmask").fadeOut(500));
+	});
+	
+	
+	jQuery("#sigup_now,.reg a").click(function(){
+		jQuery("#reg_setp,#setp_quicklogin").show();
+		jQuery("#reg_setp").animate({left:0},500,"easeOutQuart");
+	});																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																								
+	
+	jQuery(".back_setp").click(function(){
+		"block"==jQuery("#setp_quicklogin").css("display")&&jQuery("#reg_setp").animate({left:"100%"},500,"easeOutQuart",function(){jQuery("#reg_setp,#setp_quicklogin").hide()});
+	});
+	
+	
+	jQuery(".checkExist").blur(function(){
+		var loginId = jQuery(this).val();
+		var field = jQuery(this).attr('id');
+		if(loginId == null || loginId == ''){
+			return;
+		}
+		loginId = encodeURIComponent(loginId);
+		var timestamp = currentTime();
+		jQuery.ajax({
+			type: "get",
+			url: "$zhaile.setTarget('/json/checkExist.json')?timestamp="+timestamp+"&loginId="+loginId+"&field="+field,
+			success:function(data, textStatus){
+				var checkResult = "";
+				jQuery("#exist").val(data.success);
+				if(data.success){
+					checkResult = "<span class='x-icon x-icon-mini x-icon-success'><i class='icon icon-ok icon-white'></i></span>&nbsp;&nbsp;"+data.message;
+				} else {
+					checkResult = "<span class='x-icon x-icon-mini x-icon-error'>!</span>&nbsp;&nbsp;"+data.message;
+				}
+				jQuery("#checkMsg").empty().append(checkResult);
+			}
+		});
+	});
+	
+	jQuery("#confirmLink").click(function() {
+		var Overlay = BUI.Overlay;
+        var dialog = new Overlay.Dialog({
+          title:'富阳宅乐网服务协议',
+          width:1040,
+          height:550,
+          bodyContent:jQuery("#contract").html(),
+          success:function () {
+        	jQuery("#confirm").attr("checked","true");
+            this.close();
+          }
+        });
+        dialog.show();
+    });
+	
+	var Form = BUI.Form
+	var form = new Form.Form({
+	  srcNode : '#regForm'
+	});
+	form.render();
+	
+	jQuery("#regBtn").click(function(){
+		form.valid();
+	    var errorCount = jQuery.find('.x-icon-error').length;
+	    var valid = (errorCount == 0);
+		if(!valid) {
+			return;
+		}
+		var exist = jQuery("#exist").val();
+		if(exist != "true"){
+			var errMsg = "<span class='x-icon x-icon-mini x-icon-error'>!</span>&nbsp;&nbsp;该用户名已经被注册";
+			jQuery("#errMsg").empty().append(errMsg);
+			return;
+		}
+		jQuery("#regForm").submit();
+	});
+	
+	#if (!$regGroup.loginId.valid)
+		var errMsg = "<span class='x-icon x-icon-mini x-icon-error'>!</span>&nbsp;&nbsp;$regGroup.loginId.message";
+		jQuery("#errMsg").empty().append(errMsg);
+	#end
+	#if (!$regGroup.password.valid)
+		var errMsg = "<span class='x-icon x-icon-mini x-icon-error'>!</span>&nbsp;&nbsp;$regGroup.password.message";
+		jQuery("#errMsg").empty().append(errMsg);
+	#end
+}); 
+</script>

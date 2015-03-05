@@ -1,0 +1,215 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+	.myTitle{
+		margin:10px;
+		font-size:large;
+		font-weight: bold;
+	}
+</style>
+<div class="myTitle">
+	购买记录
+</div>
+<hr>
+<div class="doc-content">
+	<form action="$zhaile.setTarget('my/history')" class="form-horizontal well">
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">店铺名称：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="shopName" value="$!orderQuery.shopName">
+				</div>
+				<label class="control-label">订单状态：</label>
+				<div class="controls">
+					<select name="status" style="width:60px">
+						<option selected value="">全部</option>
+						#foreach($status in $DeliveryStatusEnum)
+						<option 
+							#if($!orderQuery.status)
+								#if($!orderQuery.status==$!status.code)
+									selected
+								#end
+							#end 
+							value="$!status.code">$!status.desc</option>
+						#end
+					</select>
+				</div>
+				<label class="control-label">订单处理时间：</label>
+				<div class="controls">
+					<input type="text" class="calendar" name="gmtModifyStart" id="gmtModifyStart" value="$!orderQuery.gmtModifyStart">
+					至
+					<input type="text" class="calendar" name="gmtModifyEnd" id="gmtModifyEnd" value="$!orderQuery.gmtModifyEnd">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-actions offset3">
+				<button class="button button-primary">搜索</button>
+				<button type="reset" class="button">重置</button>
+			</div>
+		</div>
+	</form>
+</div>
+<div class="myTitle">
+	查询结果
+</div>
+<hr>
+<div id="grid"></div>
+<br><br><br><br>
+<script type="text/javascript">
+		var Calendar = BUI.Calendar;
+		
+		var gmtModifyStart = new Calendar.DatePicker({
+		  trigger:'#gmtModifyStart',
+		  selectedDate : new Date(),
+		  autoRender : true
+		});
+		
+		var gmtModifyEnd = new Calendar.DatePicker({
+			  trigger:'#gmtModifyEnd',
+			  selectedDate : new Date(),
+			  autoRender : true
+		});
+
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      statusObj = {
+   		#foreach($status in $DeliveryStatusEnum)
+		"$!status.code": "$!status.desc"
+			#if(${velocityCount} != $DeliveryStatusEnum.size())
+				,
+			#end
+		#end
+		},
+      columns = [
+		{
+			title : '序号',
+			dataIndex : 'id',
+			renderer : function(val,obj,index) {
+				return index+1;
+			},
+			summary : false,
+	        width:'5%'
+		},{
+          title : '店铺名称',
+          elCls: 'left',
+          dataIndex :'shopName',
+          summary : false,
+          width:'20%',
+          renderer : function(val, obj, index) {
+        	  return "<a target='_blank' href='$zhaile.setTarget('shop')?id="+obj.shopId+"'>"+val+"</a>";
+          }
+        },{
+          title : '商品名称',
+          elCls: 'left',
+          dataIndex :'prodName',
+          summary : false,
+          width:'30%',
+          renderer : function(val, obj, index) {
+        	  return "<a target='_blank' href='$zhaile.setTarget('product')?id="+obj.prodId+"'>"+val+"</a>";
+          }
+        },{
+          title : '交易时间',
+          elCls: 'left',
+          dataIndex :'orderTime',
+          renderer:BUI.Grid.Format.datetimeRenderer,
+          summary : false,
+          width:'20%'
+        },{
+            title : '单价',
+            elCls: 'left',
+            dataIndex : 'price',
+            summary : false,
+            width:'5%'
+       	},{
+            title : '数量',
+            elCls: 'left',
+            dataIndex : 'quantity',
+            summary : true,
+            width:'5%'
+       	},{
+            title : '总价格',
+            elCls: 'left',
+            dataIndex : 'totalPrice',
+            summary : true,
+            width:'8%'
+       	},{
+            title : '交易状态',
+            elCls: 'left',
+            dataIndex: 'status',
+            editor : {
+				xtype : 'select',
+				items : statusObj
+			},
+			renderer : Grid.Format.enumRenderer(statusObj),
+			summary : false,
+            width:'7%'
+       	}],
+		data = #if($!{orderList})#noescape()$!{orderList}#end#else null #end;
+
+      var store = new Store({
+        data : data
+      }),
+      cascade = new Grid.Plugins.Cascade({
+		    renderer : function(record){
+			    return '<div><p>&nbsp;客户备注：' + record.comment + '</p><p>&nbsp;联系方式：'+record.contact+'</p></div>';
+		    }
+	  }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store,
+        tbar : {
+        	items : [
+			{
+				btnCls : 'button button-small',
+				text : '<i class="icon-check"></i>小票',
+				listeners : {
+					'click' : receiptFunction
+				}
+			}]
+        },
+        bbar : {
+        	items : [
+			{
+				btnCls : 'button button-small',
+				text : '<i class="icon-check"></i>小票',
+				listeners : {
+					'click' : receiptFunction
+				}
+			}]
+        },
+        plugins : [cascade,Grid.Plugins.Summary]
+      });
+
+      grid.render();
+      
+      function receiptFunction(){
+    	  var timestamp = currentTime();
+    	  var selection = grid.getSelected();
+		  var id = selection.paymentId;
+		  if(id==null || id == '') {
+			  return;
+		  }
+		  var para = "?timestamp="+timestamp+"&id="+id;
+		  jQuery.ajax({
+				type: "get",
+				url: '$admin.setTarget('/json/orderRecipt.vm')'+ para,
+				success:function(data, textStatus){
+					var Overlay = BUI.Overlay;
+			        var dialog = new Overlay.Dialog({
+			          title:'外卖小票',
+			          width:550,
+			          height:550,
+			          bodyContent:data,
+			          success:function () {
+			            this.close();
+			          }
+			        });
+			        dialog.show();
+				}
+			});
+      }
+</script>

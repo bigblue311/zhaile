@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="MapPoiDO">
+
+  <typeAlias alias="MapPoi" type="com.zhaile.dal.model.MapPoiDO"/>
+
+  <resultMap id="RM" class="MapPoi">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="ip" column="ip"/>
+    <result property="lng" column="lng"/>
+    <result property="lat" column="lat"/>
+    <result property="mapType" column="map_type"/>
+  </resultMap>
+
+  <select id="getAll" resultMap="RM">
+    select * from zl_map_poi
+  </select>
+  
+  <insert id="insert" parameterClass="MapPoi">
+    <![CDATA[
+    insert into zl_map_poi (
+      gmt_create,
+      gmt_modify,
+      customer_id,
+      ip,
+      lng,
+      lat,
+      map_type
+    ) values (
+      now(), now(), #customerId#, #ip#, #lng#, #lat#, #mapType#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <update id="update" parameterClass="MapPoi">
+    update zl_map_poi set 
+    <isNotEmpty property="lng">  
+      	<![CDATA[
+      		lng = #lng#,
+      	]]>
+    </isNotEmpty>
+    <isNotEmpty property="lat">  
+      	<![CDATA[
+      		lat = #lat#,
+      	]]>
+    </isNotEmpty>
+    <isNotEmpty property="customerId">  
+      	<![CDATA[
+      		customer_id = #customerId#,
+      	]]>
+    </isNotEmpty>
+    	gmt_modify = now()
+    where
+      ip = #ip#
+  </update>
+  
+  <select id="getByIp" resultMap="RM">
+  	<![CDATA[
+    select * from zl_map_poi where ip = #ip#;
+     ]]>
+  </select>
+</sqlMap>

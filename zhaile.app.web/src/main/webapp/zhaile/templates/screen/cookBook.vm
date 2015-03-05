@@ -1,0 +1,299 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<div style='text-align:left;margin-top:10px;'>
+	菜谱查询：<input type="text" value="$!word" id="cookkeyword"><input type="button" value="查询" id="cookbookBtn">
+</div>
+<div id="title" style='text-align:left;'>
+	<span>查询<label id='labelKeyWord'></label>的结果</span> <span>共<label id="labelTotalNum"></label>条记录</span>
+</div>
+<div id="menu" style='text-align:left;'>
+</div>
+<div id="page">
+</div>
+<style>
+	#cookkeyword{
+		border:1px solid orangered;
+		border-right:0px;
+	}
+
+	#cookbookBtn{
+		position:relative;
+		left:-1px;
+		border:1px solid orangered;
+		border-left:0px solid orangered;
+		background:orangered;
+		color:white;
+	}
+	
+	.qrccodeLabel{
+		font-size:13px;
+		margin-bottom: 10px;
+		display: inline-block;
+	}
+	
+	.qrccodeTitle{
+		font-size: 18px;
+		margin-bottom: 10px;
+		display: inline-block;
+	}
+	
+	.qrcodeDiv{
+		background: white;
+		border: 1px solid lightgrey;
+		padding: 10px;
+	}
+
+	#title{
+		margin-bottom: 10px;
+		margin-top: 10px;
+	}
+	
+	#labelKeyWord{
+		color:orangered;
+	}
+	
+	#labelTotalNum{
+		color:orangered;
+	}
+
+	.infoPage .infoTitle{
+		font-size:18px;
+		color:orangered;
+	}
+	
+	.infoPage .infoTitle a{
+		padding-left:10px;
+		padding-right:50px;
+	}
+	
+	.infoPage tr{
+		display:block;
+		min-height:200px;
+	}
+
+	.infoPage p{
+		margin:0px;
+		padding:0px;
+		padding-left:10px;
+		padding-bottom:10px;
+		font-size: 13px;
+		display: block;
+		max-width: 850px;
+	}
+	
+	.infoPage img{
+		width:150px;
+		height:150px;
+		border:1px solid lightgrey;
+		padding:2px;
+	}
+	
+	.infoPageStep{
+		padding-left:180px;
+		display:none;
+	}
+	
+	.infoPageStep img{
+		width:150px;
+		border:1px solid lightgrey;
+		padding:2px;
+	}
+	
+	.infoPageStep .infoStep{
+		margin-bottom:10px;
+	}
+	
+	.infoPageStep .stepIndex{
+		font-size:36px;
+		color:orangered;
+	}
+	
+	.infoPageStep .stepDetail{
+		font-size: 13px;
+		display: inline-block;
+		max-width: 600px;
+	}
+	
+	#page{
+		text-align:center;
+	}
+	
+	#page .pagingBtn{
+		min-width: 20px;
+		min-height: 20px;
+		margin-right: 10px;
+		margin-bottom: 20px;
+		color: black;
+		display: inline-block;
+		border: 1px solid lightgrey;
+		text-align: center;
+	}
+	
+	#page .pagingBtn:hover{
+		color: white;
+		display: inline-block;
+		border: 1px solid orangered;
+		background:orangered;
+	}
+	
+	#page .current{
+		color: white;
+		display: inline-block;
+		border: 1px solid orangered;
+		background:orangered;
+	}
+</style>
+<script type="text/javascript">
+	jQuery(document).ready(function(){
+		getMenu(1);
+		jQuery("#cookbookBtn").click(function(){
+			getMenu(1);
+		});
+	});
+	
+	function getMenu(pn){
+		var keyword = jQuery("#cookkeyword").val();
+		if(keyword==''){
+			return;
+		}
+		jQuery("#labelKeyWord").empty().append(keyword);
+		var url = "http://apis.juhe.cn/cook/query.php";
+		var param = {"key":"e57bd2c3c142b469acafacc7dbabf1c9","dtype":"json","menu":keyword,"pn":pn,"rn":10};
+		jQuery.ajax({
+			url: url,
+			data: param,
+			dataType: "jsonp",
+			success: function(data,textStatus){
+				if(data.resultcode == 200){
+					jQuery("#page").empty().append(addPaging(data));
+					jQuery("#menu").empty();
+					var menuList = data.result.data;
+					for(var i=0;i<menuList.length;i++){
+						jQuery("#menu").append(addMenu(menuList[i]));
+					}
+				}
+			}
+		});
+	}
+	
+	function addPaging(data){
+		var totalNum = data.result.totalNum;
+		jQuery("#labelTotalNum").empty().append(totalNum);
+		var current = data.result.pn;
+		var pageSize = data.result.rn;
+		var totalPage = Math.ceil(totalNum/pageSize);
+		var html = "";
+		for(var i=1;i<=totalPage;i++){
+			if(i==current){
+				html += "<span class='pagingBtn current'>"+i+"</span>";
+			} else {
+				html += "<a href='#' onclick='getMenu("+i+")'><span class='pagingBtn'>"+i+"</span></a>";
+			}
+		}
+		return html;
+	}
+	
+	
+	function addMenu(menu){
+		var id = menu.id;
+		var title = menu.title;
+		var tags = menu.tags.split(";");
+		var tag  = "";
+		for(var i=0;i<tags.length;i++){
+			if(i%13==0 && i!=0){
+				tag += "<br>";
+			}
+			tag += "<span class='badge'>"+tags[i]+"</span>&nbsp;&nbsp;";
+		}
+		var imtro = menu.imtro;
+		var ingredients = menu.ingredients.split(";");
+		var ingredient = "";
+		for(var i=0;i<ingredients.length;i++){
+			var item = ingredients[i].split(",")[0];
+			var quntity = ingredients[i].split(",")[1];
+			ingredient += "<span>"+item+"<label class='auxiliary-text'>("+quntity+")</label></span>&nbsp;&nbsp;";
+		}
+		var albums = menu.albums;
+		var html = "<div id='infoPage"+id+"'>";
+		html	+="<table class='infoPage' >";
+		html	+="<tr>";
+		html	+="<td valign='top'>";
+		html	+="<img id='albums"+id+"' src='"+albums+"' class='albums' onmouseover=\"changeSrc('http://www.fyzhaile.com/cook_book_qr_code.img?cookId="+id+"',"+id+")\" onmouseout=\"changeSrc('"+albums+"',"+id+")\"/>";
+		html	+="</td>";
+		html	+="<td valign='top'>";
+		html	+="<p class='infoTitle'>";
+		html	+="<img src='/img/qrcode.jpg' style='width:30px;height:30px' onmouseover='showQRCode(event,"+id+")' onmouseout='hideQRCode("+id+")'></img>";
+		html	+="<a id='stepsLink"+id+"' onclick=\"showSteps('"+id+"')\" style='color:#36c;cursor:pointer'>查看详细步骤</a>"+title;
+		html	+="<div id='qrcode"+id+"' class='qrcodeDiv' style='text-align:top;display:none'>";
+		html	+="<span style='float:left'>";
+		html	+="<label class='qrccodeTitle'>用手机查看这篇菜谱</label><br>";
+		html	+="<label class='qrccodeLabel auxiliary-text'>手机扫描右侧二维码</label><br>";
+		html	+="<label class='qrccodeLabel auxiliary-text'>将这篇菜谱带进厨房，您边做边看</label>";
+		html	+="</span>";
+		html	+="<img src='http://www.fyzhaile.com/cook_book_qr_code.img?cookId="+id+"' style='margin-left:20px;'>";
+		html	+="</div>";
+		html	+="</p>";
+		html	+="<p>"+tag+"</p>";
+		html	+="<p class='infoIntro'>"+imtro+"</p>";
+		html	+="<p>"+ingredient+"</p>";
+		html	+="</td>";
+		html	+="</tr>";
+		html	+="</table>"
+		html	+="</div>";
+		html	+= addSteps(menu);
+		return html;
+	}
+	
+	function changeSrc(url,id){
+		var imgId = "#albums"+id;
+		jQuery(imgId).attr('src',url);
+	}
+	
+	function showQRCode(e,id){
+		var imgId = "#qrcode"+id;
+		//这里可得到鼠标X坐标
+		var pointX = e.pageX;
+		//这里可以得到鼠标Y坐标
+		var pointY = e.pageY;
+		jQuery(imgId).css({
+			"position":"absolute",
+			"z-index":"999",
+			"left":pointX,
+			"top":pointY
+		});
+		jQuery(imgId).show();
+	}
+	
+	function hideQRCode(id){
+		var imgId = "#qrcode"+id;
+		jQuery(imgId).hide();
+	}
+	
+	function addSteps(menu){
+		var id = menu.id;
+		var steps = menu.steps;
+		var html = "<div class='infoPageStep' id='infoPageStep"+id+"'>";
+		for(var i=0;i<steps.length;i++){
+			var step = steps[i];
+			var index = i+1+".";
+			var detail = step.step.replace(index,'');
+			html += "<div class='infoStep'>";
+			html += "<img src='"+step.img+"'>";
+			html += "<label class='stepIndex'>"+index+"</label>";
+			html += "<label class='stepDetail'>"+detail+"</label>";
+			html += "</div>";
+		}
+		html	+="</div>";
+		return html;
+	}
+	
+	function showSteps(id){
+		var infoPageStepId = "#infoPageStep"+id;
+		jQuery(infoPageStepId).toggle();
+		var link = "#stepsLink"+id;
+		if(jQuery(link).html() == '查看详细步骤'){
+			jQuery(link).empty().append('关闭详细步骤');
+		}else{
+			jQuery(link).empty().append('查看详细步骤');
+		}
+	}
+</script>

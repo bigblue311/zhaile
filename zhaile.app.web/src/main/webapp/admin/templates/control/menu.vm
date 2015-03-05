@@ -1,0 +1,197 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<div id="m2"></div>
+<script type="text/javascript">
+	var Menu = BUI.Menu;
+	var sideMenu = new Menu.SideMenu({
+		render : '#m2',
+		width : 200,
+		items : [ 
+		#if($!auth.isZhaile)
+		{
+			text : '系统管理',
+			#if($pageTopName != 'systemMgr')collapsed:true,#end
+			items : [ {
+				text : '系统缓存',
+				href : '$!admin.setTarget("cache")'
+				#if($!pageName == 'cache')
+					,
+					selected: true
+				#end
+			},{
+				text : '搜索统计',
+				href : '$!admin.setTarget("searchLog")?gmtModifyStart='+currentDate()+'&gmtModifyEnd='+currentDate()
+				#if($!pageName == 'searchLog')
+					,
+					selected: true
+				#end
+			},{
+				text : '短信管理',
+				href : '$!admin.setTarget("messageCenter")'
+				#if($!pageName == 'messageCenter')
+					,
+					selected: true
+				#end
+			}]
+		}, {
+			text : '广告管理',
+			#if($pageTopName != 'adMgr')collapsed:true,#end
+			items : [ {
+				text : '五屏滚动',
+				href : '$!admin.setTarget("adfocus.vm")'
+				#if($!pageName == 'adfocus')
+					,
+					selected: true
+				#end
+			},{
+				text : '网站LOGO',
+				href : '$!admin.setTarget("adlogo.vm")'
+				#if($!pageName == 'adlogo')
+					,
+					selected: true
+				#end
+			},{
+				text : '全屏通告',
+				href : '$!admin.setTarget("adtop.vm")'
+				#if($!pageName == 'adtop')
+					,
+					selected: true
+				#end
+			},{
+				text : '全屏滚动',
+				href : '$!admin.setTarget("adfull.vm")'
+				#if($!pageName == 'adfull')
+					,
+					selected: true
+				#end
+			},{
+				text : '右侧公告',
+				href : '$!admin.setTarget("adright.vm")'
+				#if($!pageName == 'adright')
+					,
+					selected: true
+				#end
+			},{
+				text : '推荐店铺',
+				href : '$!admin.setTarget("adshops.vm")'
+				#if($!pageName == 'adshops')
+					,
+					selected: true
+				#end
+			},{
+				text : '地图标注',
+				href : '$!admin.setTarget("mapMarker.vm")'
+				#if($!pageName == 'mapMarker')
+					,
+					selected: true
+				#end
+			},{
+				text : '限时活动',
+				href : '$!admin.setTarget("flashGo.vm")?gmtOpenStart='+currentDate()+'&gmtOpenEnd='+currentDate()
+				#if($!pageName == 'flashGo')
+					,
+					selected: true
+				#end
+			}]
+		}, {
+			text : '客户管理',
+			#if($pageTopName != 'customerMgr')collapsed:true,#end
+			items : [ {
+				text : '客户查询',
+				href : '$!admin.setTarget("customer.vm")'
+				#if($!pageName == 'customer')
+					,
+					selected: true
+				#end
+			},{
+				text : '客户评论',
+				href : '$!admin.setTarget("comment.vm")?gmtModifyStart='+currentDate()+'&gmtModifyEnd='+currentDate()
+				#if($!pageName == 'comment')
+					,
+					selected: true
+				#end
+			} ]
+		}, {
+			text : '员工管理',
+			#if($pageTopName != 'employeeMgr')collapsed:true,#end
+			items : [ {
+				text : '员工查询',
+				href : '$!admin.setTarget("employee.vm")'
+				#if($!pageName == 'employee')
+					,
+					selected: true
+				#end
+			} ]
+		},#end
+		{
+			text : '店铺管理',
+			#if($pageTopName != 'shopMgr')collapsed:true,#end
+			items : [ {
+				text : '店铺编辑',
+				href : '$!admin.setTarget("shop.vm")'
+				#if($!pageName == 'shop')
+					,
+					selected: true
+				#end
+			},{
+				text : '卡券管理',
+				href : '$!admin.setTarget("coupon.vm")'
+				#if($!pageName == 'coupon')
+					,
+					selected: true
+				#end
+			} ]
+		},{
+			text : '订单管理',
+			#if($pageTopName != 'orderMgr')collapsed:true,#end
+			items : [ 
+			{
+				text : '订单查询',
+				href : '$!admin.setTarget("payment.vm")?gmtModifyStart='+currentDate()+'&gmtModifyEnd='+currentDate()
+				#if($!pageName == 'payment')
+					,
+					selected: true
+				#end
+			},{
+				text : '交易查询',
+				href : '$!admin.setTarget("order.vm")?gmtModifyStart='+currentDate()+'&gmtModifyEnd='+currentDate()
+				#if($!pageName == 'order')
+					,
+					selected: true
+				#end
+			}]
+		}]
+	});
+	
+	function currentDate(){
+		var d = new Date(),str = '';
+		 str += d.getFullYear()+'-';
+		 str += getTimeStr(d.getMonth() + 1)+'-';
+		 str += getTimeStr(d.getDate());
+		return str;
+	}
+
+	function currentTime(){
+		var d = new Date(),str = '';
+		 str += d.getFullYear()+'-';
+		 str += getTimeStr(d.getMonth() + 1)+'-';
+		 str += getTimeStr(d.getDate())+' ';
+		 str += getTimeStr(d.getHours())+':'; 
+		 str += getTimeStr(d.getMinutes())+':'; 
+		 str += getTimeStr(d.getSeconds()); 
+		return str;
+	}
+
+	function getTimeStr(t){
+		if(t < 10){
+			return "0"+t;
+		} else {
+			return t;
+		}
+	}
+
+	sideMenu.render();
+	
+	sideMenu.on('menuclick', function(e) {
+		window.location.replace(e.item.get('href'));
+	});
+</script>

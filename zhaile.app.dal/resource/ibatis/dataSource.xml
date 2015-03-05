@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMapConfig      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+
+	<settings useStatementNamespaces ="true" /> 
+
+	<transactionManager type="JDBC" commitRequired="false">
+		<dataSource type="SIMPLE">
+	     	<property name="JDBC.Driver" value="com.mysql.jdbc.Driver"/>
+	     	<property name="JDBC.ConnectionURL" value="jdbc:mysql://rdsbb36f2jiqvrn.mysql.rds.aliyuncs.com:3306/zhaile"/>
+	     	<property name="JDBC.Username" value="zhaile_admin"/>
+	     	<property name="JDBC.Password" value="haveFun"/>
+	     	<!--<property name="JDBC.ConnectionURL" value="jdbc:mysql://localhost:3306/zhaile"/>
+	     	<property name="JDBC.Username" value="root"/>
+	     	<property name="JDBC.Password" value="adminadmin"/>-->
+	     	<property name="Pool.MaximumIdleConnections" value="5"/>
+	     	<property name="Pool.MaximumWait" value="60000"/>
+	     	<property name="Pool.ValidationQuery" value="select now()"/>
+	     	<property name="Pool.LogAbandoned" value="false"/>
+	     	<property name="Pool.RemoveAbandoned" value="false"/>
+	     	<property name="Pool.RemoveAbandonedTimeout" value="50000"/>
+	   </dataSource>
+	 </transactionManager>
+  
+  	<sqlMap resource="sqlmap/zl_advertisement.xml"/>
+  	<sqlMap resource="sqlmap/zl_category.xml"/>
+	<sqlMap resource="sqlmap/zl_common.xml"/>
+	<sqlMap resource="sqlmap/zl_coupon.xml"/>
+	<sqlMap resource="sqlmap/zl_coupon_card.xml"/>
+	<sqlMap resource="sqlmap/zl_coupon_meta.xml"/>
+	<sqlMap resource="sqlmap/zl_customer.xml"/>
+	<sqlMap resource="sqlmap/zl_customer_comment.xml"/>
+	<sqlMap resource="sqlmap/zl_customer_credit.xml"/>
+	<sqlMap resource="sqlmap/zl_customer_fav.xml"/>
+	<sqlMap resource="sqlmap/zl_employee.xml"/>
+	<sqlMap resource="sqlmap/zl_event_flash_go.xml"/>
+	<sqlMap resource="sqlmap/zl_log.xml"/>
+	<sqlMap resource="sqlmap/zl_map_marker.xml"/>
+	<sqlMap resource="sqlmap/zl_map_poi.xml"/>
+	<sqlMap resource="sqlmap/zl_log_credit.xml"/>
+	<sqlMap resource="sqlmap/zl_log_delivery.xml"/>
+	<sqlMap resource="sqlmap/zl_log_search.xml"/>
+	<sqlMap resource="sqlmap/zl_head_image.xml"/>
+	<sqlMap resource="sqlmap/zl_order.xml"/>
+	<sqlMap resource="sqlmap/zl_payment.xml"/>
+	<sqlMap resource="sqlmap/zl_people_contact.xml"/>
+	<sqlMap resource="sqlmap/zl_shop_category.xml"/>
+	<sqlMap resource="sqlmap/zl_shop_product.xml"/>
+	<sqlMap resource="sqlmap/zl_shop_tag.xml"/>
+	<sqlMap resource="sqlmap/zl_shop.xml"/>
+	<sqlMap resource="sqlmap/zl_shopping_car.xml"/>
+	<sqlMap resource="sqlmap/zl_sms_task.xml"/>
+	<sqlMap resource="sqlmap/zl_system_config.xml"/>
+	<sqlMap resource="sqlmap/zl_system_content.xml"/>
+</sqlMapConfig>

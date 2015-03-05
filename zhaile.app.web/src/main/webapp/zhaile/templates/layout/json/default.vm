@@ -1,0 +1,5 @@
+#set ($systemCache = $cacheTools.getSystemConfigcache())
+#set ($adCache = $cacheTools.getAdvertisementcache())
+#set ($employeeCache = $cacheTools.getEmployeecache())
+#set ($categoryCache = $cacheTools.getCategorycache())
+$screen_placeholder

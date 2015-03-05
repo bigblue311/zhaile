@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="EmployeeDO">
+
+  <typeAlias alias="Employee" type="com.zhaile.dal.model.EmployeeDO"/>
+
+  <resultMap id="RM" class="Employee">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="name" column="name"/>
+    <result property="password" column="password"/>
+    <result property="mobile" column="mobile"/>
+    <result property="role" column="role"/>
+  </resultMap>
+
+  <select id="getAll" resultMap="RM">
+    select * from zl_employee  
+  </select>
+  
+  <insert id="insert" parameterClass="Employee">
+    <![CDATA[
+    insert into zl_employee (
+      name,
+      password,
+      gmt_create,
+      gmt_modify,
+      mobile,
+      role
+    ) values (
+      #name#, #password#, now(), now(), #mobile#, #role#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <update id="update" parameterClass="Employee">
+    update zl_employee set
+    <dynamic>
+      <isNotEmpty property="name">  
+	    <![CDATA[
+	    	name = #name#,
+	    ]]>
+      </isNotEmpty>
+      <isNotEmpty property="password">  
+	    <![CDATA[
+	    	password = #password#,
+	    ]]>
+      </isNotEmpty>
+      <isNotEmpty property="mobile">  
+	    <![CDATA[
+	    	mobile = #mobile#,
+	    ]]>
+      </isNotEmpty>
+      <isNotEmpty property="role">  
+	    <![CDATA[
+	    	role = #role#,
+	    ]]>
+      </isNotEmpty>
+     </dynamic>
+    	gmt_modify = now()
+    where
+      id = #id#
+  </update>
+  
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_employee where id = #id#
+  </delete>
+</sqlMap>

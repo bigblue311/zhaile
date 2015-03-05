@@ -1,0 +1,30 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+#set ($categoryCache = $cacheTools.getCategorycache())
+<table>
+	<tr>
+		<td colspan="7">&nbsp;我&nbsp;的&nbsp;订&nbsp;单&nbsp;(点击结帐)</td>
+	</tr>
+#foreach($shoppingCar in $shoppingCarList)
+	#if($shoppingCar.shopCar.valid == '0')
+		#set ($shop = $categoryCache.getShop($shoppingCar.productVO.productDO.shopId.toString()))
+		<tr>
+			<td>&nbsp;&nbsp;${velocityCount}.</td>
+			<td>&nbsp;&nbsp;$shoppingCar.productVO.productDO.name</td>
+			<td>&nbsp;&nbsp;($shop.name)</td>
+			<td>&nbsp;&nbsp;$shoppingCar.shopCar.quantity</td>
+			<td>&nbsp;&nbsp;份</td>
+			<td>&nbsp;&nbsp;共 $shoppingCar.totalPrice </td>
+			<td>&nbsp;&nbsp;元&nbsp;&nbsp;</td>
+		</tr>
+	#end
+#end
+	<tr>
+		<td colspan="7">&nbsp;外卖费&nbsp;:$!charge 元</td>
+	</tr>
+	<tr>
+		<td colspan="7">&nbsp;合&nbsp;&nbsp;计&nbsp;:$sum 元 </td>
+	</tr>
+	<tr>
+		<td colspan="7">&nbsp;共&nbsp;&nbsp;计&nbsp;:$total 元 </td>
+	</tr>
+</table>

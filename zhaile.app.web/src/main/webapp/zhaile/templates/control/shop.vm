@@ -1,0 +1,239 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<style>
+	.toolbar label{
+		margin-right: 30px;
+	}
+	
+	.toolbar label img{
+		margin-right: 5px;
+	}
+	
+	.toolbar a{
+		cursor: pointer;
+		font-color:blue;
+	}
+	
+	.mapInfo span{
+		color:#EA5414;
+	}
+	
+	.isShopOpen{
+		height: 20px;
+		text-align: center;
+		font-size: 15px;
+		padding-top: 5px;
+		padding-bottom: 5px;
+		width: 70px;
+		z-index: 2;
+		position: relative;
+	}
+	
+	.open{
+		background: #EA5414;
+		color: white;
+	}
+	
+	.closed{
+		background: lightgrey;
+		color: grey;
+		left:52px;
+	}
+	
+	.shopLogo{
+		position: relative;
+		top: -30px;
+		z-index: 1;
+	}
+	
+	.pass01{
+		background: url('http://www.fyzhaile.com/img/pass/pass01.png');
+		display: inline-block;
+		width: 22px;
+		height: 25px;
+		position: relative;
+		top: -15px;
+		right: -111px;
+	}
+	
+	.pass02{
+		background: url('http://www.fyzhaile.com/img/pass/pass02.png');
+		display: inline-block;
+		width: 22px;
+		height: 25px;
+		position: relative;
+		top: -15px;
+		right: -111px;
+	}
+</style>
+<table style="margin:20px auto;width:100%;height:100%">
+	<tr>
+		<td align="left" valign="top" style="padding-right:20px;width:120px;">
+			#if($cacheTools.isShopValid($!shopVO.shopDO.id))
+			<div class="isShopOpen open">
+				营业中
+			</div>
+			<a class="shopLogo" target="_blank" href="$zhaile.setTarget('shop')?id=$!shopVO.shopDO.id">
+			<img style="border: 1px solid #EA5414;" src="$!shopVO.shopDO.shopImage" width="120"/>
+			</a>
+			#else
+			<div class="isShopOpen closed">
+				休息中
+			</div>
+			<a class="shopLogo" target="_blank" href="$zhaile.setTarget('shop')?id=$!shopVO.shopDO.id">
+				<img style="border: 1px solid lightgrey;" src="$!shopVO.shopDO.shopImage" width="120"/>
+				#if($!shopVO.shopDO.licenseType == "0")
+					<span class="pass01"></span>
+				#end
+				#if($!shopVO.shopDO.licenseType == "1")
+					<span class="pass02"></span>
+				#end
+			</a>
+			#end
+		</td>
+		<td align="left" valign="top">
+			<div class="particular">
+				<div>
+					<span class="title">
+						<a target="_blank" href="$zhaile.setTarget('shop')?id=$!shopVO.shopDO.id" style="color:#if($cacheTools.isShopValid($!shopVO.shopDO.id)) #EA5414 #else lightgrey #end">$!shopVO.shopDO.name</a>
+						#if($!shopVO.shopDO.isNew())
+							<img style='width:35px;height:13px;' src="./img/new.gif">
+						#end
+					</span>
+				</div>
+				<p class="auxiliary-text" style="padding:0px 50px 0px 0px;">$!shopVO.shopDO.description</p>
+				<div class="caption">
+					<div class="titlecon">
+						<p>
+							营业时间：<span style="min-width:150px;display:inline-block;">$!shopVO.shopDO.gmtOpen - $!shopVO.shopDO.gmtClose</span>
+							地址：<span style="min-width:150px;display:inline-block;">$!shopVO.contactDO.address</span>
+						</p>
+						<p>
+							#if($!shopVO.shopDO.distance)配送范围: <span style="min-width:150px;color:red;display:inline-block;">$!shopVO.shopDO.distance 米</span>#end
+							#if($!shopVO.shopDO.price)起送价格: <span style="min-width:150px;color:red;display:inline-block;">$!shopVO.shopDO.price 元</span>#end
+						</p>
+						<p>
+							#foreach($category in $!shopVO.categoryList)
+								<span class="badge badge-info" onclick="search('',$!shopVO.shopDO.id,$category.id)">$category.name</span>&nbsp;&nbsp;
+							#end
+						</p>
+					</div>
+				</div>
+			</div>
+			#if($!shopVO.shopDO.licenseType == "0")
+			<div style="height:10px;">
+			#if($!shopVO.shopDO.licenseImg)
+			<img src="/img/pass/lic.png">&nbsp;该商家已通过<a target="_blank" href="$!shopVO.shopDO.licenseImg" class="lic" style="border-bottom: 1px dashed #666;">营业执照认证
+				<br><img style="display:none;" src="$!shopVO.shopDO.licenseImg" /></a>&nbsp;&nbsp;
+			#end
+			</div>
+			#end
+			#if($!shopVO.shopDO.licenseType == "1")
+			<div style="height:10px;">
+			<img src="/img/pass/lic.png">&nbsp;该商家已通过个人身份认证&nbsp;&nbsp;
+			</div>
+			#end
+			<br>
+			<div class="toolbar">
+				<label class="auxiliary-text"><a class="showComment_$!shopVO.shopDO.id" onclick="showComment('$!shopVO.shopDO.id')"><img src="/img/icon/comment_go.png" width="16" height="16"/>展开评论</a></label>
+				<label class="auxiliary-text"><a target="_blank" href="$zhaile.setTarget('comment')?id=$!shopVO.shopDO.id"><img src="/img/icon/comment_edit.png" width="16" height="16"/>我要评论（$!shopVO.totalComment条）</a></label>
+				#if($!loginUser)
+				<label class="auxiliary-text">
+				<a shopId="$!shopVO.shopDO.id" class="fav" style="display:#if($!shopVO.isFav) '' #else none #end"><img src="/img/icon/fav.png" width="16" height="16"/>取消收藏</a>
+				<a shopId="$!shopVO.shopDO.id" class="unfav" style="display:#if($!shopVO.isFav) none #else '' #end"><img src="/img/icon/unfav.png" width="16" height="16"/>添加收藏</a>
+				</label>&nbsp;&nbsp;<img src="./img/new.gif"></img>
+				#end
+			</div>
+		</td>
+		<td align="left" valign="top" width="150" class="mapInfo">
+			<p class="auxiliary-text">
+				累计成交：
+				<span style="min-width:50px;display:inline-block;">$!shopVO.totalSold</span> 笔
+			</p>
+			<p class="auxiliary-text">
+				外送费用：
+				<span style="min-width:50px;display:inline-block;" shopid="$!shopVO.shopDO.id" defaultCharge="$!shopVO.shopDO.charge" name="mapCharge"><img src="./img/loading.gif"></img></span> 元
+			</p>
+			<p class="auxiliary-text">
+				外送距离：
+				<span style="min-width:50px;display:inline-block;" lng="$!shopVO.shopDO.lng" lat="$!shopVO.shopDO.lat" name="mapDistance"><img src="./img/loading.gif"></img></span> 米
+			</p>
+			<p class="auxiliary-text">
+				送达时间：
+				<span style="min-width:50px;display:inline-block;" name="mapDuration"><img src="./img/loading.gif"></img></span> 分钟
+			</p>
+			<p class="auxiliary-text">
+				配送方式：
+				<span style="min-width:50px;display:inline-block;" name="mapDelivery"><img src="./img/loading.gif"></img></span>
+			</p>
+		</td>
+	</tr>
+</table>
+<div class="wp_$!shopVO.shopDO.id wp" style="width:90%;display:none">
+	<ul id="slider" class="slider" style="top: 0px;">
+		#set($commentList = $!shopVO.commentList)
+		#foreach($comment in $commentList)
+		<li style="opacity: 1;">
+			<p class="fl"><img width="60px" src="./img/headimg/default_headImg.jpg" alt=""></p>
+			<p class="comment">
+				#if($!$comment.customer)$comment.customer.name#else游客#end • $dateTools.DateToString($!comment.comment.gmtCreate) ($!comment.comment.star分)
+				<br><label style='font-size:13px;'>$!comment.comment.content</label>
+			</p>
+		</li>
+		#end
+	</ul>
+</div>
+<hr style="border:0 0 1px 0 dashed lightGrey;">
+<script type="text/javascript">
+jQuery(document).ready(function(){
+    jQuery(".unfav").click(function(){
+    	var timestamp = currentTime();
+    	var shopId = jQuery(this).attr('shopId');
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/addToFav.json')?timestamp='+timestamp+'&shopId='+ shopId + '&prodId=',
+			success:function(data, textStatus){
+				if(data.success){
+					$(".fav").show();
+					$(".unfav").hide();
+				}
+			}
+		});
+    });
+    
+    jQuery(".fav").click(function(){
+    	var timestamp = currentTime();
+    	var shopId = jQuery(this).attr('shopId');
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/removeFromFav.json')?timestamp='+timestamp+'&shopId='+ shopId+ '&prodId=',
+			success:function(data, textStatus){
+				if(data.success){
+					$(".unfav").show();
+					$(".fav").hide();
+				}
+			}
+		});
+    });
+    
+    jQuery(".lic").mouseenter(function(){
+    	jQuery(this).find("img").show();
+    });
+    
+    jQuery(".lic").mouseout(function(){
+    	jQuery(this).find("img").hide();
+    });
+});
+
+
+function showComment(shopId){
+	var commentDiv = ".wp_"+shopId;
+	var commentA = ".showComment_"+shopId;
+   	if(jQuery(commentDiv).css('display') == 'none'){
+   		jQuery(commentDiv).show();
+   		jQuery(commentA).empty().append("<img src='/img/icon/comment_remove.png' width='16' height='16'/>收起评论</a>");
+   	} else {
+   		jQuery(commentDiv).hide();
+   		jQuery(commentA).empty().append("<img src='/img/icon/comment_go.png' width='16' height='16'/>展开评论</a>");
+   	}
+}
+</script>

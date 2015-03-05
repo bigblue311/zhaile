@@ -1,0 +1,7 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<div id="luckyDiv" style="display:''">
+$control.setTemplate('lucky')
+</div>
+<div style="padding:8px 0px 16px 0px">
+	<button id="freshLucky" class="button button-primary">刷新下试试</button>
+</div>

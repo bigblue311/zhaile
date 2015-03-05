@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="HeadImageDO">
+
+  <typeAlias alias="HeadImage" type="com.zhaile.dal.model.HeadImageDO"/>
+
+  <resultMap id="RM" class="HeadImage">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="imgS" column="img_s"/>
+    <result property="imgM" column="img_m"/>
+    <result property="imgL" column="img_l"/>
+    <result property="title" column="title"/>
+  </resultMap>
+
+  <select id="getAll" resultMap="RM">
+    select * from zl_system_head_image  
+  </select>
+</sqlMap>

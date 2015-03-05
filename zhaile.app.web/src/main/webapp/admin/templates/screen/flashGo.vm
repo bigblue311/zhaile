@@ -1,0 +1,411 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<h1>查询条件</h1>
+<div class="doc-content">
+	<form action="$admin.setTarget('flashGo')" class="form-horizontal well" id="queryForm">
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">活动时间：</label>
+				<div class="controls">
+					<input type="text" class="calendar" name="gmtOpenStart" id="gmtOpenStart" value="$!flashGoQuery.gmtOpenStart">
+					至
+					<input type="text" class="calendar" name="gmtOpenEnd" id="gmtOpenEnd" value="$!flashGoQuery.gmtOpenEnd">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-actions offset3">
+				<button class="button button-primary">搜索</button>
+				<button type="reset" class="button">重置</button>
+			</div>
+		</div>
+	</form>
+</div>
+<h1>查询结果</h1>
+<div id="grid"></div>
+$control.setTemplate("paging.vm")
+<div style="display:none" id="flashGo">
+	<div id="flashGoFrom">
+		<div class="row">
+			<div style="float:right">
+				<img id="adImg" src="" style="border:1px solid lightgrey;width:246px;height:164px"><br>
+				<button imgWidth="246" imgHeight="164" imgId="adImg" class="btnUpload button button-danger button-small">上传活动图片...</button>
+			</div>
+	        <div>
+	          <p>
+	            <label>商品编号：</label><input id="prodId" data-rules="{required:true,max:100}" type="text" />
+	            <input type="hidden" id="id" value=""/>
+	          </p>
+	          <p>
+	            <label>开始时间：</label><input type="text" class="calendar" name="gmtOpenDate" id="gmtOpenDate" value="" style="width:140px;" />
+	          </p>
+	          <p>
+	            <label>结束时间：</label><input type="text" class="calendar" name="gmtCloseDate" id="gmtCloseDate" value="" style="width:140px;" />
+	          </p>
+	          <p>
+	            <label>优惠价格：</label><input id="price" data-rules="{required:true,number:true}" type="text" />
+	          </p>
+	          <p>
+	            <label>每人限购：</label><input id="limitBuy" type="text" />
+	          </p>
+	          <p>
+	            <label>商品数量：</label><input id="total" type="text" />
+	          </p>
+	          <p>
+	            <label>实际卖出：</label><input id="sold" type="text" />
+	          </p>
+	    	</div>
+	    </div>
+	</div>
+</div>
+<script type="text/javascript">
+	BUI.use('bui/calendar',function(Calendar){
+		var gmtModifyStart = new Calendar.DatePicker({
+			  trigger:'#gmtOpenStart',
+			  selectedDate : new Date(),
+			  showTime : false,
+			  autoRender : true
+		});
+			
+		var gmtModifyEnd = new Calendar.DatePicker({
+			  trigger:'#gmtOpenEnd',
+			  selectedDate : new Date(),
+			  showTime : false,
+			  autoRender : true
+		});
+		
+		var gmtOpenDate = new Calendar.DatePicker({
+			  trigger:'#gmtOpenDate',
+			  selectedDate : new Date(),
+			  showTime : true,
+			  autoRender : true
+		});
+		
+		var gmtCloseDate = new Calendar.DatePicker({
+			  trigger:'#gmtCloseDate',
+			  selectedDate : new Date(),
+			  showTime : true,
+			  autoRender : true
+		});
+	});
+	
+    var Grid = BUI.Grid,
+    Data = BUI.Data;
+    var Store = Data.Store,
+    columns = [
+		{
+			title : '序号',
+			dataIndex : 'id',
+			renderer : function(val,obj,index) {
+				return index+1;
+			},
+	        width:'5%'
+		},{
+            title : '活动图片',
+            elCls: 'left',
+            dataIndex :'adImg',
+            renderer : function(val,obj,index) {
+				var html = "";
+				if(obj!=null){
+					var adImg = obj.adImg;
+					html += "<img src='"+adImg+"' eventId='"+obj.id+"' style='width:246px;height:164px'/>";
+				}
+				return html;
+		    },
+            width:'25%'
+        },{
+			title : '商品ID',
+			elCls: 'left',
+			dataIndex :'prodId',
+			renderer : function(val,obj,index) {
+				var html = "";
+				if(obj!=null){
+					html += "<a href='$zhaile.setTarget('product.htm')?id="+obj.prodId+"')' target='_blank'>"+obj.prodId+"</a>";
+				}
+				return html;
+			},
+			width:'5%'
+        },{
+			title : '开始时间',
+			elCls: 'left',
+			dataIndex : 'gmtOpen',
+			renderer:BUI.Grid.Format.datetimeRenderer,
+			width:'10%'
+     	},{
+            title : '结束时间',
+            elCls: 'left',
+            dataIndex : 'gmtClose',
+            renderer:BUI.Grid.Format.datetimeRenderer,
+            width:'10%'
+       	},{
+            title : '优惠价格',
+            elCls: 'left',
+            dataIndex : 'price',
+            width:'5%'
+       	},{
+            title : '每人限购',
+            elCls: 'left',
+            dataIndex: 'limitBuy',
+            renderer : function(val,obj,index) {
+				return obj.limitBuy + "份";
+			},
+            width:'10%'
+       	},{
+            title : '共计',
+            elCls: 'left',
+            dataIndex: 'total',
+			renderer : function(val,obj,index) {
+				return obj.total + "份";
+			},
+            width:'10%'
+       	},{
+            title : '售出',
+            elCls: 'left',
+            dataIndex: 'sold',
+            renderer : function(val,obj,index) {
+				return obj.sold + "份";
+			},
+            width:'10%'
+       	},{
+			title : '修改',
+			elCls: 'center',
+			dataIndex : 'oper',
+			renderer : function(val,obj,index) {
+				var btn = "";
+				if(obj!=null){
+					var openTime = json2date('Y-m-d H:i:s',obj.gmtOpen);
+					var closeTime = json2date('Y-m-d H:i:s',obj.gmtClose);
+					
+					btn += "<span class='grid-command' onclick=\"updateFunction('"+obj.id+"',";
+					btn += "'"+obj.prodId+"',";
+					btn += "'"+obj.price+"',";
+					btn += "'"+obj.limitBuy+"',";
+					btn += "'"+obj.total+"',";
+					btn += "'"+obj.adImg+"',";
+					btn += "'"+openTime+"',";
+					btn += "'"+closeTime+"',";
+					btn += "'"+obj.sold+"')\"";
+					btn += " >修改</span> ";
+				}
+				return btn;
+			},
+			width: '10%'
+		}],
+		data = #if($!{eventList})#noescape()$!{eventList}#end#else null #end;
+
+      var store = new Store({
+        data : data
+      }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store,
+        tbar : {
+        	items : [
+			{
+				btnCls : 'button button-small',
+				text : '<i class="icon-plus"></i>添加活动',
+				listeners : {
+					'click' : addFlashGo
+				}
+			}]
+        },
+        bbar : {
+        	items : [
+			{
+				btnCls : 'button button-small',
+				text : '<i class="icon-plus"></i>添加活动',
+				listeners : {
+					'click' : addFlashGo
+				}
+			}]
+        }
+      });
+
+      grid.render();
+      
+      var Overlay = BUI.Overlay;
+	    
+	  var eventDialog = new Overlay.Dialog({
+	       title:'活动编辑',
+	       width:600,
+	       height:600,
+	       contentId:'flashGoFrom',
+	       success:function () {
+	      	if(validateFrom()){
+	      		eventCallback();
+	       }}
+	  });
+	  
+	  var uploadDialog = new Overlay.Dialog({
+	        title:'文件上传',
+	        width:600,
+	        height:600,
+	        contentId:'fileploadFrom',
+	        success:function () {
+	        	var imgId = jQuery("#itemId").val();
+	        	var imgPath = jQuery("#itemPath").val();
+	        	jQuery("#"+imgId).attr("src",imgPath);
+	        	uploadDialog.close();
+	        }
+	   });
+	  
+	  function validateFrom(){
+    	  var errorCount = jQuery.find('.x-field-error').length;
+    	  return errorCount == 0;
+      }
+	  
+	  function eventCallback(){
+		  	var id = jQuery(".bui-stdmod-body #id").val();
+	  	 	var prodId = jQuery(".bui-stdmod-body #prodId").val();
+	  	 	var price = jQuery(".bui-stdmod-body #price").val();
+	  	 	var limitBuy = jQuery(".bui-stdmod-body #limitBuy").val();
+	  	 	var total = jQuery(".bui-stdmod-body #total").val();
+	  	 	var adImg = jQuery(".bui-stdmod-body #adImg").attr("src");
+	  	 	var sold = jQuery(".bui-stdmod-body #sold").val();
+	  	 	var openDate = jQuery(".bui-stdmod-body #gmtOpenDate").val();
+	  	 	var closeDate = jQuery(".bui-stdmod-body #gmtCloseDate").val();
+	    	 
+	 	   	var timestamp = currentTime();
+	 	    var para = "?timestamp="+timestamp;
+	 	    para += "&id="+id;
+	 	    para += "&prodId ="+prodId;
+	 	    para += "&price="+price;
+	 	    para += "&limitBuy="+limitBuy;
+	 	    para += "&total="+total;
+	 	    para += "&adImg="+adImg;
+	 	    para += "&sold="+sold;
+	 	    para += "&gmtOpenString="+openDate;
+	 	    para += "&gmtCloseString="+closeDate;
+	 	    
+	 	    jQuery.ajax({
+	 			type: "get",
+	 			url: '$admin.setTarget('/json/updateFlashGo.json')'+ para,
+	 			success:function(data, textStatus){
+	 				eventDialog.close();
+	 				jQuery("#queryForm").submit();
+	 			}
+	 		});
+	  }
+      
+      function addFlashGo(){
+    	  eventDialog.show();
+    	  jQuery(".bui-stdmod-body #id").val("");
+	  	  jQuery(".bui-stdmod-body #prodId").val("");
+	  	  jQuery(".bui-stdmod-body #price").val("");
+	  	  jQuery(".bui-stdmod-body #limitBuy").val("");
+	  	  jQuery(".bui-stdmod-body #total").val("");
+	  	  jQuery(".bui-stdmod-body #adImg").attr("src","");
+	  	  jQuery(".bui-stdmod-body #sold").val("0");
+	  	  var startDate = currentDate() + " 09:30:00";
+	  	  jQuery(".bui-stdmod-body #gmtOpenDate").val(startDate);
+	  	  var endDate = currentDate() + " 10:30:00";
+	  	  jQuery(".bui-stdmod-body #gmtCloseDate").val(endDate);
+      }
+      
+      function updateFunction(id,prodId,price,limitBuy,total,adImg,gmtOpen,gmtClose,sold) {
+    	  eventDialog.show();
+    	  jQuery(".bui-stdmod-body #id").val(id);
+	  	  jQuery(".bui-stdmod-body #prodId").val(prodId);
+	  	  jQuery(".bui-stdmod-body #price").val(price);
+	  	  jQuery(".bui-stdmod-body #limitBuy").val(limitBuy);
+	  	  jQuery(".bui-stdmod-body #total").val(total);
+	  	  jQuery(".bui-stdmod-body #adImg").attr("src",adImg);
+	  	  jQuery(".bui-stdmod-body #gmtOpenDate").val(gmtOpen);
+	  	  jQuery(".bui-stdmod-body #gmtCloseDate").val(gmtClose);
+	  	  jQuery(".bui-stdmod-body #sold").val(sold);
+      }
+      
+      function json2date(format,timestamp){
+          var a,jsdate = (timestamp) ? new Date(timestamp) : new Date();
+          //前导0
+          var pad = function(n,c){
+              if((n=n+'').length<c){
+                  return new Array(++c - n.length).join('0')+n;
+              }else{
+                  return n;
+              }
+          }
+          var f = {
+              d: function(){ return pad(f.j(),2);},
+              j: function(){ return jsdate.getDate();},
+              m: function(){ return pad(f.n(),2);},
+              n: function(){ return jsdate.getMonth()+1;}, 
+              Y: function(){ return jsdate.getFullYear();},
+              H: function(){ return pad(jsdate.getHours(),2);},
+              i: function(){ return pad(jsdate.getMinutes(),2);},
+              s: function(){ return pad(jsdate.getSeconds(),2);}
+          };
+          return format.replace(/[\\]?([a-zA-Z])/g,function(t,s){
+              if(t!=s){
+                  ret = s;
+              }else if(f[s]){
+                  ret = f[s]();
+              }else{
+                  ret = s;
+              }
+              return ret;
+          });
+      }
+      
+      jQuery(document).ready(function(){
+	    jQuery(".btnUpload").click(function(){
+		   	var imgWidth = jQuery(this).attr("imgWidth");
+		   	var imgHeight = jQuery(this).attr("imgHeight");
+		   	var imgId = jQuery(this).attr("imgId");
+		   	
+		   	jQuery("#allowedWidth").empty().append(imgWidth);
+		   	jQuery("#allowedHeight").empty().append(imgHeight);
+		   	if(imgId!=""){
+		   		jQuery("#itemId").val(imgId);
+		   	}
+		   	uploadDialog.show();
+	    });
+      });
+</script>
+
+<div style="display:none" id="fileUploder">
+	<div id="fileploadFrom">
+			<input type="hidden" id="itemPath" value=""/>
+			<input type="hidden" id="itemId" value=""/>
+			<div id="J_Uploader"></div>
+			<div>上传的图片，只能是JPG或者PNG格式的，且注意尺寸<label id="allowedWidth"></label>*<label id="allowedHeight"></label></div>
+			<div id="imgSize">图片尺寸为<label id="imgWidth"></label>*<label id="imgHeight"></label></div>
+			<img src="" id="imgPreview" />
+	</div>	
+</div>
+<script>
+BUI.use('bui/uploader',function (Uploader) {
+	var uploader = new Uploader.Uploader({
+        render: "#J_Uploader",
+        url: "$admin.setTarget('/upload/fileUpload.json')",
+        isSuccess: function(result){
+        	if(result.success){
+        		var url = result.dataObject;
+				jQuery("#imgPreview").attr("src",url);
+				jQuery("#imgPreview").load(function(){
+	          			var allowedWidth = jQuery("#allowedWidth").text();
+	          			var allowedHeight = jQuery("#allowedHeight").text();
+	          		
+	          			var width = jQuery("#imgPreview").width();
+	          			var height = jQuery("#imgPreview").height();
+	          		
+	          			jQuery("#imgWidth").empty().append(width);
+	          			jQuery("#imgHeight").empty().append(height);
+	          		
+	          			if(allowedWidth!=width || allowedHeight!=height){
+	          				alert('图片的尺寸不符合要求!');
+	          				return false;
+	          			} else {
+	          				jQuery("#itemPath").val(url);
+	          				return true;
+	          			}
+				});
+        	} else {
+        		alert(result.message);
+        		return false;
+        	}
+        }
+      }).render();
+});
+</script>

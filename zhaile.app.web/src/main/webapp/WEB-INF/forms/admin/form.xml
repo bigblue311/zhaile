@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:p="http://www.springframework.org/schema/p"
+             xmlns:services="http://www.alibaba.com/schema/services"
+             xmlns:fm-conditions="http://www.alibaba.com/schema/services/form/conditions"
+             xmlns:fm-validators="http://www.alibaba.com/schema/services/form/validators"
+             xsi:schemaLocation="
+                 http://www.alibaba.com/schema/services http://localhost:8080/schema/services.xsd
+                 http://www.alibaba.com/schema/services/form/conditions http://localhost:8080/schema/services-form-conditions.xsd
+                 http://www.alibaba.com/schema/services/form/validators http://localhost:8080/schema/services-form-validators.xsd
+                 http://www.springframework.org/schema/beans http://localhost:8080/schema/www.springframework.org/schema/beans/spring-beans.xsd
+             ">
+
+    <services:form postOnlyByDefault="true">
+		<!-- - =============================================== - 用来检查csrf token。 
+			- =============================================== -->
+		<group name="csrfCheck">
+			<field name="csrfToken">
+				<fm-validators:csrf-validator>
+					<message>提交的数据已过期</message>
+				</fm-validators:csrf-validator>
+			</field>
+		</group>
+		
+		<group name="login" extends="csrfCheck">
+			<field name="loginId" displayName="邮箱/用户名">
+				<fm-validators:required-validator>
+					<message>必须填写 ${displayName}</message>
+				</fm-validators:required-validator>
+			</field>
+			<field name="password" displayName="密码">
+				<fm-validators:required-validator>
+					<message>必须填写 ${displayName}</message>
+				</fm-validators:required-validator>
+			</field>
+		</group>
+		
+		<group name="changePwd" extends="csrfCheck">
+			<field name="name" displayName="用户名" />
+			<field name="mobile" displayName="手机号码" />
+			<field name="newPassword" displayName="新密码">
+				<fm-validators:required-validator>
+					<message>必须填写 ${displayName}</message>
+				</fm-validators:required-validator>
+			</field>
+		</group>
+		
+		<group name="systemConfig" extends="csrfCheck">
+			<field name="id" displayName="ID" >
+				<fm-validators:required-validator>
+					<message>必须填写 ${displayName}</message>
+				</fm-validators:required-validator>
+			</field>
+			<field name="key" displayName="KEY" />
+			<field name="value" displayName="VALUE" />
+			<field name="description" displayName="描述" />
+		</group>
+		
+		<group name="employee" extends="csrfCheck">
+			<field name="id" displayName="ID" />
+			<field name="name" displayName="姓名" />
+			<field name="password" displayName="密码" />
+			<field name="mobile" displayName="联系电话" />
+			<field name="role" displayName="角色" />
+		</group>
+	</services:form>
+
+</beans:beans>

@@ -1,0 +1,204 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="javascripts/jquery.lazyload.js"></script>
+#set ($categoryCache = $cacheTools.getCategorycache())
+<style>
+	.productBox{
+		width: 180px;
+		border: 1px solid lightgrey;
+		margin: auto;
+		border-top: 0px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	
+	.searchResult {
+		float: left;
+		width: 204px;
+		height: 380px;
+		text-align: center;
+	}
+	
+	.searchResult img {
+		width: 180px;
+		height: 180px;
+	}
+	
+	.searchResult .product{
+		font-family: '微软雅黑';
+		text-align: left;
+		padding-left: 10px;
+		font-size: 14px;
+		font-weight: bold;
+		padding-bottom: 10px;
+	}
+	
+	.searchResult .price{
+		color:grey;
+		font-family: '微软雅黑';
+		text-align:left;
+		padding-left:10px;
+	}
+	
+	.searchResult .btnBuy{
+		display:none;
+		margin-top: 10px;
+	}
+	
+	.searchResult:hover .btnBuy{
+		display:block;
+	}
+	
+	.cateLabel{
+		width: 25px;
+		height: 24px;
+		line-height: 24px;
+		font-size: 16px;
+		display: block;
+		float: left;
+		margin: 1px 0 0 0;
+		background: #519cea;
+		color: #fff;
+		text-align: center;
+		border-radius: 0 2px 2px 0;
+	}
+	
+	.cateName{
+		line-height: 24px;
+		display: block;
+		float: left;
+		padding: 0 8px 0 5px;
+		background: #fff;
+		font-size: 24px;
+	}
+	
+	.cateEdit{
+		background: #fff;
+		padding-left: 14px;
+		color: grey;
+		font-size: 13px;
+		line-height: 14px;
+	}
+	
+	.cateEdit i{
+		position: relative;
+		top: 3px;
+		left: -5px;
+	}
+</style>
+<div style="padding-top:20px;margin:2px;">
+	<div>
+	#foreach($shopDO in $!shopList)
+		<a style="float: left;padding: 10px;" target="_blank" href="$zhaile.setTarget('shop')?id=$!shopDO.id">
+			<img style="border: 1px solid lightgrey;" src="$!shopDO.shopImage" width="120"/>
+		</a>
+	#end
+	</div>
+	#if($prodList.isSuccess())
+		#set($prodData = $prodList.getDataObject())
+		#set($lastCate = $null)
+		#set($cateCount = 0)
+		#foreach($product in $!prodData)
+			#set ($shop = $categoryCache.getShop($!product.shopId.toString()))
+			#set ($category = $categoryCache.getCate($!product.categoryId.toString()))
+			#if($lastCate == $null || $lastCate.id != $category.id)
+				#set($lastCate = $category)
+				#set($cateCount = $cateCount+1)
+				<div id=".cate_$!{product.categoryId}" style="clear:both;text-align:right;margin-bottom:20px;background: url(/img/titleEditLine.png);margin-left: 10px;margin-right: 10px">
+					<span class="cateLabel">${cateCount}</span>
+					<span class="cateName filter" value=".cate_$category.id" style="cursor:pointer">$category.name</span>
+					<span class="cateEdit"><a href="$zhaile.setTarget('cookBook')?word=$category.name" target="_blank"><i class="icon-list-alt"></i>菜谱</a></span>
+				</div>
+			#end
+			<div class="mapInfo searchResult price_$!{priceRangeCache.getPriceRange($product.price).id} shop_$!{shop.id} cate_$!{product.categoryId}">
+				<div><a target="_blank" href="$zhaile.setTarget('product')?id=$!product.id"><img alt="$product.name" src="$product.imgS" style="border:1px solid lightgrey;border-bottom:0px"/></a></div>
+				<div class="productBox">
+					<div class="product" prodId="$product.id">$product.name #if($product.isNew())<img style='width:35px;height:13px;' src="./img/new.gif">#end</div>
+					<div class="price">
+						价格：<span style="min-width:50px;display:inline-block;">$product.price</span> 元 
+					</div>
+					<div class="price" style="display:none">
+						外送：<span style="min-width:50px;display:inline-block;" shopid="$!shop.id" defaultCharge="$shop.charge" name="mapCharge"><img style="width:16px;height:16px;" src="./img/loading.gif"></img></span> 元
+					</div>
+					<div class="price" style="display:none">
+						距离：<span style="min-width:50px;display:inline-block;" lng="$!shop.lng" lat="$!shop.lat" name="mapDistance"><img style="width:16px;height:16px;" src="./img/loading.gif"></img></span> 米
+					</div>
+					<div class="price" style="display:none">
+						时间：<span style="min-width:50px;display:inline-block;" name="mapDuration"><img style="width:16px;height:16px;" src="./img/loading.gif"></img></span> 分钟
+					</div>
+					<div class="price" style="display:none">
+						配送：<span style="min-width:50px;display:inline-block;" name="mapDelivery"><img style="width:16px;height:16px;" src="./img/loading.gif"></img></span> 分钟
+					</div>
+				</div>
+				#if(${cacheTools.isProdValid($!product.id)})
+					<div class="btnBuy">
+						<button class='button-info button-small' onclick="addShoppingCar('$!product.id')">加入购物车</button>&nbsp;&nbsp;&nbsp;&nbsp;
+						<button class='button-danger button-small' onclick="quickBuy('$!product.id')">直接购买</button>
+					</div>
+				#else
+					<div class="btnBuy">店铺已打烊</div>
+				#end
+			</div>
+		#end
+	#end
+</div>
+<div id="searchResultPaging" class="page">
+</div>
+<script>
+jQuery(document).ready(function(){	
+	jQuery(".filter").click(function(){
+		var checked = jQuery(this).hasClass("selected");
+		if(checked){
+			jQuery(this).removeClass("selected");
+			checked = false;
+		} else {
+			jQuery(this).addClass("selected");
+			checked = true;
+		}
+		var clazz = jQuery(this).attr("value")+"";
+		jQuery(clazz).each(function(){
+			jQuery(this).toggle();
+		});
+	});
+	
+	jQuery(".selectAll").click(function(){
+		var clazz = jQuery(this).attr("data");
+		jQuery(clazz).each(function(){
+			var checked = jQuery(this).hasClass("selected");
+			if(!checked){
+				jQuery(this).addClass("selected");
+			}
+		});
+		jQuery(".searchResult").show();
+	});
+});
+
+function addShoppingCar(prodId){
+	var jsonUrl = "$zhaile.setTarget('/json/addToShoppingCar.json')?prodId="+prodId+"&quantity=1";
+	jQuery.ajax({
+		type: "get",
+		url: jsonUrl,
+		success:function(data, textStatus){
+			if(data.success){
+				toggleShoppingCar();
+			} else {
+				alert(data.message);
+			}
+		}
+	});
+}
+
+function quickBuy(prodId){
+	var jsonUrl = "$zhaile.setTarget('/json/addToShoppingCar.json')?prodId="+prodId+"&quantity=1";
+	jQuery.ajax({
+		type: "get",
+		url: jsonUrl,
+		success:function(data, textStatus){
+			if(data.success){
+				window.location.replace("/order.htm");
+			} else {
+				alert(data.message);
+			}
+		}
+	});
+}
+</script>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="LogCreditDO">
+
+  <typeAlias alias="LogCredit" type="com.zhaile.dal.model.LogCreditDO"/>
+
+  <resultMap id="RM" class="LogCredit">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="logId" column="log_id"/>
+    <result property="creditPoint" column="credit_point"/>
+    <result property="userAction" column="user_action"/>
+    <result property="userReason" column="user_reason"/>
+  </resultMap>
+  
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_log_credit where id = #id#  
+  </select>
+  
+  <select id="getByIds" resultMap="RM">
+    select * from zl_log_credit where id in
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </select>
+  
+  <insert id="insert" parameterClass="LogCredit">
+    <![CDATA[
+    insert into zl_log_credit (
+      gmt_create,
+      gmt_modify,
+      log_id,
+      credit_point,
+      user_action,
+      user_reason
+    ) values (
+      now(), now(), #logId#, #creditPoint#, #userAction#, #userReason#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+       	log_id in (select s.id from (select id from zl_log where op_type = '9' and
+       	<isNotNull property="customerId" prepend="and">
+       	<![CDATA[
+       	 	customer_id = #customerId#
+       	]]>
+       	</isNotNull>
+	    <include refid="Common.queryModify" />
+	    <include refid="Common.orderById" />
+    	<include refid="Common.pageSql" />
+	    ) as s)
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="customerId">
+    	<include refid="Common.validModify" />
+	</isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_log_credit 
+    <include refid="where" />
+  </select>
+  
+  <select id="getBylog" parameterClass="long" resultMap="RM">
+    select * from zl_log_credit where log_id = #logId#
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+   	select count(*) from zl_log_credit 
+    <include refid="where" />
+  </select>
+</sqlMap>

@@ -1,0 +1,216 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<style type="text/css">
+    html,body{margin:0;padding:0;}
+    .iw_poi_title {color:#CC5522;font-size:14px;font-weight:bold;overflow:hidden;padding-right:13px;white-space:nowrap}
+    .iw_poi_content {font:12px arial,sans-serif;overflow:visible;padding-top:4px;white-space:-moz-pre-wrap;word-wrap:break-word}
+</style>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=SOfGrXIGZPvGGZOMnMyKBSwG"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/library/AreaRestriction/1.2/src/AreaRestriction_min.js"></script>
+</head>
+<script type="text/javascript">
+	var myPoint;
+	var myMarker;
+	var myAddress;
+	
+	var map;
+	var mapDialog;
+	
+	var windowHeight = $(window).height()-100;
+	var windowWidth = $(window).width()-100;
+	var mapHeight = windowHeight-90;
+	var mapWidth = windowWidth-52;
+	
+	var targetId;
+	
+	var mapContent =
+	 "<span style='margin-right:30px;float:left;'>"+
+	 "<input type='text' value='' style='width:300px;height:20px;margin-right:5px;' id='mapKeyword'>"+
+	 "<input type='button' value='查找' onclick='searchMap()' style='padding:3px 10px 3px 10px;margin-top:5px;border:0px solid orange;background:#ff6f00;color:white;font-size:12px;margin-right:5px;'/>"+
+	 "<input type='button' value='我的位置' onclick='centerMe()' style='padding:3px 10px 3px 10px;margin-top:5px;border:0px solid orange;background:#ff6f00;color:white;font-size:12px;'/></span>"+
+	 "<span id='mapMsg' style='color:#ff6f00;font-size:14px;position:relative;top:5px;'>点击地图确定您的位置，将根据您与店铺的距离计算外卖费"+
+	 "</span><div style='width:"+mapWidth+"px;height:"+mapHeight+"px;' id='dituContent'></div>";
+	 
+	 jQuery(function(){
+		 initDialog();
+		 initMap();
+	 });
+	 
+	 function initDialog(){
+
+		 var Overlay = BUI.Overlay;
+		 mapDialog = new Overlay.Dialog({
+				title:'我的位置',
+				width: windowWidth,
+				height: windowHeight,
+				bodyContent:mapContent,
+				closeable:false,
+				buttons:[
+				{
+					text:'确定修改',
+					elCls : 'button button-danger',
+					handler : function(){
+			 			if(myPoint!=null){
+			 				BUI.Message.Confirm("确定修改坐标吗", function() {
+			 					mapDialog.close();
+								mapPickerCallback(targetId);
+							}, 'question');
+						} else {
+							$("#mapMsg").empty().append('请输入您的坐标');
+						}
+					}
+				},{
+					text:'关闭',
+					elCls : 'button button-primary',
+					handler : function(){
+						this.close();
+					}
+				}],
+				listeners : {
+					'afterRenderUI' : function(){
+						initMap();//创建和初始化地图
+					}
+				}
+		 });
+	 }
+	 
+	//创建和初始化地图函数：
+    function initMap(){
+        createMap();//创建地图
+        setMapEvent();//设置地图事件
+        addMapControl();//向地图添加控件
+    }
+	
+  //创建地图函数：
+    function createMap(){
+    	var p0 = 119.945919;
+		var p1 = 30.060034;
+ 		
+		map = new BMap.Map("dituContent");//在百度地图容器中创建一个地图
+		map.setDefaultCursor("url('bird.cur')");
+        var point = new BMap.Point(p0,p1);//定义一个中心点坐标
+        map.centerAndZoom(point,18);//设定地图的中心点和坐标并将地图显示在地图容器中
+        window.map = map;//将map变量存储在全局
+    }
+    
+    //地图事件设置函数：
+    function setMapEvent(){
+        map.enableDragging();//启用地图拖拽事件，默认启用(可不写)
+        map.enableScrollWheelZoom();//启用地图滚轮放大缩小
+        map.enableDoubleClickZoom();//启用鼠标双击放大，默认启用(可不写)
+        map.enableKeyboard();//启用键盘上下左右键移动地图
+		map.addEventListener("click", showMapInfo);
+    }
+    
+    //地图控件添加函数：
+    function addMapControl(){
+        //向地图中添加缩放控件
+		var ctrl_nav = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+		map.addControl(ctrl_nav);
+    }
+    
+    function searchMap(){
+		var local = new BMap.LocalSearch(map, {
+			renderOptions:{map: map}
+		});
+		var keyword = document.getElementById("mapKeyword").value;
+		if(keyword!=null || keyword != ''){
+			local.search(keyword);
+		}
+	}
+    
+    function showMapInfo(e){
+		findMe(e.point.lng,e.point.lat);
+    }
+    
+  //添加我的位置
+    function findMe(lng,lat){
+		myPoint = new BMap.Point(lng,lat);
+		centerMe();
+		markMe(myPoint);
+    }
+  
+    function centerMe(){
+    	if(myPoint!=null){
+    		map.setCenter(myPoint);
+    	}  	
+    }
+    
+    function markMe(point){
+    	if(myMarker!=null){
+			map.removeOverlay(myMarker);
+		}
+    	
+    	myMarker = new BMap.Marker(point);
+    	
+    	//地址解析
+		var gc = new BMap.Geocoder();
+		gc.getLocation(point, function(rs){
+			var addComp = rs.addressComponents;
+			myAddress = addComp.district + "" + addComp.street + "" + addComp.streetNumber;
+			var opts = {
+			  width : 160,     // 信息窗口宽度
+			  height: 0,     // 信息窗口高度
+			  title : "我的位置", // 信息窗口标题
+			  enableMessage:false,//设置不允许信息窗发送短息
+			  enableAutoPan:true,
+			  offset:new BMap.Size(-10,-25)
+			}
+			
+			var info = myAddress+"<br>";
+			
+			var infoWindow = new BMap.InfoWindow(info, opts);
+			
+			myMarker.addEventListener("click", function(){          
+				map.openInfoWindow(infoWindow,point); //开启信息窗口
+			});
+			
+			map.addOverlay(myMarker);
+			map.openInfoWindow(infoWindow,point); //开启信息窗口
+			
+			$("#mapMsg").empty().append(myAddress);
+		});
+    }
+    
+    function showMap(lng,lat,id){
+    	targetId = id;
+		windowHeight = $(window).height()-100;
+		windowWidth = $(window).width()-100;
+		mapHeight = windowHeight-90;
+		mapWidth = windowWidth-52;
+		
+		mapDialog.set('height',windowHeight);
+		mapDialog.set('width',windowWidth);
+		
+		jQuery('#dituContent').css({"height":mapHeight,"width":mapWidth});
+		
+		myPoint = new BMap.Point(lng,lat);
+		
+		mapDialog.show();
+		
+		findMe(lng,lat);
+		//getDistance(1,119.957026,30.056855,119.965601,30.058359);
+	}
+    
+    var sequence = 0;
+    
+    function resetSeq(){
+    	sequence = 0;
+    }
+    
+    function getDistance(id,shopid, myLng,myLat,shopLng,shopLat){
+    	var myPoint = new BMap.Point(myLng,myLat);
+        var shopPoint = new BMap.Point(shopLng,shopLat);
+    	var walking = new BMap.WalkingRoute(myPoint);
+    	if(myPoint==null||shopPoint==null){
+    		alert("invalid point");
+    		return;
+    	}
+    	walking.search(shopPoint,myPoint);
+    	
+    	walking.setSearchCompleteCallback(function (rs) {
+    	    var plan = walking.getResults().getPlan(0);
+    	    sequence = sequence+1;
+    	    distanceCallback(sequence,id,shopid,plan.getDistance(false));
+    	});
+    }
+</script>

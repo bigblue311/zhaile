@@ -1,0 +1,23 @@
+#set ($group = $form.login.defaultInstance)
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<h1>宅乐网后台管理系统</h1>
+<form action="$admin.setTarget('welcome')" method="post" id="login_form">
+	$csrfToken.hiddenField
+	<input type="hidden" name="action" value="loginAction"/>  
+	<input type="hidden" name="event_submit_do_login" value="true"/> 			
+	<div class="logininput">
+		<input type="text" name="$group.loginId.key" class="loginusername" value="" placeholder="$group.loginId.displayName" />
+		<br><br>
+		<input type="password" name="$group.password.key" class="loginuserpasswordt" value="" placeholder="$group.password.displayName" />
+	</div>
+	<br>
+	<div class="loginbtn">
+		#if (!$group.loginId.valid)
+       		<h3>$group.loginId.message</h3>
+   		#end
+   		#if (!$group.password.valid)
+       		<h3>$group.password.message</h3>
+   		#end
+		<div class="loginsubmit fl"><input type="submit" value="登录" class="btn" /></div>
+	</div>
+</form>

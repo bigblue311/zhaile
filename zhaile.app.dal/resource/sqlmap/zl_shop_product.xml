@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ProductDO">
+
+  <typeAlias alias="Product" type="com.zhaile.dal.model.ProductDO"/>
+
+  <resultMap id="RM" class="Product">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="name" column="name"/>
+    <result property="price" column="price"/>
+    <result property="discount" column="discount"/>
+    <result property="discountFrom" column="discount_from"/>
+    <result property="discountEnd" column="discount_end"/>
+    <result property="imgS" column="img_s"/>
+    <result property="imgM" column="img_m"/>
+    <result property="imgL" column="img_l"/>
+    <result property="validFrom" column="valid_from"/>
+    <result property="validTo" column="valid_to"/>
+    <result property="description" column="description"/>
+    <result property="title" column="title"/>
+    <result property="gmtOpen" column="gmt_open"/>
+    <result property="gmtClose" column="gmt_close"/>
+    <result property="shopId" column="shop_id"/>
+    <result property="categoryId" column="category_id"/>
+    <result property="pinyin" column="pinyin"/>
+    <result property="enable" column="enable"/>
+  </resultMap>
+  
+  <select id="getFull" resultMap="RM">
+    select * from zl_shop_product
+  </select>
+  
+  <select id="getFullByShopId" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_shop_product where shop_id = #shopId#
+  </select>
+  
+  <select id="getAll" resultMap="RM">
+    select * from zl_shop_product where enable = '0'
+  </select>
+  
+  <select id="getAllDisabled" resultClass="java.lang.Long">
+  	select shop_id FROM zl_shop_product group by shop_id having MIN(enable) = '1'
+  </select>
+  
+  <select id="getAnyEnabled" resultClass="java.lang.Long">
+  	select shop_id FROM zl_shop_product group by shop_id having MIN(enable) = '0'
+  </select>
+  
+  <select id="getDisabledList" resultClass="java.lang.Long">
+    select id from zl_shop_product where enable = '1'
+  </select>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_shop_product where enable = '0' and id = #id#  
+  </select>
+  
+  <select id="getByIds" resultMap="RM">
+    select * from zl_shop_product where enable = '0' and id in
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </select>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+  		<isNotNull property="enable" prepend="and">
+        	<![CDATA[ 
+        	enable = #enable#
+        	]]>
+	    </isNotNull>
+	    <isNotEmpty property="shopId" prepend="and">
+        	shop_id = #shopId#
+	    </isNotEmpty>
+	    <isNotEmpty property="valid">
+	    	<isEqual property="valid" compareValue="true" prepend="and">
+	    	<![CDATA[
+        	gmt_open < curtime() and gmt_close > curtime()
+        	 ]]>
+        	 </isEqual>
+        	 <isEqual property="valid" compareValue="true" prepend="and">
+	    	<![CDATA[
+        	valid_from < now() and valid_to > now()
+        	 ]]>
+        	</isEqual>
+	    </isNotEmpty>
+	    <isNotEmpty property="keyword" prepend="and">
+        	<![CDATA[
+        	(name like concat('%',#keyword#,'%') 
+          or description like concat('%',#keyword#,'%')
+          or title like concat('%',#keyword#,'%')
+          or pinyin like concat('%',#keyword#,'%')
+          or category_id in (select id from zl_system_category where name like concat('%',#keyword#,'%')))
+        	]]>
+	    </isNotEmpty>
+	    <isNotNull property="categoryId" prepend="and">
+        	<![CDATA[
+        	category_id = #categoryId#
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="categoryIds" prepend="and">
+        	category_id in 
+        	<iterate open="(" close=")" conjunction="," property="categoryIds"> 
+        		<![CDATA[
+		    	#categoryIds[]# 
+		    	]]>
+		    </iterate>
+	    </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="enable">
+  	<isNull property="shopId">
+  	<isNull property="keyword">
+  	<isNull property="categoryId">
+  	<isNull property="categoryIds">
+  	<isEmpty property="valid">
+        <include refid="Common.validModify" />
+    </isEmpty>
+    </isNull>
+    </isNull>
+	</isNull>
+	</isNull>
+	</isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_shop_product 
+    <include refid="where" />
+    order by category_id  
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_shop_product
+	<include refid="where" />
+  </select>
+  
+  <select id="getBestSell10" resultMap="RM">
+   	select p.* FROM zl_transaction_order o,zl_shop_product p where p.enable='0' and p.id=o.prod_id group by o.prod_id order by count(o.prod_id) desc limit 10
+  </select>
+  
+  <select id="getRandom" parameterClass="java.util.HashMap" resultMap="RM">
+  	<![CDATA[
+  	SELECT * FROM zl_shop_product AS t1 
+  	JOIN (SELECT ROUND(RAND() * (
+  		(SELECT MAX(id) FROM zl_shop_product where img_s is not null)- 
+  		(SELECT MIN(id) FROM zl_shop_product where img_s is not null))+
+  		(SELECT MIN(id) FROM zl_shop_product where img_s is not null)) AS tid) AS t2
+	WHERE t1.id >= t2.tid 
+	and t1.img_s is not null and t1.img_s <> '' and t1.enable = '0' 
+	and t1.gmt_open < curtime() and t1.gmt_close > curtime() and
+	]]>
+	 <isNotEmpty property="categoryId">
+       	<![CDATA[
+       	t1.category_id = #categoryId#
+	    ]]>
+    </isNotEmpty>
+    <isNotEmpty property="categoryIds">
+       	t1.category_id in 
+       	<iterate open="(" close=")" conjunction="," property="categoryIds" > 
+       		<![CDATA[
+	    	#categoryIds[]#
+	    	]]>
+	    </iterate>
+    </isNotEmpty>
+    <![CDATA[LIMIT #count#]]>
+  </select>
+   
+  <insert id="insert" parameterClass="Product">
+    <![CDATA[
+    insert into zl_shop_product (
+      gmt_create,
+      gmt_modify,
+      name,
+      price,
+      discount,
+      discount_from,
+      discount_end,
+	  img_s,
+	  img_m,
+	  img_l,
+      valid_from,
+      valid_to,
+      description,
+      title,
+      gmt_open,
+      gmt_close,
+      shop_id,
+      category_id,
+      pinyin,
+      enable
+    ) values (
+      now(), now(), #name#, #price#, #discount#, #discountFrom#, #discountEnd#,
+      #imgS#, #imgM#, #imgL#, #validFrom#, #validTo#, #description#, #title#,
+      time_format(#gmtOpen#, '%H:%i:%s'),
+      time_format(#gmtClose#, '%H:%i:%s'),
+      #shopId#, #categoryId#, #pinyin#, '0'
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="Product">
+    update zl_shop_product set 
+    <dynamic>
+      <isNotEmpty property="name">  
+          <![CDATA[
+           name = #name#,
+           ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="description">
+      	<![CDATA[  
+           description = #description#, 
+        ]]>
+      </isNotEmpty>
+      <isNotEmpty property="title">
+      	<![CDATA[  
+           title = #title#,
+        ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="price">  
+      	<![CDATA[
+           price = #price#,
+        ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="discount">
+    	<![CDATA[  
+           discount = #discount#,
+        ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="discountFrom">  
+      	<![CDATA[
+           discount_from = #discountFrom#,
+        ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="discountEnd">
+      	<![CDATA[  
+           discount_end = #discountEnd#,
+        ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="validFrom">
+      	<![CDATA[  
+           valid_from = #validFrom#,
+        ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="validTo">
+     	<![CDATA[  
+           valid_to = #validTo#,
+        ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="gmtOpen">
+      	<![CDATA[  
+           gmt_open = time_format(#gmtOpen#, '%H:%i:%s') ,
+        ]]>
+      </isNotEmpty>
+      <isNotEmpty property="gmtClose">
+      	<![CDATA[ 
+           gmt_close = time_format(#gmtClose#, '%H:%i:%s'),
+        ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="categoryId">  
+         <![CDATA[   
+           category_id = #categoryId#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="pinyin">  
+          <![CDATA[
+           pinyin = #pinyin#,
+           ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="enable">  
+          <![CDATA[
+           enable = #enable#,
+           ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="imgS">  
+          <![CDATA[
+           img_s = #imgS#,
+           ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#  
+  </update>
+  
+  <update id="updateStatusByShopId" parameterClass="Product">
+    update zl_shop_product set enable = #enable#,
+      gmt_modify = now()
+    where
+      shop_id = #shopId#  
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_shop_product where id = #id#
+  </delete>
+  
+  <update id="softDeleteById" parameterClass="java.lang.Long">
+    update zl_shop_product set enable = '1' where id = #id#
+  </update>
+  
+  <update id="recoverById" parameterClass="java.lang.Long">
+    update zl_shop_product set enable = '0' where id = #id#
+  </update>
+</sqlMap>

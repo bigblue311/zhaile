@@ -1,0 +1,30 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+#if($!hotProduct)
+	#foreach($product in $hotProduct)
+		<a class="hotProduct" prodId="$product.id" adId="">
+		<em>
+			#if($velocityCount == 1)
+				宅
+			#elseif($velocityCount == 2)
+				乐
+			#elseif($velocityCount == 3)
+				热
+			#elseif($velocityCount == 4)
+				卖
+			#elseif($velocityCount == 5)
+				餐
+			#elseif($velocityCount == 6)
+				品
+			#elseif($velocityCount == 7)
+				T
+			#elseif($velocityCount == 8)
+				O
+			#elseif($velocityCount == 9)
+				P
+			#elseif($velocityCount == 10)
+				10
+			#end
+		</em>
+		$velocityCount. $product.name $product.price 元</a>
+	#end
+#end

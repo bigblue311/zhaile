@@ -1,0 +1,290 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+#set ($systemCache = $cacheTools.getSystemConfigcache())
+#set ($adCache = $cacheTools.getAdvertisementcache())
+#set ($employeeCache = $cacheTools.getEmployeecache())
+#set ($categoryCache = $cacheTools.getCategorycache())
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<base href="http://www.fyzhaile.com/" />
+<title>【富阳外卖】$title</title>
+<meta name="baidu-site-verification" content="M6oAuwgHZC" />
+<meta content="富阳外卖，富阳美食,富阳外卖外送,外卖富阳,富阳外卖电话,富阳网上外卖,富阳宅乐外卖电话,富阳宅乐" name="keywords">
+<meta content="富阳最新、最全、最方便的外卖信息，点餐.$systemCache.getConfig('ZHAILE_PHONE').value $systemCache.getConfig('ZHAILE_MOBILE').value" name="description">
+<link rel="icon" href="img/favicon.ico" mce_href="img/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="img/favicon.ico" mce_href="img/favicon.ico" type="image/x-icon"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+$control.setTemplate("resource.vm")
+<link rel="stylesheet" type="text/css" href="styles/template/default.css" />
+<link rel="stylesheet" type="text/css" href="styles/nav/nav.css"/>
+<link rel="stylesheet" type="text/css" href="styles/nav/rightNav.css"/>
+<link rel="stylesheet" type="text/css" href="styles/comment/comment.css"/>
+<link rel="stylesheet" type="text/css" href="styles/index.css"/>
+<link rel="stylesheet" type="text/css" href="styles/product/product.css" />
+<link rel="stylesheet" type="text/css" href="styles/search/search.css"/>
+<link rel="stylesheet" type="text/css" href="styles/template/rightMenu.css" />
+</head>
+<body>
+	<div id="login" style="text-align:center;">
+		$control.setTemplate("login.vm")
+	</div>
+	<div id="bannerTop" style="width:100%;background:white;text-align:center;">
+		$control.setTemplate("bannerTop.vm")
+	</div>
+	<div id="menuTop" class="">
+		$control.setTemplate("menu.vm")
+	</div>
+	<div style="height:2px"></div>
+	<div id="paymentStatus">
+		
+	</div>
+	<div id="mainBody">
+		$screen_placeholder
+	</div>
+	<!--<div id="footerTop" style="text-align:center;clear:both;">
+		<img src="/img/footerTop.png" width="1024px"/>
+	</div>-->
+	<div id="footerNew" style="">
+		<table align="center" width="1024px">
+			<tr>
+				<td align="left">
+					<p><font size="3"><i class="icon-headphones"></i>客服专线</font></p>
+					<p><font size="2"><a>$systemCache.getConfig('ZHAILE_PHONE').value / $systemCache.getConfig('ZHAILE_MOBILE').value</a></font></p>
+					<p><font size="3"><i class="icon-time"></i>配送时间</font></p>
+					<p><font size="2"><a>$systemCache.getConfig('ZHAILE_OPEN').value - $systemCache.getConfig('ZHAILE_CLOSE').value</a></font></p>
+					<p><font size="3"><i class="icon-bullhorn"></i>网站公告</font></p>
+				</td>
+				<td align="left" style="border-left:1px solid lightgrey">
+					<p><font size="3"><i class="icon-plane"></i>配送支付</font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info1">支付方式</a></font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info2">配送方式</a></font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info3">配送效率</a></font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info4">服务费用</a></font></p>
+				</td>
+				<td align="left" style="border-left:1px solid lightgrey">
+					<p><font size="3"><i class="icon-leaf"></i>关于我们</font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info5">联系我们</a></font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info6">招贤纳士</a></font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info7">网站介绍</a></font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info8">商家加盟</a></font></p>
+				</td>
+				<td align="left" style="border-left:1px solid lightgrey">
+					<p><font size="3"><i class="icon-question-sign"></i>帮助中心</font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info9">服务内容</a></font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info10">服务介绍</a></font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info11">常见问题</a></font></p>
+					<p><font size="2"><a target="_blank" href="$zhaile.setTarget('info')#info12">网站地图</a></font></p>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="top"></div>
+	<form action="$zhaile.setTarget('search')" id="searchFrom" target="_blank">
+		<input type="hidden" name="keyword" id="_keyword_" value=""/>
+		<input type="hidden" name="shopId" id="_shopId_" value=""/>
+		<input type="hidden" name="categoryId" id="_categoryId_" value=""/>
+	</form>
+	<script type="text/javascript">
+		function showPaymentStatus(){
+			var timestamp = currentTime();
+			jQuery.ajax({
+				type: "get",
+				url: '$zhaile.setTarget("/json/paymentStatus.vm")?timestamp='+timestamp,
+				success:function(data, textStatus){
+					jQuery("#paymentStatus").empty().append(data);
+				}
+			});
+		}
+		
+		showPaymentStatus();
+		setInterval("showPaymentStatus()",60000);
+		
+		function showShoppingCar(){
+			var timestamp = currentTime();
+			jQuery.ajax({
+				type: "get",
+				url: '$zhaile.setTarget("/json/reloadShoppingCar.vm")?timestamp='+timestamp,
+				success:function(data, textStatus){
+					jQuery(".zhaileOrder").empty().append(data);
+				}
+			});
+		}
+		
+		function toggleShoppingCar(){
+			showShoppingCar();
+			jQuery(".zhaileOrder").show();
+			setTimeout("hideShoppingCar()",3000);
+		}
+		
+		function hideShoppingCar() {
+			jQuery(".zhaileOrder").hide();
+		}
+		
+		function currentTime(){
+			var d = new Date(),str = '';
+			 str += d.getFullYear()+'-';
+			 str += getTimeStr(d.getMonth() + 1)+'-';
+			 str += getTimeStr(d.getDate())+' ';
+			 str += getTimeStr(d.getHours())+':'; 
+			 str += getTimeStr(d.getMinutes())+':'; 
+			 str += getTimeStr(d.getSeconds()); 
+			return str;
+		}
+		
+		function getTimeStr(t){
+			if(t < 10){
+				return "0"+t;
+			} else {
+				return t;
+			}
+		}
+		
+		function search(keyword,shopId,categoryId){
+			jQuery("#_keyword_").val(keyword);
+			jQuery("#_shopId_").val(shopId);
+			jQuery("#_categoryId_").val(categoryId);
+			jQuery("#searchFrom").submit();
+		}
+		
+		jQuery('.hotProduct').click(function(){
+			var prodId = jQuery(this).attr('prodId');
+			var adId = jQuery(this).attr('adId');
+			var timestamp = currentTime();
+			var url = "$zhaile.setTarget('/json/addToShoppingCar.json')?timestamp="+timestamp+"&prodId="+prodId + "&quantity=1&adId="+adId;
+			
+			jQuery.ajax({
+				type: "get",
+				url: url,
+				success:function(data, textStatus){
+					if(data.success){
+						toggleShoppingCar();
+					} else {
+						alert(data.message);
+					}
+					
+				}
+			});
+		});
+
+		jQuery('.hotCategory').click(function(){
+			var cateId = jQuery(this).attr('cateId');
+			var adId = jQuery(this).attr('adId');
+			var timestamp = currentTime();
+			var url = "$zhaile.setTarget('/search')?timestamp="+timestamp+"&categoryId="+cateId + "&adId="+adId;
+			window.location.replace(url);
+		});
+		
+		function addShoppingCar(prodId){
+			var jsonUrl = "$zhaile.setTarget('/json/addToShoppingCar.json')?prodId="+prodId+"&quantity=1";
+			jQuery.ajax({
+				type: "get",
+				url: jsonUrl,
+				success:function(data, textStatus){
+					if(data.success){
+						toggleShoppingCar();
+						if(window.location == "$zhaile.setTarget('order')") {
+							window.location.replace("/order.htm");
+						}
+					} else {
+						alert(data.message);
+					}
+				}
+			});
+		}
+		
+		function showLogin(){
+			QC.Login.showPopup({
+				appId:"$systemCache.getConfig('QQ_API_ID').value",
+				redirectURI:"$zhaile.setTarget('qccallback')"
+			});
+		}
+		
+		
+		jQuery(function(){			
+			var tophtml="<div id=\"izl_rmenu\" class=\"izl-rmenu\">";
+			
+			tophtml   +="<div class=\"btn btn-zhaile\"><div class=\"zhaileOrder\"></div></div>";
+			tophtml   +="<div class=\"btn btn-wx\"><img class=\"pic\" src=\"../../img/barcode.jpg\"/></div>";
+			tophtml   +="<div class=\"btn btn-phone\"><div class=\"phone\">$systemCache.getConfig('ZHAILE_PHONE').value &nbsp;&nbsp;&nbsp;&nbsp; $systemCache.getConfig('ZHAILE_MOBILE').value</div></div>";
+			#if($!loginUser)
+			tophtml   +="<div class=\"btn btn-msg\"><div class=\"r_comment\">点击发表您的意见</div></div>";
+			#end
+			tophtml   +="<div class=\"btn btn-shop\"><div class=\"r_shop\">各种饮料水果</div></div>";
+			tophtml   +="<div class=\"btn btn-top\"></div>";
+			tophtml   +="</div>";
+			$("#top").html(tophtml);
+			$("#izl_rmenu").each(function(){
+				$(this).find(".btn-wx").mouseenter(function(){
+					$(this).find(".pic").fadeIn("fast");
+				});
+				$(this).find(".btn-wx").mouseleave(function(){
+					$(this).find(".pic").fadeOut("fast");
+				});
+				$(this).find(".btn-phone").mouseenter(function(){
+					$(this).find(".phone").fadeIn("fast");
+				});
+				$(this).find(".btn-phone").mouseleave(function(){
+					$(this).find(".phone").fadeOut("fast");
+				});
+				$(this).find(".btn-msg").mouseenter(function(){
+					$(this).find(".r_comment").fadeIn("fast");
+				});
+				$(this).find(".btn-msg").mouseleave(function(){
+					$(this).find(".r_comment").fadeOut("fast");
+				});
+				$(this).find(".btn-msg").click(function(){
+					window.location.replace("/my/comment.htm");
+				});
+				$(this).find(".btn-shop").mouseenter(function(){
+					$(this).find(".r_shop").fadeIn("fast");
+				});
+				$(this).find(".btn-shop").mouseleave(function(){
+					$(this).find(".r_shop").fadeOut("fast");
+				});
+				$(this).find(".btn-shop").click(function(){
+					window.location.replace("/shop.htm?id=$zhaileShopId");
+				});
+				$(this).find(".btn-zhaile").click(function(){
+					window.location.replace("/order.htm");
+				});
+				$(this).find(".btn-zhaile").mouseenter(function(){
+					showShoppingCar();
+					$(this).find(".zhaileOrder").fadeIn("fast");
+				});
+				$(this).find(".btn-zhaile").mouseleave(function(){
+					$(this).find(".zhaileOrder").fadeOut("fast");
+				});
+				$(this).find(".btn-top").click(function(){
+					$("html, body").animate({
+						"scroll-top":0
+					},"fast");
+				});
+			});
+			var lastRmenuStatus=false;
+			$(window).scroll(function(){
+				var _top=$(window).scrollTop();
+				if(_top>200){
+					$("#izl_rmenu").data("expanded",true);
+				}else{
+					$("#izl_rmenu").data("expanded",false);
+				}
+				if($("#izl_rmenu").data("expanded")!=lastRmenuStatus){
+					lastRmenuStatus=$("#izl_rmenu").data("expanded");
+					if(lastRmenuStatus){
+						$("#izl_rmenu .btn-top").slideDown();
+					}else{
+						$("#izl_rmenu .btn-top").slideUp();
+					}
+				}
+			});
+		});
+	</script>
+	<div style="text-align:center">
+		<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000452982'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1000452982%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+		<script type='text/javascript' src='http://message.ckefu.com/js/8b41ded2f3554fa283f92b12b9863904/1317.js' charset='UTF-8'></script>
+		Copyright 2013-2015, 版权所有ZHAILE.COM 备案号：<a target="blank" href="http://www.miitbeian.gov.cn/" class="auxiliary-text">浙ICP备13006808号</a>
+		<br><br>
+		<script language='javaScript' src='http://zjnet.zjaic.gov.cn/bsjs/330183/33018300002236.js'></script>
+	</div>
+	$control.setTemplate("map.vm")
+</body>
+</html>

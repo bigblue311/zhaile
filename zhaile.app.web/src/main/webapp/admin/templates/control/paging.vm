@@ -1,0 +1,53 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<style>
+	.paging{
+		height: 100px;
+		margin-top:10px;
+	}
+	
+	.paging a{
+		color:black;
+	}
+	
+	.paging span{
+		border: 1px solid #ccc;
+		padding: 5px;
+		min-width: 20px;
+		display: inline-block;
+		margin:1px;
+		text-align:center
+	}
+	
+	.paging span:hover{
+		background:#4A4DA7;
+		color:white;
+	}
+	
+	.paging .current{
+		background:#4A4DA7;
+		color:white;
+	}
+	
+	.paging label{
+		color:#4A4DA7;
+	}
+</style>
+<div class="paging">
+	<a href="#" onclick="goTo($!paging.firstPage)"><span>第一页</span></a>
+	<a href="#" onclick="goTo($!paging.prePage)"><span>上一页</span></a>
+	#foreach($prePage in $!paging.prePages)
+	<a href="#" onclick="goTo($prePage)"><span>$prePage</span></a>
+	#end
+	<span class="current">$!paging.currentPage</span>
+	#foreach($nextPage in $!paging.nextPages)
+	<a href="#"  onclick="goTo($nextPage)"><span>$nextPage</span></a>
+	#end
+	<a href="#" onclick="goTo($!paging.nextPage)"><span>下一页</span></a>
+	<a href="#" onclick="goTo($!paging.lastPage)"><span>最后一页</span></a>
+</div>
+<script type="text/javascript">
+	function goTo(page){
+		jQuery("#page").val(page);
+		jQuery("#queryForm").submit();
+	}
+</script>

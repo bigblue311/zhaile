@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="WindowsApplication1">
+</Property><Property Name="解决方案文件" Value="C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\WindowsApplication1.sln">
+</Property><Property Name="用户选项文件" Value="C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\WindowsApplication1.suo">
+</Property><Property Name="Date" Value="2007年5月7日">
+</Property><Property Name="Time" Value="1:38">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="WindowsApplication1.sln" Description="文件已成功备份为 C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\Backup\WindowsApplication1.sln">
+</Event><Event ErrorLevel="0" Project="" Source="WindowsApplication1.suo" Description="文件已成功备份为 C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\Backup\WindowsApplication1.suo">
+</Event><Event ErrorLevel="0" Project="WindowsApplication1" Source="WindowsApplication1.csproj" Description="项目文件已成功备份为 C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\Backup\WindowsApplication1.csproj">
+</Event><Event ErrorLevel="0" Project="WindowsApplication1" Source="WindowsApplication1.csproj.user" Description="项目用户文件成功备份为 C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\Backup\WindowsApplication1.csproj.user">
+</Event><Event ErrorLevel="0" Project="WindowsApplication1" Source="AssemblyInfo.cs" Description="文件已成功备份为 C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\Backup\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="WindowsApplication1" Source="Form1.cs" Description="文件已成功备份为 C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\Backup\Form1.cs">
+</Event><Event ErrorLevel="0" Project="WindowsApplication1" Source="App.ico" Description="文件已成功备份为 C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\Backup\App.ico">
+</Event><Event ErrorLevel="0" Project="WindowsApplication1" Source="Form1.resx" Description="文件已成功备份为 C:\Documents and Settings\xunsai\桌面\修改好的dll\smscsharp\Backup\Form1.resx">
+</Event><Event ErrorLevel="0" Project="WindowsApplication1" Source="WindowsApplication1.csproj" Description="项目已成功转换">
+</Event><Event ErrorLevel="3" Project="WindowsApplication1" Source="WindowsApplication1.csproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="WindowsApplication1.sln" Description="成功转换解决方案">
+</Event><Event ErrorLevel="3" Project="" Source="WindowsApplication1.sln" Description="Converted">
+</Event><Event ErrorLevel="0" Project="WindowsApplication1" Source="WindowsApplication1.csproj" Description="扫描完成: 项目文件不需要升级。">
+</Event></UpgradeLog>

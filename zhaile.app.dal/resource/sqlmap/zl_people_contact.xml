@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="PeopleContactDO">
+
+  <typeAlias alias="PeopleContact" type="com.zhaile.dal.model.PeopleContactDO"/>
+
+  <resultMap id="RM" class="PeopleContact">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="foreignId" column="foreign_id"/>
+    <result property="mobile" column="mobile"/>
+    <result property="address" column="address"/>
+    <result property="phone" column="phone"/>
+    <result property="foreignKeyType" column="foreign_key_type"/>
+    <result property="name" column="name"/>
+    <result property="gender" column="gender"/>
+    <result property="foreignKey" column="foreign_key"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_people_contact where id = #id#
+  </select>
+  
+  <insert id="insert" parameterClass="PeopleContact">
+    <![CDATA[
+    insert into zl_people_contact (
+      gmt_create,
+      gmt_modify,
+      foreign_id,
+      mobile,
+      address,
+      phone,
+      foreign_key_type,
+      name,
+      gender,
+      foreign_key
+    ) values (
+      now(), now(), #foreignId#, #mobile#, #address#, #phone#, #foreignKeyType#,
+      #name#, #gender#, #foreignKey#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="PeopleContact">
+    update zl_people_contact set 
+    <dynamic>
+      <isNotEmpty property="mobile">  
+      	<![CDATA[
+      		mobile = #mobile#,
+      	]]>
+      </isNotEmpty>
+      <isNotEmpty property="address">  
+      	<![CDATA[
+      		address = #address#,
+      	]]>
+      </isNotEmpty>
+      <isNotEmpty property="phone">  
+      	<![CDATA[
+      		phone = #phone#,
+      	]]>
+      </isNotEmpty>
+      <isNotEmpty property="name">  
+      	<![CDATA[
+      		name = #name#,
+      	]]>
+      </isNotEmpty>
+      <isNotEmpty property="gender">  
+      	<![CDATA[
+      		gender = #gender#,
+      	]]>
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_people_contact where id = #id#
+  </delete>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+		<isNotNull property="foreignId" prepend="and">
+        	<![CDATA[
+        	foreign_id = #foreignId#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="foreignKeyType" prepend="and">
+        	<![CDATA[
+        	foreign_key_type = #foreignKeyType#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="foreignKey" prepend="and">
+        	<![CDATA[
+        	foreign_key = #foreignKey#
+        	]]>
+	    </isNotNull>
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="foreignId">
+  	<isNull property="foreignKeyType">
+  	<isNull property="foreignKey">
+        @@sql not allowed
+    </isNull>
+	</isNull>
+	</isNull>
+  </sql>
+  
+  <select id="getByForeignId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_people_contact
+    <include refid="where" />
+    <include refid="Common.orderByModify" />
+  </select>
+</sqlMap>

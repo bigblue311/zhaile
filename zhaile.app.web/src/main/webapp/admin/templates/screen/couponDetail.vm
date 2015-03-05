@@ -1,0 +1,628 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+#set($couponMeta = $coupon.couponMeta)
+#set($shop = $coupon.shop)
+<style>
+	.detail{
+		width:100%;
+	}
+	
+	.detail th{
+		width:15%;
+		text-align:right;
+		padding-bottom:10px;
+		vertical-align:top;
+	}
+	
+	.detail td{
+		width:35%;
+		word-wrap:break-word; 
+		text-align:left;
+		padding-bottom:10px;
+		vertical-align:top;
+		padding-left:5px;
+	}
+	
+	.prodDetail{
+		width:100%;
+	}
+	
+	.prodImg{
+		width:200px;
+		vertical-align:top;
+	}
+	
+	.prodImg img{
+		width:200px;
+		height:128px;
+	}
+	
+	.prodItem{
+		vertical-align:top;
+	}
+	
+	.prodItem table{
+		vertical-align:top;
+		width:100%;
+		height:100px;
+	}
+	
+	.prodItem table th{
+		text-align:right;
+		vertical-align:top;
+		width:10%;
+		padding-bottom:10px;
+	}
+	
+	.prodItem table td{
+		word-wrap:break-word; 
+		text-align:left;
+		width:40%;
+		vertical-align:top;
+		padding-left:5px;
+	}
+</style>
+<h1>基本信息</h1>
+<hr>
+<div style="display:none" id="createCard">
+<form id="createCardFrom">
+		<input type="hidden" id="couponMetaId" value="$!couponMeta.id"/>
+		<input type="hidden" id="valid" value="false"/>
+		用户ID：<input type="text" id="customerId" value=""/><button class="btnFindUser button button-info button-small">查找用户</button>
+		<p id="msg"></p>
+		<p id="nickName"></p>
+		<p id="customerPhone"></p>
+		<div id="customerContact">
+		</div>
+</form>	
+</div>
+<div style="display:none" id="fileUploder">
+<div id="fileploadFrom">
+		<input type="hidden" id="itemPath" value=""/>
+		<input type="hidden" id="itemId" value=""/>
+		<div id="J_Uploader"></div>
+		<div>上传的图片，只能是JPG或者PNG格式的，且注意尺寸<label id="allowedWidth"></label>*<label id="allowedHeight"></label></div>
+		<div id="imgSize">图片尺寸为<label id="imgWidth"></label>*<label id="imgHeight"></label></div>
+		<img src="" id="imgPreview" />
+</div>	
+</div>
+<div style="display:none" id="couponEdit">
+<form id="couponEditForm">
+	<div class="row">
+		<div style="float:right">
+			<img id="imgSrc" src="$!couponMeta.imgSrc" style="border:1px solid lightgrey;width:200px;height:128px"><br>
+			<input type="hidden" id="couponId" value="$!couponMeta.id"/>
+			<button imgWidth="200" imgHeight="128" imgId="imgSrc" class="btnUpload button button-danger button-small">上传卡券图片...</button>
+		</div>
+        <div>
+          <p>
+            <label>卡券名称：</label><input id="cardName" data-rules="{required:true,max:20}" type="text" style="margin-left:4px;" value="$!couponMeta.name">
+            <select id="enable" class="input-small">
+            	<option #if($!couponMeta.enable == '0')selected#end value="0">有效</option>
+            	<option #if($!couponMeta.enable == '1')selected#end value="1">无效</option>
+            </select>
+          </p>
+          <p>
+            <label>店铺编号：</label><input id="shopId" data-rules="{required:true,max:100}" type="text" value="$!couponMeta.shopId" style="margin-left:4px;">
+          </p>
+          <p>
+            <label>卡券面值：</label><input id="amount" data-rules="{required:true,number:true}" type="text" style="margin-left:4px;" value="$!couponMeta.amount">元
+          </p>
+          <p>
+            <label>卡券数量：</label><input id="total" data-rules="{required:true,number:true}" type="text" style="margin-left:4px;" value="$!couponMeta.total">张
+          </p>
+          
+          <p>
+            <label>有效日期：</label><input id="validLength" data-rules="{required:true,number:true}" type="text" style="margin-left:4px;" value="$!couponMeta.validLength">
+            <select id="validUnit" class="input-small">
+            	#foreach($dateUnit in $DateUnitEnum)
+				<option #if($!couponMeta.validUnit == $!dateUnit.code)selected#end value="$!dateUnit.code">$!dateUnit.desc</option>
+				#end
+            </select>
+          </p>
+          <p>
+            <label>每人限购：</label><input id="limitBuy" data-rules="{required:true,number:true}" type="text" style="width:70px;margin-left:4px;" value="$!couponMeta.limitBuy">张
+            <label class="auxiliary-text">每人限购数量，0表示没有限制</label>
+          </p>
+          <p>
+            <label>允许找零：</label>
+            <select id="chargable" class="input-small select">
+            	<option #if($!couponMeta.chargable == '0')selected#end value="0" tip="卡内余额可以累积使用，属于多次消费类型">可以找零</option>
+            	<option #if($!couponMeta.chargable == '1')selected#end value="1" tip="一次性消费完所有金额，不额外找零钱，属于一次性消费">不能找零</option>
+            </select>
+            <label class="auxiliary-text">卡内余额可以累积使用，属于多次消费类型</label>
+          </p>
+          <p>
+            <label>允许充值：</label>
+            <select id="topupable" class="input-small select">
+            	<option #if($!couponMeta.topupable == '0')selected#end value="0" tip="卡内余额可以被充值，重复使用">可以充值</option>
+            	<option #if($!couponMeta.topupable == '1')selected#end value="1" tip="卡内余额不可以被充值，一次性使用">不能充值</option>
+            </select>
+            <label class="auxiliary-text">卡内余额可以被充值，重复使用</label>
+          </p>
+          <p>
+            <label>允许退款：</label>
+            <select id="refundable" class="input-small select">
+            	<option #if($!couponMeta.refundable == '0')selected#end value="0" tip="卡内余额可以被退现金">可以退款</option>
+            	<option #if($!couponMeta.refundable == '1')selected#end value="1" tip="卡内余额不可以被退现金">不能退款</option>
+            </select>
+            <label class="auxiliary-text">卡内余额可以被退现金</label>
+          </p>
+          <p>
+            <label>抵外卖费：</label>
+            <select id="deductable" class="input-normal select">
+            	<option #if($!couponMeta.deductable == '0')selected#end value="0" tip="可以抵用外卖费,每家店扣一次">可抵外卖费</option>
+            	<option #if($!couponMeta.deductable == '1')selected#end value="1" tip="不可抵用外卖费">不可抵外卖费</option>
+            </select>
+            <input id="deductCount" data-rules="{required:true,number:true}" type="text" style="width:20px;margin-left:4px;text-align: center;margin-right: 4px;" value="$!couponMeta.deductCount">次
+            <label class="auxiliary-text">可以抵用外卖费,每家店扣一次</label>
+          </p>
+          <p>
+            <label>满就送卡：</label><input id="fullsent" type="text" value="0" data-rules="{required:true,number:true}" style="width:70px;margin-left:4px;" value="$!couponMeta.fullsent">元
+            <label class="auxiliary-text">满多少金额就送该卡，当值为0时表示不参与满就送</label>
+          </p>
+          <p>
+            <label>购买金额：</label><input id="sales" type="text" value="0" data-rules="{required:true,number:true}" style="width:70px;margin-left:4px;" value="$!couponMeta.sales">元
+            <label class="auxiliary-text">可以在网站购买获得，当值为0时表示该卡不能被购买</label>
+          </p>
+          <p>
+            <label>使用规则：</label>
+	          <textarea name="" id="couponDesc" data-rules="{max:500}" class="control-row4 input-large">$!couponMeta.couponDesc</textarea>
+	      </p>
+    	</div>
+    </div>
+    </form>
+</div>
+<table class="prodDetail">
+	<tr>
+		<td class="prodImg">
+			<img src="$!couponMeta.imgSrc">
+			<div>卡券编号: $!couponMeta.id</div>
+			<div>
+				<button class="btnCouponEdit button button-info button-small">编辑...</button>
+				<button class="btnCreateCoupon button button-danger button-small">发卡...</button>
+			</div>
+		</td>
+		<td class="prodItem">
+		<table>
+			<tr>
+				<th>
+					卡券名称:
+				</th>
+				<td>
+					$!couponMeta.name
+					#if($!couponMeta.enable == '0')<label style='color:green'>有效</label>#else<label style='color:red'>无效</label>#end
+				</td>
+				<th>
+					店铺名称:
+				</th>
+				<td>
+					$!shop.name
+				</td>
+			</tr>
+			<tr>
+				<th>
+					卡券面值:
+				</th>
+				<td>
+					$!couponMeta.amount 元
+				</td>
+				<th>
+					卡券数量:
+				</th>
+				<td>
+					$!couponMeta.total 张
+				</td>
+			</tr>
+			<tr>
+				<th>
+					有效日期:
+				</th>
+				<td>
+					$!couponMeta.validLength 
+					#foreach($dateUnit in $DateUnitEnum)
+						#if($dateUnit.code == $couponMeta.validUnit)
+							$dateUnit.desc
+						#end
+					#end
+				</td>
+				<th>
+					每人限购：
+				</th>
+				<td>
+					$!couponMeta.limitBuy 张
+				</td>
+			</tr>
+			<tr>
+				<th>
+					允许找零:
+				</th>
+				<td>
+					#if($!couponMeta.chargable == '0')<label style='color:green'>是</label>#else<label style='color:red'>否</label>#end
+				</td>
+				<th>
+					允许充值:
+				</th>
+				<td>
+					#if($!couponMeta.topupable == '0')<label style='color:green'>是</label>#else<label style='color:red'>否</label>#end
+				</td>
+			</tr>
+			<tr>
+				<th>
+					允许退款:
+				</th>
+				<td>
+					#if($!couponMeta.refundable == '0')<label style='color:green'>是</label>#else<label style='color:red'>否</label>#end
+				</td>
+				<th>
+					抵外卖费:
+				</th>
+				<td>
+					#if($!couponMeta.deductable == '0')<label style='color:green'>是</label>#else<label style='color:red'>否</label>#end
+					$!couponMeta.deductCount 次
+				</td>					
+			</tr>
+			<tr>
+				<th>
+					满就送卡:
+				</th>
+				<td>
+					$!couponMeta.fullsent 元
+				</td>
+				<th>
+					购买金额:
+				</th>
+				<td>
+					$!couponMeta.sales 元
+				</td>
+			</tr>
+			<tr>
+				<th>
+					使用规则:
+				</th>
+				<td>
+					$!couponMeta.couponDesc
+				</td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+</table>
+<form action="$admin.setTarget('couponDetail.vm')" class="form-horizontal well" id="queryForm">
+	<div class="row">
+		<div class="control-group">
+			<label class="control-label">用户姓名：</label>
+			<div class="controls">
+				<input type="text" class="control-text" name="customerName" value="$!customerName">
+				<input type="hidden" name="page" id="page" value="$!page">
+				<input type="hidden" name="id" id="id" value="$!id">
+			</div>
+			<label class="control-label">用户手机：</label>
+			<div class="controls">
+				<input type="text" class="control-text" name="customerPhone" value="$!customerPhone">
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="form-actions offset3">
+			<button class="button button-primary">搜索</button>
+			<button type="reset" class="button">重置</button>
+		</div>
+	</div>
+</form>
+<div id="grid"></div>
+$control.setTemplate("paging.vm")
+<script type="text/javascript">
+BUI.use('bui/form',function(Form){
+    new Form.Form({
+      srcNode : '#couponEditForm'
+    }).render();
+});
+
+BUI.use('bui/uploader',function (Uploader) {
+	var uploader = new Uploader.Uploader({
+	  render: '#J_Uploader',
+	  url: '$admin.setTarget('/upload/fileUpload.json')',
+	  isSuccess: function(result){
+	  	if(result.success){
+	  		var url = result.dataObject;
+				jQuery("#imgPreview").attr("src",url);
+				jQuery("#imgPreview").load(function(){
+	        			var allowedWidth = jQuery("#allowedWidth").text();
+	        			var allowedHeight = jQuery("#allowedHeight").text();
+	        		
+	        			var width = jQuery("#imgPreview").width();
+	        			var height = jQuery("#imgPreview").height();
+	        		
+	        			jQuery("#imgWidth").empty().append(width);
+	        			jQuery("#imgHeight").empty().append(height);
+	        		
+	        			if(allowedWidth!=width || allowedHeight!=height){
+	        				alert('图片的尺寸不符合要求!');
+	        				return false;
+	        			} else {
+	        				jQuery("#itemPath").val(url);
+	        				return true;
+	        			}
+				});
+	  	} else {
+	  		alert(result.message);
+	  		return false;
+	  	}
+	  }
+	}).render();
+});
+
+function validateFrom(){
+	 	var errorCount = jQuery.find('.x-field-error').length;
+	 	return errorCount == 0;
+}
+
+jQuery(document).ready(function(){
+	var Overlay = BUI.Overlay;
+  
+	var customerDialog = new Overlay.Dialog({
+      title:'发送卡券',
+      width:600,
+      height:300,
+      contentId:'createCardFrom',
+      success:function () {
+      	var customerId = jQuery("#customerId").val();
+      	var couponId = jQuery("#couponMetaId").val();
+      	var valid = jQuery("#valid").val();
+      	if(valid){
+      		jQuery.ajax({
+    			type: "get",
+    			url: '$admin.setTarget('/json/createCouponCard.json')?customerId='+ customerId+'&couponMetaId='+couponId,
+    			success:function(data, textStatus){
+    				if(data.isSuccess){
+    					customerDialog.close();
+        			   	window.location.reload();
+    				} else {
+    					alert(data.message);
+    				}
+    				
+    			}
+    		});
+      	} else {
+      		alert("无效的客户ID");
+      	}
+      }
+ 	});
+	
+	var couponDialog = new Overlay.Dialog({
+      title:'编辑卡券',
+      width:600,
+      height:600,
+      contentId:'couponEditForm',
+      success:function () {
+     	if(validateFrom()){
+     		couponCallback();
+      }}
+ 	});
+	
+	var uploadDialog = new Overlay.Dialog({
+      title:'文件上传',
+      width:600,
+      height:600,
+      contentId:'fileploadFrom',
+      success:function () {
+      	var imgId = jQuery("#itemId").val();
+      	var imgPath = jQuery("#itemPath").val();
+      	jQuery("#"+imgId).attr("src",imgPath);
+      	uploadDialog.close();
+      }
+ 	});
+	
+	jQuery(".btnCreateCoupon").click(function(){
+		customerDialog.show();
+	});
+	
+	jQuery(".btnFindUser").click(function(){
+		var customerId = jQuery("#customerId").val();
+		jQuery.ajax({
+			type: "get",
+			url: '$admin.setTarget('/json/getCustomerById.json')?id='+ customerId,
+			success:function(data, textStatus){
+				jQuery("#msg").empty();
+				jQuery("#nickName").empty();
+				jQuery("#customerPhone").empty();
+				jQuery("#customerContact").empty();
+				jQuery("#valid").val(false);
+				if(data == null) {
+					jQuery("#msg").empty().append("没有找到任何用户");
+				} else{
+					var customer = data.customer;
+					jQuery("#nickName").empty().append("用户昵称："+customer.name);
+					jQuery("#customerPhone").empty().append("手机号码："+customer.mobile);
+					jQuery("#valid").val(true);
+					var contactList = data.contactList;
+					for(var i=0;i<contactList.length;i++){
+						var contact = contactList[i];
+						jQuery("#customerContact").append("<p>联系地址："+contact.address+"</p>");
+					}
+				}
+			}
+		});
+	});
+	
+	jQuery(".select").change(function(){
+	   var label = jQuery(this).parent().find(".auxiliary-text");
+	   label.empty().append($(this).children('option:selected').attr('tip')); 
+	});
+	
+	jQuery(".btnCouponEdit").click(function(){
+	   	couponDialog.show();
+	});
+	
+	jQuery(".btnUpload").click(function(){
+	   	var imgWidth = jQuery(this).attr("imgWidth");
+	   	var imgHeight = jQuery(this).attr("imgHeight");
+	   	var imgId = jQuery(this).attr("imgId");
+	   	
+	   	jQuery("#allowedWidth").empty().append(imgWidth);
+	   	jQuery("#allowedHeight").empty().append(imgHeight);
+	   	if(imgId!=""){
+	   		jQuery("#itemId").val(imgId);
+	   	}
+	   	uploadDialog.show();
+  	});
+	
+	function couponCallback(){
+		var id = jQuery(".bui-stdmod-body #couponId").val();
+		var name = jQuery(".bui-stdmod-body #cardName").val();
+		var enable = jQuery(".bui-stdmod-body #enable").val();
+	 	var validLength = jQuery(".bui-stdmod-body #validLength").val();
+	 	var validUnit = jQuery(".bui-stdmod-body #validUnit").val();
+	 	var shopId = jQuery(".bui-stdmod-body #shopId").val();
+	 	var amount = jQuery(".bui-stdmod-body #amount").val();
+	 	var total = jQuery(".bui-stdmod-body #total").val();
+	 	var limitBuy = jQuery(".bui-stdmod-body #limitBuy").val();
+	 	var chargable = jQuery(".bui-stdmod-body #chargable").val();
+	 	var topupable = jQuery(".bui-stdmod-body #topupable").val();
+	 	var refundable = jQuery(".bui-stdmod-body #refundable").val();
+	 	var deductable = jQuery(".bui-stdmod-body #deductable").val();
+	 	var deductCount = jQuery(".bui-stdmod-body #deductCount").val();
+	 	var fullsent = jQuery(".bui-stdmod-body #fullsent").val();
+	 	var sales = jQuery(".bui-stdmod-body #sales").val();
+	 	var imgSrc = jQuery(".bui-stdmod-body #imgSrc").attr("src");
+	 	var couponDesc = jQuery(".bui-stdmod-body #couponDesc").val();
+  	 
+	   	var timestamp = currentTime();
+	    var para = "?timestamp="+timestamp;
+	    para += "&id="+id;
+	    para += "&name="+encodeURIComponent(name);
+	   	para += "&enable="+enable;
+	    para += "&validLength="+validLength;
+	    para += "&validUnit="+validUnit;
+	    para += "&shopId="+shopId;
+	    para += "&amount="+amount;
+	    para += "&total="+total;
+	    para += "&limitBuy="+limitBuy;
+	    para += "&chargable="+chargable;
+	    para += "&topupable="+topupable;
+	    para += "&refundable="+refundable;
+	    para += "&deductable="+deductable;
+	    para += "&deductCount="+deductCount;
+	    para += "&fullsent="+fullsent;
+	    para += "&sales="+sales;
+	   	para += "&couponDesc="+couponDesc;
+	    para += "&imgSrc="+imgSrc;
+
+	    jQuery.ajax({
+			type: "get",
+			url: '$admin.setTarget('/json/updateCouponMeta.json')'+ para,
+			success:function(data, textStatus){
+				couponDialog.close();
+			   	window.location.reload();
+			}
+		});
+  	}
+	
+	var Grid = BUI.Grid,
+    Data = BUI.Data;
+    var Grid = Grid,
+    Store = Data.Store,
+    columns = [
+		{
+		   title : '序号',
+		   dataIndex : 'displayid',
+		   renderer : function(val,obj,index) {
+			return index+1;
+		   },
+	       width:'10%'
+		},{
+          title : '用户',
+          elCls: 'left',
+          dataIndex :'customer',
+          renderer:function(val,obj,index) {
+        	  
+        	return '<a href="$admin.setTarget("customerDetail")?id='+obj.customer.customer.id+'">'+obj.customer.customer.name+'</a>';
+          },
+          width:'15%'
+        },{
+          title : '有效开始',
+          elCls: 'left',
+          dataIndex :'validFrom',
+          renderer:BUI.Grid.Format.datetimeRenderer,
+          width:'15%'
+        },{
+          title : '有效结束',
+          elCls: 'left',
+          dataIndex : 'validTo',
+          renderer:BUI.Grid.Format.datetimeRenderer,
+          width:'15%'
+     	},{
+         title : '余额',
+         elCls: 'left',
+         dataIndex :'balance',
+         renderer:function(val,obj,index) {
+         	return obj.couponCard.balance + '元';
+         },
+         width:'10%'
+       },{
+         title : '点数',
+         elCls: 'left',
+         dataIndex :'countDown',
+         renderer:function(val,obj,index) {
+          	return obj.couponCard.countDown + '次';
+         },
+         width:'10%'
+       },{
+           title : '状态',
+           elCls: 'left',
+           dataIndex : 'enable',
+           renderer:function(val,obj,index) {
+				var html = "";
+				if(obj!=null){
+					var enable = obj.couponCard.enable;
+					var locked = obj.couponCard.locked;
+					if(enable == '0') {
+						html += "<label style='color:green'>有效</label>";
+					} else {
+						html += "<label style='color:red'>无效</label>";
+					}
+				}
+				return html;
+		    },
+           width:'10%'
+      	},{
+			title : '操作',
+			elCls: 'center',
+			dataIndex : 'oper',
+			renderer : function(val,obj,index) {
+				return '<a href="$admin.setTarget("couponCard")?id='+obj.couponCard.id+'">详情</a>';
+			},
+			width: '15%'
+		}],
+		data = #if($!{couponList})#noescape()$!{couponList}#end#else null #end;
+
+     var store = new Store({
+       data : data,
+     }),
+     cascade = new Grid.Plugins.Cascade({
+		    renderer : function(record){
+		    	var customer = record.customer.customer;
+				var contactList = record.customer.contactList;
+				
+		    	var result = '<div>';
+		    	result    += '<p>&nbsp;用户昵称：'+customer.name+'</p>';
+		    	result    += '<p>&nbsp;手机号码：'+customer.mobile+'</p>';
+		    	for(var i=0;i<contactList.length;i++){
+					var contact = contactList[i];
+					result    += '<p>&nbsp;联系地址：'+contact.address+'</p>';
+				}
+		    	result += '</div>';
+		    	return result;
+		    }
+	  }),
+     grid = new Grid.Grid({
+       render:'#grid',
+       width:'100%',//这个属性一定要设置
+       columns : columns,
+       store : store,
+       plugins : [cascade]
+     });
+
+   grid.render();
+});
+</script>

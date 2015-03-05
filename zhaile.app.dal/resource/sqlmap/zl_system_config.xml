@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="SystemConfigDO">
+
+  <typeAlias alias="SystemConfig" type="com.zhaile.dal.model.SystemConfigDO"/>
+
+  <resultMap id="RM" class="SystemConfig">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="key" column="key"/>
+    <result property="value" column="value"/>
+    <result property="foreignId" column="foreign_id"/>
+    <result property="foreignKeyType" column="foreign_key_type"/>
+    <result property="description" column="description"/>
+  </resultMap>
+
+  <select id="getAll" resultMap="RM">
+    select * from zl_system_config  
+  </select>
+  
+  <update id="update" parameterClass="SystemConfig">
+    update zl_system_config set 
+    <![CDATA[
+    	value = #value#,
+    ]]>
+    <![CDATA[
+    	description = #description#,
+    ]]>
+    	gmt_modify = now()
+    where
+      id = #id#
+  </update>
+</sqlMap>

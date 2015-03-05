@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="SmsTaskDO">
+
+  <typeAlias alias="SmsTask" type="com.zhaile.dal.model.SmsTaskDO"/>
+
+  <resultMap id="RM" class="SmsTask">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="mobile" column="mobile"/>
+    <result property="status" column="status"/>
+    <result property="callBackUrl" column="callback_url"/>
+    <result property="text" column="text"/>
+    <result property="type" column="type"/>
+    <result property="retry" column="retry"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_sms_task where id = #id#
+  </select>
+  
+  <insert id="insert" parameterClass="SmsTask">
+    <![CDATA[
+    insert into zl_sms_task (
+      gmt_create,
+      gmt_modify,
+      mobile,
+      status,
+      callback_url,
+      text,
+      type,
+      retry
+    ) values (
+      now(), now(), #mobile#, #status#, #callBackUrl#, #text#, #type#, #retry#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="SmsTask">
+    update zl_sms_task set 
+    <dynamic>
+      <isNotEmpty property="status">  
+      	<![CDATA[
+      		status = #status#,
+      	]]>
+      </isNotEmpty>
+      <isNotEmpty property="callBackUrl">  
+      	<![CDATA[
+      		callback_url = #callBackUrl#,
+      	]]>
+      </isNotEmpty>
+      <isNotEmpty property="retry">  
+      	<![CDATA[
+      		retry = #retry#,
+      	]]>
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#
+  </update>
+  
+  <update id="retry" parameterClass="SmsTask">
+    update zl_sms_task set 
+      status = '0', 
+      retry = retry+1,
+      gmt_modify = now()
+    where
+      id = #id#
+  </update>
+  
+  <update id="expireSms" >
+  	<![CDATA[
+  	update zl_sms_task set status = '4',gmt_modify = now() where (status in ('0','1') or status is null) and date_add(gmt_modify,interval 1 hour) < now();
+  	]]>
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_sms_task where id = #id#
+  </delete>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+		<isNotNull property="status" prepend="and">
+        	<![CDATA[
+        	status = #status#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="mobile" prepend="and">
+        	<![CDATA[
+        	mobile = #mobile#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="type" prepend="and">
+        	<![CDATA[
+        	type = #type#
+        	]]>
+	    </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="status">
+  	<isNull property="mobile">
+  	<isNull property="type">
+  	<include refid="Common.validModify" />
+    </isNull>
+	</isNull>
+	</isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_sms_task
+    <include refid="where" />
+  </select>
+</sqlMap>

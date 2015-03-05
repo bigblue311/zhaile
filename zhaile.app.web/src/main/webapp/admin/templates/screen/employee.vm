@@ -1,0 +1,143 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<h1>员工管理</h1>
+<div>上次加载时间：$cacheTools.timestamp <a href="$admin.setTarget('employee')?command=reload">重新加载</a></div>
+<div id="grid"></div>
+#set ($employeeCache = $cacheTools.getEmployeecache())
+#set ($group = $form.employee.defaultInstance)
+<form action="$admin.setTarget('employee')" method="post" id="actionFrom">
+	$csrfToken.hiddenField
+	<input type="hidden" name="action" value="updateEmployeeAction"/>  
+	<input type="hidden" id="event" name="event_submit_do_update" value="true"/>
+	<input type="hidden" id="id" name="$group.id.key" value=""/>
+	<input type="hidden" id="name" name="$group.name.key" value=""/>
+	<input type="hidden" id="password" name="$group.password.key" value=""/>
+	<input type="hidden" id="mobile" name="$group.mobile.key" value=""/>
+</form>
+<script type="text/javascript">
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      columns = [
+		{
+			title : 'id',
+			dataIndex : 'id',
+			visible: false
+		},{
+          title : '姓名',
+          elCls: 'left',
+          dataIndex :'name',
+          editor : {
+				xtype : 'text'
+		  },
+          width:'20%'
+        },{
+          title : '密码',
+          elCls: 'left',
+          dataIndex :'password',
+          editor : {
+				xtype : 'text'
+		  },
+          width:'30%'
+        },{
+          title : '手机',
+          elCls: 'left',
+          dataIndex : 'mobile',
+          editor : {
+				xtype : 'text'
+		  },
+          width:'45%'
+     	},{
+			title : '操作',
+			elCls: 'center',
+			dataIndex : 'oper',
+			renderer : function() {
+				return '<span class="grid-command btn-edit">编辑</span><span class="grid-command btn-del">删除</span>';
+			}
+		}],
+      	data = [
+				#foreach($employee in $employeeCache.getAll())
+					{
+						id:'$employee.id',
+						name:'$employee.name',
+						password:'$employee.password',
+						mobile:'$employee.mobile'
+					}
+					#if(${velocityCount} != $employeeCache.getAll().size())
+					,
+					#end
+				#end
+             ];
+
+      var store = new Store({
+        data : data,
+        listeners : {
+        	'update' : updateFunction
+        }
+      }),
+      editing = new Grid.Plugins.RowEditing({
+			triggerCls : 'btn-edit',
+			triggerSelected : false
+	  }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        bbar : {
+        	items : [
+			{
+				btnCls : 'button button-small',
+				text : '<i class="icon-user"></i>添加',
+				listeners : {
+					'click' : addFunction
+				}
+			}
+			]
+        },
+        plugins : [editing],
+        store : store
+      });
+
+    grid.render();
+    
+    jQuery(".btn-del").click(function(){
+    	var selections = grid.getSelection();
+    	var record = selections[0];
+    	deleteFunction(record);
+    });
+    
+  	//添加记录
+	function addFunction() {
+		var newData = {};
+		store.addAt(newData, 0);
+		editing.edit(newData, 'name'); //添加记录后，直接编辑
+	}
+    
+    function updateFunction(e){
+    	var id = e.record.id;
+    	var name = e.record.name;
+    	var password = e.record.password;
+    	var mobile = e.record.mobile;
+    	var event = "event_submit_do_update";
+    	jQuery("#id").val(id);
+    	jQuery("#name").val(name);
+    	jQuery("#password").val(password);
+    	jQuery("#mobile").val(mobile);
+    	jQuery("#event").attr("name",event);
+    	jQuery("#actionFrom").submit();
+    }
+    
+    function deleteFunction(record){
+    	var id = record.id;
+    	var name = record.name;
+    	var password = record.password;
+    	var mobile = record.mobile;
+    	var event = "event_submit_do_delete";
+    	jQuery("#id").val(id);
+    	jQuery("#name").val(name);
+    	jQuery("#password").val(password);
+    	jQuery("#mobile").val(mobile);
+    	jQuery("#event").attr("name",event);
+    	jQuery("#actionFrom").submit();
+    }
+</script>

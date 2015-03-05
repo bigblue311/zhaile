@@ -1,0 +1,129 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+#set ($categoryCache = $cacheTools.getCategorycache())
+#set ($priceRangeCache = $cacheTools.getPriceRangecache())
+#set ($categoryCache = $cacheTools.getCategorycache())
+#set ($attr = $!prodList.attr)
+#set ($priceRanges = $attr.priceRange)
+#set ($priceRangesKey = $priceRanges.keySet())
+#set ($shopIds = $attr.shopId)
+#set ($shopIdsKey = $shopIds.keySet())
+#set ($categoryIds = $attr.categoryId)
+#set ($categoryIdsKey = $categoryIds.keySet())
+<style>
+	.filterTop{
+		height: 30px;
+		padding: 0 10px;
+		border: 1px solid #ddd;
+		border-bottom: none;
+		background: #F7F7F7;
+		line-height: 30px;
+	}
+	
+	.filterTop h3{
+		float: left;
+		height: 30px;
+		font: bold 15px/30px \5fae\8f6f\96c5\9ed1;
+		color: #E4393C;
+	}
+	
+	.filterNone{
+		padding:10px;
+		border: 1px solid #ddd;
+		border-top: none;
+	}
+	
+	.filterNone label{
+		padding-right:10px;
+		color: #E4393C;
+	}
+	
+	
+	
+	.filterNone span{
+		border: 1px solid lightgrey;
+		min-width: 50px;
+		display: inline-block;
+		text-align: center;
+		padding: 3px;
+		padding-left:10px;
+		padding-right:10px;
+		color:black;
+		cursor:pointer;
+	}
+	
+	.filterNone .selected{
+		background:#EA5414;
+		color:white;
+	}
+	
+	.filterBlock{
+		overflow: hidden;
+		display: block;
+		height: 28px;
+	}
+	
+	.filterBlock:hover{
+		overflow: hidden;
+		display: '';
+		height: auto;
+	}
+</style>
+<div id="searchResult" style="display:''">
+<div style="text-align:left;padding-left:10px;padding-right:10px;">
+	<div class="filterTop">
+			<h3>商品筛选</h3>
+	</div>
+	<div class="filterNone">
+		<table>
+			<tr>
+				<td class="filterBlock">
+					<span class="selectAll" data=".f_price">
+	                  	全选价格
+	                </span>
+					#foreach($priceRangeId in $priceRangesKey)
+						#set ($priceRange = $priceRangeCache.getPRange($!priceRangeId.toString()))
+						<span class="filter f_price selected" value=".price_$!priceRange.id">
+		                  	$!priceRange.name ($priceRanges.get($priceRangeId)个)
+		            	</span>
+					#end
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="filterNone">
+		<table>
+			<tr>
+				<td class="filterBlock">
+					<span class="selectAll" data=".f_shop">
+	                	 全选店铺
+	                </span>
+					#foreach($shopId in $shopIdsKey)
+						#set ($shop = $categoryCache.getShop($!shopId.toString()))
+						<span class="filter f_shop selected" value=".shop_$!shop.id">
+			                $!shop.name ($shopIds.get($shopId)个)
+			            </span>
+			        #end
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="filterNone">
+		<table>
+			<tr>
+				<td class="filterBlock">
+					<span class="selectAll" data=".f_cate">
+	                  	全选分类
+	                </span>
+					#foreach($categoryId in $categoryIdsKey)
+						#set ($category = $categoryCache.getCate($!categoryId.toString()))
+		                <span  class="filter f_cate selected" value=".cate_$category.id">
+		                  $!category.name ($categoryIds.get($categoryId)个)
+		                </span>
+					#end
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+$control.setTemplate('search')
+</div>

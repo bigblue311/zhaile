@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CouponMetaDO">
+
+  <typeAlias alias="CouponMeta" type="com.zhaile.dal.model.CouponMetaDO"/>
+
+  <resultMap id="RM" class="CouponMeta">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="enable" column="enable"/>
+    <result property="locked" column="locked"/>
+    <result property="validLength" column="valid_length"/>
+    <result property="validUnit" column="valid_unit"/>
+    <result property="shopId" column="shop_id"/>
+    <result property="amount" column="amount"/>
+    <result property="total" column="total"/>
+    <result property="chargable" column="chargable"/>
+    <result property="topupable" column="topupable"/>
+    <result property="refundable" column="refundable"/>
+    <result property="deductable" column="deductable"/>
+    <result property="deductCount" column="deduct_count"/>
+    <result property="couponDesc" column="coupon_desc"/>
+    <result property="fullsent" column="fullsent"/>
+    <result property="sales" column="sales"/>
+    <result property="limitBuy" column="limit_buy"/>
+    <result property="imgSrc" column="img_src"/>
+    <result property="name" column="name"/>
+  </resultMap>
+  
+  <insert id="insert" parameterClass="CouponMeta">
+    <![CDATA[
+    insert into zl_coupon_meta (
+      gmt_create,
+      gmt_modify,
+      enable,
+      locked,
+      valid_length,
+      valid_unit,
+      shop_id,
+      amount,
+      total,
+      chargable,
+      topupable,
+      refundable,
+      deductable,
+      deduct_count,
+      coupon_desc,
+      fullsent,
+      sales,
+      limit_buy,
+      img_src,
+      name
+    ) values (
+      now(), now(), #enable#,#locked#, #validLength#, #validUnit#, #shopId#,
+      #amount#, #total#, #chargable#, #topupable#, #refundable#, #deductable#, #deductCount#,
+      #couponDesc#, #fullsent#, #sales#, #limitBuy#, #imgSrc#, #name#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <sql id="where">
+  	<dynamic prepend="where">
+  		<isNotNull property="enable" prepend="and">
+        	<![CDATA[ 
+        	enable = #enable#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="locked" prepend="and">
+        	<![CDATA[ 
+        	locked = #locked#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="valid" prepend="and">
+        	enable = '0' and locked = '1'
+	    </isNotNull>
+  		<isNotNull property="shopId" prepend="and">
+        	<![CDATA[ 
+        	shop_id = #shopId#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="keyword" prepend="and">
+        	<![CDATA[ 
+        	shop_id in (select id from zl_shop where name like concat('%',#keyword#,'%') or pinyin like concat('%',#keyword#,'%'))
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="shopIds" prepend="and">
+        	shop_id in
+			<iterate open="(" close=")" conjunction="," property="shopIds"> 
+		    	#shopIds[]# 
+		    </iterate>
+	    </isNotNull>
+	    <isNotNull property="chargable" prepend="and">
+        	<![CDATA[
+        	chargable = #chargable#
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="topupable" prepend="and">
+        	<![CDATA[
+        	topupable = #topupable#
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="refundable" prepend="and">
+        	<![CDATA[
+        	refundable = #refundable#
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="deductable" prepend="and">
+        	<![CDATA[
+        	deductable = #deductable#
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="name" prepend="and">
+        	<![CDATA[
+        	name like concat('%',#name#,'%')
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="fullsent" prepend="and">
+        	<![CDATA[
+        	fullsent > #fullsent#
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="sales" prepend="and">
+        	<![CDATA[
+        	sales > #sales#
+		    ]]>
+	    </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="enable">
+  	<isNull property="locked">
+  	<isNull property="valid">
+  	<isNull property="shopId">
+  	<isNull property="chargable">
+  	<isNull property="topupable">
+  	<isNull property="refundable">
+  	<isNull property="deductable">
+  	<isNull property="name">
+        <include refid="Common.validModify" />
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_coupon_meta 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_coupon_meta
+	<include refid="where" />
+  </select>
+  
+  <select id="getByShopId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_coupon_meta where shop_id = #shopId#
+  </select>
+  
+  <select id="getValidByShopId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_coupon_meta where shop_id = #shopId# and enable = '0' and locked = '1'
+  </select>
+  
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_coupon_meta where id = #id#  
+  </select>
+  
+  <select id="getValidById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_coupon_meta where id = #id# and enable = '0' and locked = '1'
+  </select>
+  
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_coupon_meta where id = #id#
+  </delete>
+  
+  <update id="softDeleteById" parameterClass="java.lang.Long">
+    update zl_coupon_meta set enable = '1' where id = #id#
+  </update>
+  
+  <update id="recoverById" parameterClass="java.lang.Long">
+    update zl_coupon_meta set enable = '0' where id = #id#
+  </update>
+  
+  <update id="update" parameterClass="CouponMeta">
+    update zl_coupon_meta set 
+    <dynamic>
+       <isNotEmpty property="enable">  
+         <![CDATA[   
+           enable = #enable#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="locked">  
+         <![CDATA[   
+           locked = #locked#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="validLength">  
+         <![CDATA[   
+           valid_length = #validLength#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="validUnit">  
+         <![CDATA[   
+           valid_unit = #validUnit#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="amount">  
+         <![CDATA[ 
+           amount = #amount#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="total">  
+         <![CDATA[ 
+           total = #total#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="chargable">  
+         <![CDATA[ 
+           chargable = #chargable#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="topupable">  
+         <![CDATA[ 
+           topupable = #topupable#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="refundable">  
+         <![CDATA[ 
+           refundable = #refundable#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="deductable">  
+         <![CDATA[ 
+           deductable = #deductable#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="deductCount">  
+         <![CDATA[ 
+           deduct_count = #deductCount#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="couponDesc">  
+         <![CDATA[ 
+           coupon_desc = #couponDesc#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="fullsent">  
+         <![CDATA[ 
+           fullsent = #fullsent#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="sales">  
+         <![CDATA[ 
+           sales = #sales#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="limitBuy">  
+         <![CDATA[ 
+           limit_buy = #limitBuy#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="imgSrc">  
+         <![CDATA[ 
+           img_src = #imgSrc#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="name">  
+         <![CDATA[   
+           name = #name#,
+         ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#  
+  </update>
+</sqlMap>

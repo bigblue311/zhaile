@@ -1,0 +1,9 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+#set ($systemCache = $cacheTools.getSystemConfigcache())
+<div id="spig" class="spig">
+   	<div id="message" style="display: none; opacity: 1;border-top:1px solid orange;border-left:1px solid orange;border-right:1px solid orange">
+    	$systemCache.getConfig('ZHAILE_MESSAGE')
+   	</div>
+   	<div style="background:url(img/bottom.png) repeat-x;width:100%;height:5px">&nbsp;</div>
+   	<div id="mumu" class="mumu"></div>
+</div>

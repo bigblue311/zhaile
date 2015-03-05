@@ -1,0 +1,47 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+#if($!success == "T")
+	#set($img = './img/success.png')		
+#else
+	#set($img = './img/error.png')
+#end
+<style>
+	p{
+		font:15px '微软雅黑';
+		color:white;
+	}
+	
+	.background{
+		background-image:url('$img');
+		background-repeat:no-repeat;
+		text-align:center;
+		background-position:center;
+		height:172px;
+	}
+</style>
+<br/>
+<div class="background">
+		<br/><br/>
+		<h1 style="color:white;font:25px '微软雅黑';">$msg !</h1>
+		<p id="countDown"><br></p>
+		<p><a style="color:white" href="/">返回首页</a></p>
+</div>
+<br/>
+<script type="text/javascript">
+	var timer;
+
+	jQuery(document).ready(function(){
+		timer = setInterval("goHome()",1000);
+	});
+	
+	var countDown = 6;
+	
+	function goHome(){
+		countDown--;
+		var msg = countDown+"秒后返回首页";
+		jQuery("#countDown").empty().append(msg);
+		if(countDown <= 0){
+			window.clearInterval(timer);
+			window.location.replace("/");
+		}
+	}
+</script>

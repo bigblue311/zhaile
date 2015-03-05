@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+    	http://www.springframework.org/schema/beans 
+    	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    	http://www.springframework.org/schema/context
+    	http://www.springframework.org/schema/context/spring-context-3.0.xsd ">
+    
+    <bean id="mySqlMapClient" class="com.victor.framework.dal.basic.MySqlMapClient">
+    	<property name="dataSource" value="ibatis/dataSource.xml" />
+    </bean>
+    
+    <bean id="couponCardDAO" class="com.zhaile.dal.dao.impl.CouponCardDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="couponMetaDAO" class="com.zhaile.dal.dao.impl.CouponMetaDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="customerCommentDAO" class="com.zhaile.dal.dao.impl.CustomerCommentDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="customerCreditDAO" class="com.zhaile.dal.dao.impl.CustomerCreditDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="customerDAO" class="com.zhaile.dal.dao.impl.CustomerDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="customerFavDAO" class="com.zhaile.dal.dao.impl.CustomerFavDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="logCreditDAO" class="com.zhaile.dal.dao.impl.LogCreditDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="logDAO" class="com.zhaile.dal.dao.impl.LogDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="logDeliveryDAO" class="com.zhaile.dal.dao.impl.LogDeliveryDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="logSearchDAO" class="com.zhaile.dal.dao.impl.LogSearchDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="mapMarkerDAO" class="com.zhaile.dal.dao.impl.MapMarkerDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="mapPoiDAO" class="com.zhaile.dal.dao.impl.MapPoiDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="orderDAO" class="com.zhaile.dal.dao.impl.OrderDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="paymentDAO" class="com.zhaile.dal.dao.impl.PaymentDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="peopleContactDAO" class="com.zhaile.dal.dao.impl.PeopleContactDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="productDAO" class="com.zhaile.dal.dao.impl.ProductDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="shopCategoryDAO" class="com.zhaile.dal.dao.impl.ShopCategoryDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="shopDAO" class="com.zhaile.dal.dao.impl.ShopDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="shoppingCarDAO" class="com.zhaile.dal.dao.impl.ShoppingCarDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="shopTagDAO" class="com.zhaile.dal.dao.impl.ShopTagDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="smsTaskDAO" class="com.zhaile.dal.dao.impl.SmsTaskDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="flashGoDAO" class="com.zhaile.dal.dao.impl.FlashGoDAOImpl">
+    	<property name="mySqlMapClient" ref="mySqlMapClient"/>
+    </bean>
+    
+    <bean id="dblogger" class="com.zhaile.dal.log.DbLogger" />
+</beans>

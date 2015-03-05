@@ -1,0 +1,433 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<h1>查询条件</h1>
+<div class="doc-content">
+	<form action="$admin.setTarget('shop.vm')" class="form-horizontal well" id="queryForm">
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">店铺名称：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="shopName" value="$!shopQuery.shopName">
+					<input type="hidden" name="page" id="page" value="$!shopQuery.page">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-actions offset3">
+				<button class="button button-primary">搜索</button>
+				<button type="reset" class="button">重置</button>
+			</div>
+		</div>
+	</form>
+</div>
+<h1>查询结果&nbsp;&nbsp;#if($auth.isZhaile)<button class="btnShopAdd button button-info button-small">添加店铺...</button>#end</h1>
+<div id="grid"></div>
+$control.setTemplate("paging.vm")
+<div style="display:none" id="fileUploder">
+<div id="fileploadFrom">
+		<input type="hidden" id="itemPath" value=""/>
+		<input type="hidden" id="itemId" value=""/>
+		<div id="J_Uploader"></div>
+		<div>上传的图片，只能是JPG或者PNG格式的，且注意尺寸<label id="allowedWidth"></label>*<label id="allowedHeight"></label></div>
+		<div id="imgSize">图片尺寸为<label id="imgWidth"></label>*<label id="imgHeight"></label></div>
+		<img src="" id="imgPreview" />
+</div>	
+</div>
+<div style="display:none" id="shopEdit">
+<div id="shopEditFrom">
+	<div class="row">
+		<div style="float:right">
+			<img id="shopImg" src="" style="border:1px solid lightgrey;width:100px;height:100px"><br>
+			<button imgWidth="200" imgHeight="200" imgId="shopImg" class="btnUpload button button-danger button-small">上传店铺图片...</button>
+		</div>
+        <div>
+          <p>
+            <label>店铺名称：</label><input id="shopName" data-rules="{required:true,max:100}" type="text">
+            <select id="shopStatus" class="input-small">
+            </select>
+            <button lng='119.945919' lat='30.060034' id="btnShopRelocate" class="btnShopRelocate button button-danger button-small">重新定位...</button>
+          </p>
+          <p>
+          	<label>店铺分类：</label>
+          	#foreach($shopCategory in $shopCategoryEnum)
+          		<label class="control-label checkbox">
+				<input type="checkbox" name='shopCateCb' value="$shopCategory.id">$shopCategory.desc &nbsp;</label>
+			#end
+          </p>
+          <p>
+            <label>店主称呼：</label><input id="contactName" data-rules="{required:true,max:100}" type="text">
+            <select id="contactGender" class="input-small">	
+            </select>
+          </p>
+          <p>
+            <label>外卖费用：</label><input id="shopCharge" data-rules="{required:true,number:true}" type="text"><label class="auxiliary-text">&nbsp;0元为商家自送，其他为宅乐配送</label>
+          </p>
+          <p>
+            <label>营业时间：</label><span id="log"></span>
+          </p>
+          <div id="s1" style="width:230px;padding-left:60px;">
+          </div>
+          <p>
+            <label>联系手机：</label><input id="contactMobile" type="text">
+          </p>
+          <p>
+            <label>联系电话：</label><input id="contactPhone" type="text">
+          </p>
+          <p>
+            <label>起送金额：</label><input id="price" type="text">&nbsp;元
+          </p>
+          <p>
+            <label>配送距离：</label><input id="distance" type="text">&nbsp;米
+          </p>
+          <p>
+            <label>联系地址：</label><input id="contactAddress" data-rules="{max:200}" type="text" style="width:220px;">
+          </p>
+          <p>
+            <label>推送绑定：</label><input id="cid1" type="text" value="" style="width:220px;">
+            <label id="cid1Label" class="auxiliary-text">输入手机号码，则以短信方式推送</label>
+          </p>
+          <p>
+            <label>推送绑定：</label><input id="cid2" type="text" value="" style="width:220px;">
+            <label id="cid2Label" class="auxiliary-text">输入CID则为App推送消息</label>
+          </p>
+          <p>
+            <label>推送绑定：</label><input id="cid3" type="text" value="" style="width:220px;">
+            <label id="cid3Label" class="auxiliary-text">一家店铺可以绑定5个号码</label>
+          </p>
+          <p>
+            <label>推送绑定：</label><input id="cid4" type="text" value="" style="width:220px;">
+            <label id="cid4Label"  class="auxiliary-text">需要解绑则将栏位置空，并保存</label>
+          </p>
+           <p>
+            <label>推送绑定：</label><input id="cid5" type="text" value="" style="width:220px;">
+            <label id="cid5Label"  class="auxiliary-text">绑定后立即生效</label>
+          </p>
+          <p>
+          	<label>认证类型：</label>
+          	<select id="licenseType" class="input-small"  style="position:relative;left:-5px;">	
+            </select><button imgWidth="500" imgHeight="360" imgId="licenseImg" class="btnUpload button button-danger button-small">上传营业执照...</button>
+            <div class="controls  control-row-auto">
+            	<img id="licenseImg" src="" style="border:1px solid lightgrey;width:100px;height:72px">
+	        </div>
+          </p>
+          <p>
+            <label>店铺描述：</label>
+            <div class="controls  control-row-auto">
+	          <textarea name="" id="shopDesc" data-rules="{max:500}" class="control-row4 input-large"></textarea>
+	        </div>
+          </p>
+    	</div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+
+	BUI.use('bui/uploader',function (Uploader) {
+    
+    var uploader = new Uploader.Uploader({
+        render: '#J_Uploader',
+        url: '$admin.setTarget('/upload/fileUpload.json')',
+        isSuccess: function(result){
+        	if(result.success){
+        		var url = result.dataObject;
+				jQuery("#imgPreview").attr("src",url);
+				jQuery("#imgPreview").load(function(){
+          			var allowedWidth = jQuery("#allowedWidth").text();
+          			var allowedHeight = jQuery("#allowedHeight").text();
+          		
+          			var width = jQuery("#imgPreview").width();
+          			var height = jQuery("#imgPreview").height();
+          		
+          			jQuery("#imgWidth").empty().append(width);
+          			jQuery("#imgHeight").empty().append(height);
+          		
+          			if(allowedWidth!=width || allowedHeight!=height){
+          				alert('图片的尺寸不符合要求!');
+          				return false;
+          			} else {
+          				jQuery("#itemPath").val(url);
+          				return true;
+          			}
+				});
+        	} else {
+        		alert(result.message);
+        		return false;
+        	}
+        }
+      }).render();
+    });
+
+	function bindShop(){
+		var  option = "";
+		option += "<option value='0' selected>在线</option>";
+		option += "<option value='1' >下架</option>";
+		jQuery(".bui-stdmod-body #shopStatus").empty().append(option);
+ 	 
+		option = "";
+		option += "<option value='0' selected>先生</option>";
+		option += "<option value='1' >女士</option>";
+		jQuery(".bui-stdmod-body #contactGender").empty().append(option);
+		
+		option = "";
+		option += "<option value='' selected>尚未注册</option>";
+		option += "<option value='0' >企业注册</option>";
+		option += "<option value='1' >个人注册</option>";
+		jQuery(".bui-stdmod-body #licenseType").empty().append(option);
+		
+		renderTimepicker("09:30:00","21:00:00");
+    }
+	
+	function validateFrom(){
+   	 	var errorCount = jQuery.find('.x-field-error').length;
+   	 	return errorCount == 0;
+    }
+	
+	function renderTimepicker(startTime,endTime){
+		jQuery('#s1').empty();
+		jQuery('#log').text(startTime+"-"+endTime);
+		var shopOpen =  convertInt(startTime);
+		var shopClose = convertInt(endTime);
+		BUI.use('bui/slider',function (Slider) {
+	      var slider = new Slider.Slider({
+	        render : '#s1',
+	        range : true, //使用范围
+			min: 0,
+			max: 48,
+			step:1,
+	        value : [shopOpen,shopClose]
+	      });
+	      slider.render();
+	      slider.on('change',function(ev){
+			var start = convertTime(ev.value[0]);
+			var end = convertTime(ev.value[1]);
+			jQuery('#log').text(start+"-"+end);
+	      });
+	    });
+	}
+	
+	function convertTime(val){
+ 		var hour = ((val-val%2)/2)>=10?""+((val-val%2)/2):"0"+((val-val%2)/2);
+ 		var minute = val%2==1?"30":"00";
+ 		var second = "00";
+ 		var result = hour+":"+minute+":"+second;
+ 		if(result == "24:00:00"){
+ 			return "23:59:59";
+ 		}
+ 		return result;
+ 	 }
+	
+     function convertInt(time){
+    	 if(time == "23:59:59"){
+    		 return 48;
+    	 }
+    	 var times = time.split(':');
+    	 var hour = parseInt(times[0]);
+    	 var minute = parseInt(times[1]);
+    	 minute = minute>0?1:0;
+    	 var val = hour * 2 + minute;
+    	 return val;
+     }
+     
+     function mapPickerCallback(id){
+	  	  var lng = myPoint.lng;
+	  	  var lat = myPoint.lat;
+	  	  jQuery("#btnShopRelocate").attr('lng',lng);
+		  jQuery("#btnShopRelocate").attr('lat',lat);
+ 	 }
+     
+	jQuery(document).ready(function(){
+		var Overlay = BUI.Overlay;
+	    
+		var shopDialog = new Overlay.Dialog({
+	        title:'店铺编辑',
+	        width:800,
+	        height:800,
+	        contentId:'shopEditFrom',
+	        success:function () {
+	       	if(validateFrom()){
+	       		shopCallback();
+	        }}
+	   });
+		
+		var uploadDialog = new Overlay.Dialog({
+	        title:'文件上传',
+	        width:800,
+	        height:800,
+	        contentId:'fileploadFrom',
+	        success:function () {
+	        	var imgId = jQuery("#itemId").val();
+	        	var imgPath = jQuery("#itemPath").val();
+	        	jQuery("#"+imgId).attr("src",imgPath);
+	        	uploadDialog.close();
+	        }
+	   });
+		
+	   jQuery(".btnShopAdd").click(function(){
+	   		shopDialog.show();
+	   	 	bindShop();
+	   });
+		
+		jQuery(".btnUpload").click(function(){
+		   	var imgWidth = jQuery(this).attr("imgWidth");
+		   	var imgHeight = jQuery(this).attr("imgHeight");
+		   	var imgId = jQuery(this).attr("imgId");
+		   	
+		   	jQuery("#allowedWidth").empty().append(imgWidth);
+		   	jQuery("#allowedHeight").empty().append(imgHeight);
+		   	if(imgId!=""){
+		   		jQuery("#itemId").val(imgId);
+		   	}
+		   	
+		   	uploadDialog.show();
+	    });
+		
+		jQuery(".btnShopRelocate").click(function(){
+	   	 	var id = "";
+	   	 	var lng = jQuery(this).attr("lng");
+	   	 	var lat = jQuery(this).attr("lat");
+	   	 	showMap(lng,lat,id);
+	  	});
+		
+		function shopCallback(){
+	  	 	var shopName = jQuery(".bui-stdmod-body #shopName").attr("value");
+	  	 	var contactName = jQuery(".bui-stdmod-body #contactName").attr("value");
+	  	 	var contactGender = jQuery(".bui-stdmod-body #contactGender").val();
+	  	 	var shopStatus = jQuery(".bui-stdmod-body #shopStatus").val();
+	  	 	var shopCharge = jQuery(".bui-stdmod-body #shopCharge").val();
+	  	 	var shopImage = jQuery(".bui-stdmod-body #shopImg").attr("src");
+	  	 	var contactMobile = jQuery(".bui-stdmod-body #contactMobile").attr("value");
+	  	 	var contactPhone = jQuery(".bui-stdmod-body #contactPhone").val();
+	  	 	var contactAddress = jQuery(".bui-stdmod-body #contactAddress").val();
+	  	 	var shopDesc = jQuery(".bui-stdmod-body #shopDesc").val();
+	  	 	var shopTime = jQuery('#log').text();
+	  	 	var shopOpen = shopTime.split('-')[0].trim();
+	  	 	var shopClose = shopTime.split('-')[1].trim();
+	    	var lng = jQuery("#btnShopRelocate").attr('lng');
+			var lat = jQuery("#btnShopRelocate").attr('lat');
+			var cid1 = jQuery("#cid1").val();
+			var cid2 = jQuery("#cid2").val();
+			var cid3 = jQuery("#cid3").val();
+			var cid4 = jQuery("#cid4").val();
+			var cid5 = jQuery("#cid5").val();
+			var distance = jQuery("#distance").val();
+			var price = jQuery("#price").val();
+			var licenseType = jQuery("#licenseType").val();
+			var licenseImg = jQuery("#licenseImg").attr("src");
+			var shopCategory = getSelectedShopCate();
+	    	 
+	 	   	var timestamp = currentTime();
+	 	    var para = "?timestamp="+timestamp;
+	 	    para += "&shopName="+encodeURIComponent(shopName);
+	 	    para += "&shopStatus="+shopStatus;
+	 	    para += "&shopCharge="+shopCharge;
+	 	    para += "&shopImage="+shopImage;
+	 	    para += "&gmtOpen="+shopOpen;
+	 	    para += "&gmtClose="+shopClose;
+	 	    para += "&shopDesc="+encodeURIComponent(shopDesc);
+	 	    para += "&contactName="+encodeURIComponent(contactName);
+	 	    para += "&contactMobile="+encodeURIComponent(contactMobile);
+	 	    para += "&contactPhone="+encodeURIComponent(contactPhone);
+	 	    para += "&contactAddress="+encodeURIComponent(contactAddress);
+	 	    para += "&contactGender="+contactGender;
+	 	   	para += "&distance="+distance;
+	 	  	para += "&price="+price;
+	 	    para += "&lng="+lng;
+		    para += "&lat="+lat;
+		    para += "&cid1="+cid1;
+		    para += "&cid2="+cid2;
+		    para += "&cid3="+cid3;
+		    para += "&cid4="+cid4;
+		    para += "&cid5="+cid5;
+		    para += "&licenseType="+licenseType;
+		    para += "&licenseImg="+licenseImg;
+		    para += "&shopCategory="+shopCategory;
+	 	    
+	 	    jQuery.ajax({
+	 			type: "get",
+	 			url: '$admin.setTarget('/json/updateShopDetail.json')'+ para,
+	 			success:function(data, textStatus){
+				   	shopDialog.close();
+				   	jQuery("#queryForm").submit();
+	 			}
+	 		});
+	    }
+		
+		function getSelectedShopCate(){
+	    	var result = '';
+	    	jQuery("[name='shopCateCb']").each(function(){
+	    		if(jQuery(this).attr('checked')){
+	    			result += jQuery(this).val() + ",";
+	    		}
+	    	});
+	    	return result;
+	    }
+	});
+
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      columns = [
+		{
+		   title : '序号',
+		   dataIndex : 'displayid',
+		   renderer : function(val,obj,index) {
+			return index+1;
+		   },
+	       width:'10%'
+		},{
+          title : '店铺编号',
+          elCls: 'left',
+          dataIndex :'id',
+          width:'15%'
+        },{
+          title : '用户名称',
+          elCls: 'left',
+          dataIndex :'name',
+          width:'10%'
+        },{
+          title : '营业开始时间',
+          elCls: 'left',
+          dataIndex :'gmtOpen',
+          renderer:BUI.Grid.Format.datetimeRenderer,
+          width:'15%'
+        },{
+          title : '营业结束时间',
+          elCls: 'left',
+          dataIndex : 'gmtClose',
+          renderer:BUI.Grid.Format.datetimeRenderer,
+          width:'15%'
+     	},{
+            title : '注册时间',
+            elCls: 'left',
+            dataIndex : 'gmtCreate',
+            renderer:BUI.Grid.Format.datetimeRenderer,
+            width:'15%'
+       	},{
+            title : '最后更新时间',
+            elCls: 'left',
+            dataIndex : 'gmtModify',
+            renderer:BUI.Grid.Format.datetimeRenderer,
+            width:'10%'
+       	},{
+			title : '操作',
+			elCls: 'center',
+			dataIndex : 'oper',
+			renderer : function(val,obj,index) {
+				return '<a href="$admin.setTarget("coupon")?shopId='+obj.id+'">卡券</a>&nbsp;&nbsp;<a href="$admin.setTarget("shopDetail")?id='+obj.id+'">详情</span>';
+			},
+			width: '10%'
+		}],
+		data = #if($!{shopList})#noescape()$!{shopList}#end#else null #end;
+
+      var store = new Store({
+        data : data,
+      }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store
+      });
+
+    grid.render();    
+</script>

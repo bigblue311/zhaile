@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CouponCardDO">
+
+  <typeAlias alias="CouponCard" type="com.zhaile.dal.model.CouponCardDO"/>
+
+  <resultMap id="RM" class="CouponCard">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="enable" column="enable"/>
+    <result property="locked" column="locked"/>
+    <result property="validFrom" column="valid_from"/>
+    <result property="validTo" column="valid_to"/>
+    <result property="metaId" column="meta_id"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="balance" column="balance"/>
+    <result property="countDown" column="count_down"/>
+    <result property="cardId" column="card_id"/>
+  </resultMap>
+  
+  <insert id="insert" parameterClass="CouponCard">
+    <![CDATA[
+    insert into zl_coupon_card (
+      gmt_create,
+      gmt_modify,
+      enable,
+      locked,
+      valid_from,
+      valid_to,
+      meta_id,
+      customer_id,
+      balance,
+      count_down,
+      card_id
+    ) values (
+      now(), now(), #enable#, #locked#, #validFrom#, #validTo#, #metaId#,
+      #customerId#, #balance#,#countDown#, #cardId#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+  		<isNotNull property="enable" prepend="and">
+        	<![CDATA[ 
+        	enable = #enable#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="locked" prepend="and">
+        	<![CDATA[ 
+        	locked = #locked#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="valid" prepend="and">
+        	enable = '0' and locked = '1' and
+		     <![CDATA[  
+		      valid_from < now() and valid_to > now()
+		      ]]> 
+	    </isNotNull>
+  		<isNotNull property="customerId" prepend="and">
+        	<![CDATA[ 
+        	customer_id = #customerId#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="metaId" prepend="and">
+        	<![CDATA[
+        	meta_id = #metaId#
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="shopId" prepend="and">
+        	<![CDATA[
+        	meta_id in (select id from zl_coupon_meta where shop_id in #shopId#)
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="shopIds" prepend="and">
+        	meta_id in (select id from zl_coupon_meta where shop_id in
+			<iterate open="(" close=")" conjunction="," property="shopIds"> 
+		    	#shopIds[]# 
+		    </iterate>
+		    )
+	    </isNotNull>
+	    <isNotEmpty property="customerName" prepend="and">
+        	<![CDATA[ 
+        	customer_id in (select id from zl_customer where name like concat('%',#customerName#,'%'))
+        	]]>
+	    </isNotEmpty>
+	    <isNotEmpty property="customerPhone" prepend="and">
+        	<![CDATA[ 
+        	customer_id in (select id from zl_customer where phone like concat('%',#customerPhone#,'%'))
+        	]]>
+	    </isNotEmpty>
+	    <isNotNull property="name" prepend="and">
+        	<![CDATA[
+        	meta_id in (select id from zl_coupon_meta where name like concat('%',#name#,'%'))
+		    ]]>
+	    </isNotNull>
+	     <isNotNull property="chargable" prepend="and">
+        	<![CDATA[
+        	meta_id in (select id from zl_coupon_meta where chargable = #chargable#)
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="topupable" prepend="and">
+        	<![CDATA[
+        	meta_id in (select id from zl_coupon_meta where topupable = #topupable#)
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="refundable" prepend="and">
+        	<![CDATA[
+        	meta_id in (select id from zl_coupon_meta where refundable = #refundable#)
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="deductable" prepend="and">
+        	<![CDATA[
+        	meta_id in (select id from zl_coupon_meta where deductable = #deductable#)
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="fullsent" prepend="and">
+        	<![CDATA[
+        	meta_id in (select id from zl_coupon_meta where fullsent > #fullsent#)
+		    ]]>
+	    </isNotNull>
+	    <isNotNull property="sales" prepend="and">
+        	<![CDATA[
+        	meta_id in (select id from zl_coupon_meta where sales > #sales#)
+		    ]]>
+	    </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="enable">
+  	<isNull property="locked">
+  	<isNull property="valid">
+  	<isNull property="customerId">
+  	<isNull property="metaId">
+  	<isNull property="shopId">
+  	<isNull property="chargable">
+  	<isNull property="topupable">
+  	<isNull property="refundable">
+  	<isNull property="deductable">
+  	<isNull property="name">
+        <include refid="Common.validModify" />
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+  </sql>
+  
+  <select id="getByCondition" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_coupon_card 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+  </select>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_coupon_card 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_coupon_card
+	<include refid="where" />
+  </select>
+  
+  <select id="getByMetaId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_coupon_card where meta_id = #metaId#
+  </select>
+  
+  <select id="getByCustomerId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_coupon_card where customer_id = #customerId#
+  </select>
+  
+  <select id="getValidByCustomerId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_coupon_card where customer_id = #customerId# and enable = '0' and locked = '1' and
+     <![CDATA[  
+      valid_from < now() and valid_to > now()
+      ]]> 
+  </select>
+  
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_coupon_card where id = #id#  
+  </select>
+  
+  <select id="getValidById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_coupon_card where id = #id# and enable = '0' and
+     <![CDATA[  
+      valid_from < now() and valid_to > now()
+      ]]> 
+  </select>
+  
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_coupon_card where id = #id#
+  </delete>
+  
+  <update id="softDeleteById" parameterClass="java.lang.Long">
+    update zl_coupon_card set enable = '1' where id = #id#
+  </update>
+  
+  <update id="recoverById" parameterClass="java.lang.Long">
+    update zl_coupon_card set enable = '0' where id = #id#
+  </update>
+  
+  <update id="update" parameterClass="CouponCard">
+    update zl_coupon_card set 
+    <dynamic>
+       <isNotEmpty property="enable">  
+         <![CDATA[   
+           enable = #enable#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="locked">  
+         <![CDATA[   
+           locked = #locked#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="validFrom">  
+         <![CDATA[   
+           validFrom = #validFrom#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="validTo">  
+         <![CDATA[   
+           validTo = #validTo#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="balance">  
+         <![CDATA[ 
+           balance = #balance#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="cardId">  
+         <![CDATA[ 
+           card_id = #cardId#,
+         ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#  
+  </update>
+</sqlMap>

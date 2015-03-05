@@ -1,0 +1,65 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="styles/search/leftNav.css"/>
+<div class="my_left_category">
+	<h1><span>搜索结果分类</span> <i target=".my_left_cat_list" class="icon icon-minus icon-white"></i></h1>
+	<div class="my_left_cat_list">		
+	</div>
+</div>
+<script>
+jQuery(document).ready(function(){	
+	var cateItem = "";
+	
+	function loadCategory(cateClass){
+		jQuery(cateClass).each(function(){
+			var clazz = jQuery(this).attr("value");
+			var cate = jQuery(this).parent().text();
+			cateItem 	 += "<div class='h2_cat' onmouseover=\"this.className='h2_cat active_cat'\" onmouseout=\"this.className='h2_cat'\">";
+			cateItem 	 += "<h3><a href='#"+clazz+"'>" + cate + "</a></h3>";
+			cateItem 	 += "<div class='h3_cat'>";
+			cateItem     += "<div class='shadow'>";
+			cateItem     += "<div class='shadow_border'>";
+			cateItem     += "<ul>";
+			
+			clazz += " .product";
+			
+			jQuery(clazz).each(function(){
+				var prodId = jQuery(this).attr('prodId');
+				cateItem     += "<li><a style='cursor:pointer;' onclick=\"addShoppingCar('"+prodId+"')\">";
+				cateItem     += jQuery(this).text();
+				cateItem     += "</a></li>";
+			});
+			
+			cateItem 	+= "</ul>";
+			cateItem 	+= "</div>";
+			cateItem 	+= "</div>";
+			cateItem 	+= "</div>";
+			cateItem 	+= "</div>";
+		});
+	}
+	
+	cateItem += "<h2><span>按店铺分类</span> <i class='icon icon-minus'></i></h2>";
+	cateItem += "<div>";
+	loadCategory('.f_shop');
+	cateItem += "</div>";
+	
+	cateItem += "<h2><span>按价格分类</span> <i class='icon icon-minus'></i></h2>";
+	cateItem += "<div>";
+	loadCategory('.f_price');
+	cateItem += "</div>";
+	
+	cateItem += "<h2><span>按类别分类</span> <i class='icon icon-minus'></i></h2>";
+	cateItem += "<div>";
+	loadCategory('.f_cate');
+	cateItem += "</div>";
+	
+	jQuery(".my_left_cat_list").append(cateItem);
+	
+	jQuery(".my_left_category i").toggle(function(){
+		jQuery(this).parent().next().hide();
+		jQuery(this).removeClass("icon-minus").addClass("icon-plus");
+	},function(){
+		jQuery(this).parent().next().show();
+		jQuery(this).removeClass("icon-plus").addClass("icon-minus");
+	});
+});
+</script>

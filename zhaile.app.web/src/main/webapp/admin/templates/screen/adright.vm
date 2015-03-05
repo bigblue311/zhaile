@@ -1,0 +1,141 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<h1>${title}</h1>
+#set ($adCache = $cacheTools.getAdvertisementcache())
+<div>上次加载时间：$cacheTools.timestamp <a href="$admin.setTarget('adright.vm')?command=reload">重新加载</a><label class="auxiliary-text">更新后不会立即生效，必须点击重新加载才会生效</label></div>
+<div id="grid"></div>
+<div style="display:none" id="focusImg">
+	<div id="focusImgFrom">
+		<div class="row">
+	          <p>
+	        	<img id="imgSrc" src="" style="border:1px solid lightgrey;width:${allowedWidth}px;height:${allowedHeight}px"><br>
+				<button imgWidth="${allowedWidth}" imgHeight="${allowedHeight}" imgId="imgSrc" class="btnUpload button button-danger button-small">上传滚动图片...</button>
+	         	<input type="hidden" id="id" value=""/>
+	            <input type="hidden" id="position" value=""/>
+	          </p>
+	          #if($hasLink)
+	          <p>
+	            <label>店铺编号：</label><input id="link" type="text" />
+	          </p>
+	          #else
+	          	 <input type="hidden" id="link"  value=""/>
+	          #end
+	          <p>
+	            <label>广告内容：</label><input id="content" type="text" />
+	          </p>
+	    </div>
+	</div>
+</div>
+<script type="text/javascript">
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      columns = [
+		{
+			title : '广告图片',
+            elCls: 'left',
+            dataIndex :'imgSrc',
+            renderer : function(val,obj,index) {
+				var html = "";
+				if(obj!=null){
+					html += "<img src='"+val+"' style='width:${previewWidth}px;height:${previewHeight}px'/>";
+				}
+				return html;
+		    },
+            width:'45%'
+		},{
+          title : '内容',
+          elCls: 'left',
+          dataIndex :'content',
+          width: '10%'
+        }#if($hasLink),{
+          title : '店铺编号',
+          elCls: 'left',
+          dataIndex :'link',
+          renderer : function(val,obj,index) {
+  			var html = "";
+  			if(obj!=null){
+  				html += "<a href='$zhaile.setTarget('shop.htm')?id="+obj.link+"')' target='_blank'>"+obj.link+"</a>";
+  			}
+  			return html;
+  		  },
+          width: '15%'
+        }#end,{
+            title : '点击次数',
+            elCls: 'left',
+            dataIndex : 'clickCount',
+            width:'15%'
+       	},{
+			title : '操作',
+			elCls: 'center',
+			width: '15%',
+			dataIndex : 'oper',
+			renderer : function(val,obj,index) {
+				var btn = "";
+				if(obj!=null){
+					btn += "<span class='grid-command' onclick=\"updateFunction('"+obj.id+"',";
+					btn += "'"+obj.link+"',";
+					btn += "'"+obj.imgSrc+"',";
+					btn += "'"+obj.content+"',";
+					btn += "'"+obj.position+"')\"";
+					btn += " >修改</span> ";
+				}
+				return btn;
+			}
+		}],
+		data = #if($!{adList})#noescape()$!{adList}#end#else null #end;
+
+      var store = new Store({
+        data : data
+      }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store
+      });
+
+    grid.render();
+    
+    var Overlay = BUI.Overlay;
+    
+	var adDialog = new Overlay.Dialog({
+	     title:'广告编辑',
+	     width:1000,
+	     height:600,
+	     contentId:'focusImgFrom',
+	     success:function () {
+	     	eventCallback();
+	     }
+	});
+
+	 function eventCallback(){
+	  	var id = jQuery(".bui-stdmod-body #id").val();
+	   	var content = jQuery(".bui-stdmod-body #content").val();
+	   	var link = jQuery(".bui-stdmod-body #link").val();
+	   	var imgSrc = jQuery(".bui-stdmod-body #imgSrc").attr("src");
+	   	var position = jQuery(".bui-stdmod-body #position").val();
+	   	 
+		   	var timestamp = currentTime();
+		    var para = "timestamp="+timestamp+"&id="+id+"&content="+content+"&link="+link+"&imgSrc="+imgSrc+"&position="+position;
+		    
+		   jQuery.ajax({
+			type: "get",
+			url: '$admin.setTarget('/json/updateSystemAd.json')?'+ para,
+			success:function(data, textStatus){
+				adDialog.close();
+				window.location.reload();
+			}
+		});
+	 }
+	  
+	function updateFunction(id,link,imgSrc,content,position) {
+	 	adDialog.show();
+	 	jQuery(".bui-stdmod-body #id").val(id);
+		jQuery(".bui-stdmod-body #link").val(link);
+		jQuery(".bui-stdmod-body #content").val(content);
+		jQuery(".bui-stdmod-body #imgSrc").attr("src",imgSrc);
+		jQuery(".bui-stdmod-body #position").val(position);
+	}
+</script>
+$control.setTemplate("uploader.vm")

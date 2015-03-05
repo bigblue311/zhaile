@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CouponDO">
+
+  <typeAlias alias="Coupon" type="com.zhaile.dal.model.CouponDO"/>
+
+  <resultMap id="RM" class="Coupon">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="paymentId" column="payment_id"/>
+    <result property="couponCardId" column="coupon_card_id"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="shopId" column="shop_id"/>
+    <result property="logId" column="log_id"/>
+    <result property="income" column="income"/>
+    <result property="outcome" column="outcome"/>
+  </resultMap>
+  
+  <insert id="insert" parameterClass="Coupon">
+    <![CDATA[
+    insert into zl_transaction_coupon (
+      gmt_create,
+      gmt_modify,
+      payment_id,
+      coupon_card_id,
+      customer_id,
+      shop_id,
+      log_id,
+      income,
+      outcome
+    ) values (
+      now(), now(), #paymentId#, #couponCardId#, #customerId#, #shopId#,
+      #logId#, #income#, #outcome#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+  		<isNotNull property="customerId" prepend="and">
+        	<![CDATA[ 
+        	customer_id = #customerId#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="couponCardId" prepend="and">
+        	<![CDATA[ 
+        	coupon_card_id = #couponCardId#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="customerName" prepend="and">
+        	<![CDATA[
+        	customer_id in (select c.id from (select id from zl_customer where name like 
+        		concat('%',#customerName#,'%')
+        	) as c)
+        	]]> 
+	    </isNotNull>
+	    <isNotNull property="opType" prepend="and">
+        	<![CDATA[
+        	log_id in (select c.id from (select id from zl_log where op_type = #opType#
+        	) as c)
+        	]]> 
+	    </isNotNull>
+	    <isNotEmpty property="status" prepend="and">
+        	payment_id in (select c.id from (select id from zl_transaction_payment where status in 
+        		<iterate open="(" close=")" conjunction="," property="status"> 
+			    	#status[]#
+			    </iterate>
+        	) as c)
+	    </isNotEmpty>
+	    <isNotNull property="shopId" prepend="and">
+        	<![CDATA[
+        	shop_id = #shopId#
+		    ]]>
+	    </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="customerId">
+  	<isNull property="couponCardId">
+  	<isNull property="customerName">
+  	<isNull property="opType">
+  	<isEmpty property="status">
+  	<isNull property="shopId">
+        <include refid="Common.validModify" />
+    </isNull>
+    </isEmpty>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_transaction_coupon 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_transaction_coupon
+	<include refid="where" />
+  </select>
+  
+  <select id="getByPaymentId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_transaction_coupon where payment_id = #paymentId#
+  </select>
+  
+  <select id="getByCouponCardId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_transaction_coupon where coupon_card_id = #couponCardId#
+  </select>
+  
+  <select id="getByCustomerId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_transaction_coupon where customer_id = #customerId#
+  </select>
+  
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_transaction_coupon where id = #id#  
+  </select>
+  
+  <select id="getByShopId" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_transaction_coupon where shop_id = #shopId#
+  </select>
+  
+  <update id="update" parameterClass="Coupon">
+    update zl_transaction_coupon set 
+    <dynamic>
+       <isNotEmpty property="income">  
+         <![CDATA[   
+           income = #income#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="outcome">  
+         <![CDATA[   
+           outcome = #outcome#,
+         ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#  
+  </update>
+</sqlMap>

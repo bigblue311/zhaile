@@ -1,0 +1,42 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+#if($!loginUser)
+<style>
+	.leftHeadImg img {
+		width:200px;
+		height:200px;
+		padding:2px;
+	}
+
+	.leftMenu{
+		border-bottom: 1px dashed lightgrey;
+		padding-left: 10px;
+		vertical-align: middle;
+		padding-top: 15px;
+		padding-bottom: 15px;
+		margin: 5px;
+		font-size: large;
+	}
+	
+	.leftMenu:hover{
+		background: lightgrey;
+	}
+</style>
+<div class="leftHeadImg" align="center">
+	<img src="$!loginUser.headImage" width="100px" height="100px"/>
+</div>
+<div class="leftMenu">
+	<a href="$zhaile.setTarget('my/member')">个人信息</a>
+</div>
+<div class="leftMenu">
+	<label class="auxiliary-text">积分兑换</label>
+</div>
+<div class="leftMenu">
+	<a href="$zhaile.setTarget('my/history')">购买记录</a>
+</div>
+<div class="leftMenu">
+	<a href="$zhaile.setTarget('my/fav')">收藏夹</a>
+</div>
+<div class="leftMenu">
+	<a href="$zhaile.setTarget('my/comment')">投诉建议</a>&nbsp;&nbsp;<img src="./img/new.gif"></img>
+</div>
+#end

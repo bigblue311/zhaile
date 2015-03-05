@@ -1,0 +1,48 @@
+#set ($systemCache = $cacheTools.getSystemConfigcache())
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta property="qc:admins" content="57313201776612011456375" />
+<script src="http://a.tbcdn.cn/s/bui/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="$systemCache.getConfig('QQ_API_ID').value" data-redirecturi="$zhaile.setTarget('qccallback')" charset="utf-8"></script>
+<script type="text/javascript"> 
+
+//从页面收集OpenAPI必要的参数。get_user_info不需要输入参数，因此paras中没有参数 
+
+var paras = {}; 
+
+//用JS SDK调用OpenAPI 
+if(QC.Login.check()){//如果已登录 
+	
+	QC.api("get_user_info", paras) 
+    //指定接口访问成功的接收函数，s为成功返回Response对象 
+    .success(function(s){ 
+    	QC.Login.getMe(function(openId, accessToken){ 
+    		var name = s.data.nickname;
+    		var thirdPartUserId = openId;
+    		loginFromQQ(thirdPartUserId,name);
+        });
+    }) 
+    //指定接口访问失败的接收函数，f为失败返回Response对象 
+    .error(function(f){ 
+        //失败回调 
+        alert("QQ登录失败，请尝试从宅乐网登录！"); 
+        window.location.replace("/");
+    }); 
+}
+
+function loginFromQQ(thirdPartUserId,name){
+	var jsonUrl = "$zhaile.setTarget('/json/LoginFromTencent.json')?thirdPartUserId="+thirdPartUserId+"&name="+encodeURIComponent(name);
+	jQuery.ajax({
+		type: "get",
+		url: jsonUrl,
+		success:function(data, textStatus){
+			if(data.success){
+				window.location.replace("/");
+			} else {
+				alert("QQ登录失败，请尝试从宅乐网登录！");
+				window.location.replace("/");
+			}
+		}
+	});
+}
+//这里可以调用自己
+</script>

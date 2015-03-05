@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="app">
+<head>
+	<meta charset="utf-8" />
+	<link rel="icon" href="img/favicon.ico" mce_href="img/favicon.ico" type="image/x-icon"/>
+	<link rel="shortcut icon" href="img/favicon.ico" mce_href="img/favicon.ico" type="image/x-icon"/>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+	<title>宅乐网乐享卡</title>
+	<style>
+	body{
+		padding:0px;
+		margin:0px;	
+	}
+
+	.fullpage{
+		background:#EEEEEE;
+		text-align: center; 
+		width:100%;
+		background-size:contain;
+		padding-top:20px;
+	}
+	.fullpage img{
+		height:90%;
+		width:90%;
+		background-size:contain;
+	}
+	</style>
+</head>
+<body>
+<div class="fullpage" style="background:#f29600">
+	<img src="/img/fullpage/t01.png">
+</div>
+<div class="fullpage">
+	<img src="/img/fullpage/01.png">
+</div>
+<div class="fullpage">
+	<img src="/img/fullpage/02.png">
+</div>
+<div class="fullpage">
+	<img src="/img/fullpage/03.png">
+</div>
+<div class="fullpage">
+	<img src="/img/fullpage/04.png">
+</div>
+<div class="fullpage">
+	<img src="/img/fullpage/05.png">
+</div>
+</body>
+</html>

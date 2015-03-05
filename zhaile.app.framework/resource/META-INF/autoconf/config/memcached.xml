@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+    	http://www.springframework.org/schema/beans 
+    	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    	http://www.springframework.org/schema/context
+    	http://www.springframework.org/schema/context/spring-context-3.0.xsd ">
+    
+    <bean id="memcachedService" class="com.victor.framework.spymemcached.MemcachedServiceImpl">
+    	<property name="host" value="c0aa126057f54d03.m.cnqdalicm9pub001.ocs.aliyuncs.com" />
+    	<property name="port" value="11211" />
+    	<property name="username" value="c0aa126057f54d03" />
+    	<property name="password" value="zhaileAdm1n" />
+    	<property name="auth" value="true" />
+    	<property name="enable" value="${memcached.enable}" />
+    	<property name="keyPrefix" value="zhaile.dev" />
+    </bean>
+</beans>

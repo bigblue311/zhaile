@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<group>
+		<property name="memcached.enable" defaultValue="false" description="是否启用缓存"/>
+	</group>
+	<script>
+		<generate template="config/memcached.xml" destfile="spring/memcached.xml"/>
+	</script>
+</config>

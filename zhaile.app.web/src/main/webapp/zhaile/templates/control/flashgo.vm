@@ -1,0 +1,195 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<style>
+	.bd .time-list{
+		margin-bottom:10px;
+		width:1024px;
+	}
+	
+	.bd .time-list td{
+		text-align:center;
+	}
+	
+	.bd .time-list .before{
+		color:lightgrey;
+		font-size:13px;
+	}
+	
+	.bd .time-list .current{
+		color:#EA5414;
+		font-size:28px;
+	}
+	
+	.bd .time-list .after{
+		color:lightgrey
+		font-size:13px;
+	}
+	
+	.bd h3{
+		height: 18px;
+		color: #EA5414;
+		margin: 5px 0px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-size: 16px;
+		margin-top: 10px;
+		font-weight: normal;
+		width:256px;
+	}
+	
+	.bd .price{
+		position: relative;
+		height: 28px;
+		line-height: 28px;
+		margin: 0 10px;
+		color: #EA5414;
+		font-size:13px;
+	}
+	
+	.bd .sum_p{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	
+	.bd .sum_g{
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
+	
+	.bd .sum_g em{
+		font-style: normal;
+		color:grey;
+		text-decoration:line-through;
+	}
+	
+	.bd .sum_g #itemLeft{
+		text-decoration:none;
+	}
+	
+	.bd .scroller .current:hover{
+		background:#efefef;
+	}
+	
+	.bd .scroller .flashProduct{
+		cursor:pointer;
+	}
+	
+	.bd .scroller .before .price{
+		color: lightgrey;
+	}
+	
+	.bd .scroller .before img{
+		padding:5px;
+	}
+	
+	.bd .scroller .current img{
+		padding:5px;
+	}
+	
+	.bd .scroller .after .price{
+		color: lightgrey;
+	}
+	
+	.bd .scroller .after img{
+		padding:5px;
+	}
+	
+</style>
+<div class="flashgo">
+	<div class="bd">
+		<table class="time-list">
+			<tbody>
+				<tr>
+					#foreach($flashgoEntry in $thisWeeks.entrySet())
+					#set ($key = $flashgoEntry.key)
+					#set ($value = $flashgoEntry.value)
+					<td class="$value">
+						$key
+					</td>
+					#end
+				</tr>
+			</tbody>
+		</table>
+		<div id="J_PointSlide" class="point-cont">
+			<div class="viewer">
+				<div class="scroller">
+					#foreach($flashgoVO in $recent)
+						#if(!$!flashgoVO)
+							<span class="before" style="display: block; float: left;">
+							<img class="pic" width="246" height="164"
+								 src="/img/flashgo.jpg">
+							<h3>宅乐网很懒什么活动都没有</h3>
+							</span>
+						#else
+							#set ($flashgoDO = $flashgoVO.flashGo)
+							#set ($productDO = $flashgoVO.prod)
+							#set ($shopDO = $flashgoVO.shop)
+							
+							<span class="$flashgoVO.style" prodId="$productDO.id" style="display: block; float: left;position:relative;">
+							<img class="pic" width="246" height="164"
+								 src="$flashgoDO.adImg">
+							<h3>【$shopDO.name】$!productDO.name</h3>
+							#if($flashgoVO.style != 'current flashProduct')
+						    	<span style="position:absolute; left:5px; top:5px; font-size:30px; font-family:微软雅黑;  width:246px; height:164px; line-height:164px; color:#fff; z-index:100; ">$flashgoVO.label</span>
+                           		<span style="position:absolute; left:5px; top:5px; background-color:#999; width:246px; height:164px;Opacity:0.5;   -moz-opacity:0.5; filter:alpha(opacity=50); line-height:164px;"></span>
+							#end
+							<div class="price">
+								<span class="sum_p"><i>超值价&nbsp;¥</i><em><b>$flashgoDO.price</b></em> 元</span> <span class="sum_g"><i>原价&nbsp;¥</i><em>$productDO.price</em>元</span>
+							</div>
+							<div class="price">
+								<span class="sum_p"><i>每人限&nbsp;</i><em>$flashgoDO.limitBuy</em> &nbsp;份</span> <span class="sum_g"><i>还剩&nbsp;</i><em #if($flashgoVO.style == 'current flashProduct')id="itemLeft"#end>$flashgoVO.itemLeft</em> &nbsp;份</span>
+							</div>
+							</span>
+						#end
+					#end
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+var enable = false;
+
+function checkOpen(){
+	var timestamp = currentTime();
+	var url = "$zhaile.setTarget('/json/checkFlashGoAvaliable.json')?timestamp="+timestamp;
+	jQuery.ajax({
+		type: "get",
+		url: url,
+		success:function(data, textStatus){
+			enable = data.enable;
+			var itemLeft = data.itemLeft;
+			jQuery('#itemLeft').empty().append(itemLeft);
+			if(data.valid){
+				setTimeout("checkOpen()",1000);
+			}
+		}
+	});
+}
+
+setTimeout("checkOpen()",1000);
+
+jQuery(document).ready(function(){	
+	
+	jQuery('.flashProduct').click(function(){
+		if(enable){
+			var prodId = jQuery(this).attr('prodId');
+			var timestamp = currentTime();
+			var url = "$zhaile.setTarget('/json/addToShoppingCar.json')?timestamp="+timestamp+"&prodId="+prodId + "&quantity=1";
+			jQuery.ajax({
+				type: "get",
+				url: url,
+				success:function(data, textStatus){
+					if(data.success){
+						window.location.replace("/order.htm");
+					} else {
+						alert(data.message);
+					}
+				}
+			});
+		}
+	});
+});
+</script>

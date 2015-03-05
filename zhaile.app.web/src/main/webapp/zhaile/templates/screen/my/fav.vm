@@ -1,0 +1,30 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+	.myTitle{
+		margin:10px;
+		font-size:large;
+		font-weight: bold;
+	}
+	
+	.fav{
+		text-align:center;
+		float:left;
+		padding:20px;
+	}
+</style>
+<div class="myTitle">
+	收藏夹
+</div>
+<hr>
+<div>
+#set($shopList = $memberInfo.shopList)
+#foreach($!shop in $shopList)
+	<div class="fav">
+		<a target="_blank" href="$zhaile.setTarget('shop')?id=$!shop.id">
+			<img src="$!shop.shopImage" width="100"/>
+			<br>
+			$shop.name
+		</a>
+	</div>
+#end
+</div>

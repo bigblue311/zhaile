@@ -1,0 +1,8 @@
+.project
+.classpath
+target/
+.settings/
+.svn/
+.class
+zhaile.app.web/src/main/webapp/WEB-INF/lib
+zhaile.app.web/src/main/webapp/WEB-INF/classes

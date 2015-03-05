@@ -1,0 +1,233 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<h1>查询条件</h1>
+<div class="doc-content">
+	<form action="$admin.setTarget('mapMarker')" class="form-horizontal well">
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">联系方式：</label>
+				<div class="controls">
+					<input type="text" class="control-text" name="contact" value="$!MapMarkerQueryFormBean.contact">
+				</div>
+				<label class="control-label">有效时间：</label>
+				<div class="controls">
+					<input type="text" class="calendar" name="validFromStr" id="validFromStr" value="$!MapMarkerQueryFormBean.validFromStr">
+					至
+					<input type="text" class="calendar" name="validToStr" id="validToStr" value="$!MapMarkerQueryFormBean.validToStr">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="control-group">
+				<label class="control-label">标注状态：</label>
+				<div class="controls">
+					<select name="status">
+						<option selected value="">全部</option>
+						#foreach($status in $MapMarkerStatusEnum)
+						<option 
+							#if($!MapMarkerQueryFormBean.status)
+								#if($!MapMarkerQueryFormBean.status==$!status.code)
+									selected
+								#end
+							#end 
+							value="$!status.code">$!status.desc</option>
+						#end
+					</select>
+				</div>
+				<label class="control-label">创建时间：</label>
+				<div class="controls">
+					<input type="text" class="calendar" name="gmtModifyStart" id="gmtModifyStart" value="$!MapMarkerQueryFormBean.gmtModifyStart">
+					至
+					<input type="text" class="calendar" name="gmtModifyEnd" id="gmtModifyEnd" value="$!MapMarkerQueryFormBean.gmtModifyEnd">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="form-actions offset3">
+				<button class="button button-primary">搜索</button>
+				<button type="reset" class="button">重置</button>
+			</div>
+		</div>
+	</form>
+</div>
+<h1>查询结果</h1>
+<div id="grid"></div>
+<script type="text/javascript">
+		var Calendar = BUI.Calendar;
+		
+		var gmtModifyStart = new Calendar.DatePicker({
+		  trigger:'#gmtModifyStart',
+		  selectedDate : new Date(),
+		  autoRender : true
+		});
+		
+		var gmtModifyEnd = new Calendar.DatePicker({
+			  trigger:'#gmtModifyEnd',
+			  selectedDate : new Date(),
+			  autoRender : true
+		});
+		
+		var validFrom = new Calendar.DatePicker({
+			  trigger:'#validFromStr',
+			  selectedDate : new Date(),
+			  autoRender : true
+		});
+		
+		var validTo = new Calendar.DatePicker({
+			  trigger:'#validToStr',
+			  selectedDate : new Date(),
+			  autoRender : true
+		});
+
+      var Grid = BUI.Grid,
+      Data = BUI.Data;
+      var Grid = Grid,
+      Store = Data.Store,
+      statusObj = {
+ 	   		#foreach($status in $MapMarkerStatusEnum)
+ 			"$!status.code": "$!status.desc"
+ 				#if(${velocityCount} != $MapMarkerStatusEnum.size())
+ 					,
+ 				#end
+ 			#end
+ 	  },
+      columns = [
+		{
+			title : '序号',
+			dataIndex : 'id',
+			renderer : function(val,obj,index) {
+				return index+1;
+			},
+	        width:'2%'
+		},{
+          title : '标注时间',
+          elCls: 'left',
+          dataIndex :'gmtCreate',
+          renderer:BUI.Grid.Format.datetimeRenderer,
+          width:'13%'
+        },{
+          title : '联系方式',
+          elCls: 'left',
+          dataIndex :'contact',
+          width:'30%'
+        },{
+          title : '开始时间',
+          elCls: 'left',
+          dataIndex : 'validFrom',
+          renderer:BUI.Grid.Format.datetimeRenderer,
+          width:'15%'
+     	},{
+            title : '结束时间',
+            elCls: 'left',
+            dataIndex : 'validTo',
+            renderer:BUI.Grid.Format.datetimeRenderer,
+            width:'15%'
+       	},{
+            title : '标注状态',
+            elCls: 'left',
+            dataIndex: 'status',
+            editor : {
+				xtype : 'select',
+				items : statusObj
+			},
+			renderer : Grid.Format.enumRenderer(statusObj),
+			summary : false,
+            width:'10%'
+       	},{
+            title : '费用',
+            elCls: 'left',
+            dataIndex : 'charge',
+            summary : true,
+            width:'5%'
+       	},{
+			title : '审批',
+			elCls: 'center',
+			dataIndex : 'oper',
+			renderer : function(val,obj,index) {
+				var btn = "";
+				if(obj!=null){
+					btn += "<span class='grid-command btn-approve' dataId='"+obj.id+"'>确认</span> ";
+					btn += "<span class='grid-command btn-reject' dataId='"+obj.id+"'>取消</span>";
+					btn += "<span class='grid-command btn-relocate' dataId='"+obj.id+"' lng='"+obj.lng+"' lat='"+obj.lat+"'>位置</span>";
+				}
+				return btn;
+			},
+			summary : false,
+			width: '10%'
+		}],
+	data = #if($!{mapMarkerList})#noescape()$!{mapMarkerList}#end#else null #end;
+
+      var store = new Store({
+        data : data
+      }),
+      cascade = new Grid.Plugins.Cascade({
+		    renderer : function(record){
+		    	return '<div><p>&nbsp;标题：' + record.title + '</p><p>&nbsp;内容 : '+record.content+'</p><p>&nbsp;地址 : '+record.address+'</p></div>';
+		    }
+	  }),
+      grid = new Grid.Grid({
+        render:'#grid',
+        width:'100%',//这个属性一定要设置
+        columns : columns,
+        store : store,
+        plugins : [cascade]
+      });
+
+      grid.render();
+      
+      jQuery(document).ready(function(){
+	      jQuery('.btn-approve').click(function(){
+	    	  var timestamp = currentTime();
+	    	  var id = jQuery(this).attr("dataId");
+	    	  var para = "?timestamp="+timestamp+"&id="+id+"&status=1";
+	    	  jQuery.ajax({
+	 				type: "get",
+	 				url: '$admin.setTarget('/json/updateMapMarkerStatus.json')'+ para,
+	 				success:function(data, textStatus){
+	 					if(data){
+	 						window.location.reload();
+	 					} else {
+	 						alert('操作失败');
+	 					}
+	 				}
+	 			});
+	      });
+	      
+	      jQuery('.btn-reject').click(function(){
+	    	  var timestamp = currentTime();
+	    	  var id = jQuery(this).attr("dataId");
+	    	  var para = "?timestamp="+timestamp+"&id="+id+"&status=2";
+	    	  jQuery.ajax({
+	 				type: "get",
+	 				url: '$admin.setTarget('/json/updateMapMarkerStatus.json')'+ para,
+	 				success:function(data, textStatus){
+	 					if(data){
+	 						window.location.reload();
+	 					} else {
+	 						alert('操作失败');
+	 					}
+	 				}
+	 			});
+	      });
+	      
+	      jQuery('.btn-relocate').click(function(){
+	    	  var id = jQuery(this).attr("dataId");
+	     	 var lng = jQuery(this).attr("lng");
+	     	 var lat = jQuery(this).attr("lat");
+	     	 showMap(lng,lat,id);
+	      });
+      });
+      
+      function mapPickerCallback(id){
+	  	  var lng = myPoint.lng;
+	  	  var lat = myPoint.lat;
+	  	  var timestamp = currentTime();
+          var para = "?timestamp="+timestamp+"&lng="+lng+"&lat="+lat+"&id="+id;
+		  jQuery.ajax({
+				type: "get",
+				url: '$admin.setTarget('/json/updateMapMarkerPoint.json')'+ para,
+				success:function(data, textStatus){
+					window.location.reload();
+				}
+			});
+    }
+</script>

@@ -1,0 +1,9 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<form id="alipaysubmit" name="alipaysubmit" action="https://mapi.alipay.com/gateway.do?_input_charset=utf-8"  method="post">
+	 #foreach($para in $sPara.entrySet())
+       <input type="hidden" name="$para.key" value="$para.value"/>
+     #end 
+</form>
+<script type="text/javascript">
+	document.forms['alipaysubmit'].submit();
+</script>

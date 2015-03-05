@@ -1,0 +1,35 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<style>
+	p{
+		font:15px '微软雅黑';
+	}
+	
+	.background{
+		background-image:url('./img/404.jpg');
+		background-repeat:no-repeat;
+		text-align:center;
+		background-position:center;
+		height:451px;
+	}
+</style>
+<div class="background">
+	<br/><br/><br/><br/><br/><br/><br/><br/>
+	<br/><br/><br/><br/>
+	<p>&nbsp;&nbsp;&nbsp;&nbsp;外卖君送餐去了...请稍等</p>
+	<p id="countDown"><br></p>
+	<p>&nbsp;&nbsp;&nbsp;&nbsp;<a style="color:#EA5414" href="/">返回首页</a></p>
+</div>
+<script type="text/javascript">
+	var timer = setInterval("goHome()",1000);
+	var countDown = 6;
+	
+	function goHome(){
+		countDown--;
+		var msg = "&nbsp;&nbsp;&nbsp;&nbsp;"+countDown+"秒后返回首页";
+		document.getElementById("countDown").innerHTML=msg;
+		if(countDown <= 0){
+			window.clearInterval(timer);
+			window.location.replace("/");
+		}
+	}
+</script>

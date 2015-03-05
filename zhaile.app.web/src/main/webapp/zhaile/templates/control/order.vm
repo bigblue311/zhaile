@@ -1,0 +1,656 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+	#shoppingCarTitle {
+		text-align:left;
+	}
+
+	#shoppingCarTable img {
+		width : 100px;
+	}
+	
+	#shoppingCarTable .sum{
+		font-size : 12px;
+	}
+	
+	#shoppingCarTable .sum span{
+		font-weight: bold;
+		color: red;
+	}
+	
+	#shoppingCarTable .prodName {
+		font-size : 18px;
+	}
+	
+	#shoppingCarTable input {
+		text-align: center;
+	}
+	
+	.addressItem{
+		padding:5px 0 5px 0;
+		text-align:left;
+	}
+	
+	.icon-plus{
+		cursor:pointer;
+	}
+	
+	.icon-minus{
+		cursor:pointer;
+	}
+	
+	.cloumnTitle{
+		padding: 20px 0 10px 0;
+		text-align:left;
+	}
+	
+	.addressEdit {
+		text-align:left;
+		padding: 0 0 30px 0;
+		display:none;
+	}
+	
+	.myAddText{
+		cursor:pointer;
+	}
+	
+	.zhaileSuggest{
+		float:left;
+		width:102px;
+		height:170px;
+		text-align:center;
+	}
+	
+	.zhaileSuggest .product{
+		font-family: '微软雅黑';
+		text-align:center;
+		width: 100px;
+	}
+	
+	.zhaileSuggest .price{
+		color:#E73828;
+		font-family: '微软雅黑';
+		text-align:center;
+	}
+	
+	.zhaileSuggest .old{
+		text-decoration:line-through;
+	}
+	
+	.zhaileSuggest .promotionOn{
+		display:'';
+	}
+	
+	.zhaileSuggest .promotionOff{
+		display:none;
+	}
+	
+	.zhaileSuggest .btnBuy{
+		display:none;
+	}
+	
+	.zhaileSuggest:hover .btnBuy{
+		display:block;
+	}
+	
+	.bui-dialog{
+		background:white;
+	}
+		
+</style>
+#set ($group = $form.payment.defaultInstance)
+#set ($logined = false)
+#if($!loginUser)
+	#set ($logined = true)
+#end
+<form action="$zhaile.setTarget('index')" method="post" id="payment_form">
+	$csrfToken.hiddenField
+	<input type="hidden" name="action" value="userAction"/>  
+	<input type="hidden" name="event_submit_do_pay" value="true"/>
+	<input type="hidden" name="$!group.comment.key" id="formFeild_comment" value=""/>
+	<input type="hidden" name="$!group.contact.key" id="formFeild_contact" value=""/>
+	<input type="hidden" name="$!group.smsMobile.key" id="formFeild_mobile" value=""/>
+	<input type="hidden" name="$!group.mapAdd.key" id="formFeild_map" value=""/>
+	<input type="hidden" name="$!group.source.key" value="0"/>
+	<input type="hidden" name="$!group.paymentType.key" id="formFeild_type" value="0"/>
+</form>
+<div class="cloumnTitle">
+	<i class="icon-shopping-cart"></i>&nbsp;&nbsp;<b>我的购物车:&nbsp;&nbsp;</b> <label class="auxiliary-text">登录后提交订购账单才能获得订购积分</label>
+</div>
+<table id="shoppingCarTable" class="table">
+	<tbody>
+		#set ($hasFlashGo = false)
+		#if($!shoppingCar)
+		#foreach($!shopCar in $!shoppingCar)
+		#set ($isPromotion = false)
+		#set ($isFlashGo = $!shopCar.isFlashGo)
+		#set ($shop=$!shopCar.productVO.shopVO.shopDO)
+		#if(${cacheTools.isProdPromot($!shopCar.productVO.productDO.id,$logined)})
+			#set ($isPromotion = true)
+		#else
+			#set ($isPromotion = false)
+		#end
+    	<tr class="shoppingCarItem item$!shopCar.productVO.productDO.id">
+       		<td width="120px">
+     			<img alt="$!shopCar.productVO.productDO.name" src="$!shopCar.productVO.productDO.imgS">
+       		</td>
+       		<td width="700px">
+       			<div>
+       				<span class="prodName">
+       					<a href="$zhaile.setTarget("product")?id=$!shopCar.shopCar.prodId" target="_blank">$!shopCar.productVO.productDO.name</a>
+       					#if($isFlashGo)
+       						#set ($hasFlashGo = true)
+       						（每日优惠产品,最多可定 $!shopCar.limitBuy 份）
+       					#end
+       					#if($!shopCar.shopCar.valid == '1')
+       						<label style='color:red;'>该商品未能满足起送价($!shop.price 元)标准，将不予结算</label>
+       					#end
+       				</span>
+       				&nbsp;
+       				<span class="prodOper" style="display:none">
+       					#if(!$isPromotion)
+	       				我要买&nbsp;
+						<span class="icon-plus" prodId="$!shopCar.productVO.productDO.id" limitBuy="$!shopCar.limitBuy"></span>&nbsp;
+						<input value="$!shopCar.shopCar.quantity" size="2" class="quantityInput" prodId="$!shopCar.productVO.productDO.id" limitBuy="$!shopCar.limitBuy">&nbsp;
+						<span class="icon-minus" prodId="$!shopCar.productVO.productDO.id"></span>&nbsp;
+						#end
+						<button class="btnDelete button button-danger button-small" prodId="$!shopCar.productVO.productDO.id">删除</button>
+					</span>
+       			</div>
+       			<div>
+       				<a href="$zhaile.setTarget("shop")?id=$!shop.id"target="_blank">$!shop.name</a>#if($!shop.price) 起送价($!shop.price 元)#end #if($!shop.distance)配送距离($!shop.distance 米)#end
+       			</div>
+       			<br>
+       			<div class="mapInfo">
+       				<label class="auxiliary-text">
+       					外卖费用：
+						<span shopid="$!shop.id" defaultCharge="$!shop.charge" name="mapCharge"></span> 元
+						外卖距离：
+						<span lng="$!shop.lng" lat="$!shop.lat" name="mapDistance" prodId="$!shopCar.productVO.productDO.id" distance="$!shop.distance"></span> 米
+						外卖时间：
+						<span name="mapDuration"></span> 分钟(仅供参考)
+						配送方式：
+						<span name="mapDelivery"></span>
+					</label>
+					<br>
+       				$!shopCar.productVO.productDO.description
+       			</div>
+       		</td>
+       		<td style="padding-top:20px;">
+       			<div>
+       				商品单价：<span name="prodPrice">$!shopCar.productVO.productDO.price</span> 元
+       			</div>
+       			<div>
+       				商品数量：<span name="prodQuantity">$!shopCar.shopCar.quantity</span>
+       			</div>
+       			<div>
+       				商品总价：<span name="prodTotalPrice">$!shopCar.totalPrice</span> 元
+       			</div>
+       			<div>
+       				奖励积分：<span name="prodCredit">$!shopCar.credit</span>
+       			</div>
+       		</td>
+     	</tr>
+		#end
+		<tr>
+			<td class="sum" colspan="3" style="padding-top:20px;">
+   				商品总价：<span name="prodSum">$!sum</span> 元
+   				外卖费：<span name="prodCharge">$!charge</span> 元
+   				合计应付：<span name="prodPay">$!total</span> 元
+   				奖励积分：<span name="prodTotalCredit">$!total</span>
+			</td>
+		</tr>
+		#end
+   </tbody>
+</table>
+<div class="cloumnTitle">
+	<i class="icon-gift"></i>&nbsp;&nbsp;<b>缤纷水果饮料:&nbsp;&nbsp;</b><label class="auxiliary-text">想来点水果或饮料吗？宅乐网为您准备了各种水果饮料，与其他商品一起点无外卖费（单点收5元外卖费）&nbsp;&nbsp;<button class="button button-success button-small" onclick="javascript:window.location.replace('/shop.htm?id=$zhaileShopId')">更多饮料...</button></label>
+</div>
+#if($!zhaileFruit)
+#foreach($product in $!zhaileFruit)
+	#if($velocityCount < 11)
+	#set ($isPromotion = false)
+	#if(${cacheTools.isProdPromot($product.id,$logined)})
+		#set ($isPromotion = true)
+	#else
+		#set ($isPromotion = false)
+	#end
+	<div class="zhaileSuggest">
+		<div><img src="$product.imgS" width="100px" height="100px"/></div>
+		<table>
+			<tr>
+				<td valign="top" class="
+					#if($isPromotion)
+						promotionOn
+					#else
+					promotionOff
+					#end">
+					<img src="img/promotion/1yuan50.jpg" alt="优惠产品"/>
+				</td>
+				<td align="center">
+					<div class="product">$product.name</div>
+					<div class="price 
+					#if($isPromotion)
+						old
+					#end">￥$product.price 元</div>
+				</td>
+			</tr>
+		</table>
+		#if(${cacheTools.isProdValid($!product.id)})
+		<div class="btnBuy"><button class='button-info button-small' onclick="addShoppingCar('$!product.id')">加入购物车</button></div>
+		#else
+		<div class="btnBuy">店铺已打烊</div>
+		#end
+	</div>
+	#end
+#end
+#end
+
+#if($!zhaileDrink)
+#foreach($product in $!zhaileDrink)
+	#if($velocityCount < 11)
+	#set ($isPromotion = false)
+	#if(${cacheTools.isProdPromot($product.id,$logined)})
+		#set ($isPromotion = true)
+	#else
+		#set ($isPromotion = false)
+	#end
+	<div class="zhaileSuggest">
+		<div><img alt="$product.name" src="$product.imgS" width="100px" height="100px"/></div>
+		<table>
+			<tr>
+				<td valign="top" class="
+					#if($isPromotion)
+						promotionOn
+					#else
+					promotionOff
+					#end">
+					<img src="img/promotion/1yuan50.jpg" alt="优惠产品"/>
+				</td>
+				<td align="center">
+					<div class="product">$product.name</div>
+					<div class="price 
+					#if($isPromotion)
+						old
+					#end">￥$product.price 元</div>
+				</td>
+			</tr>
+		</table>
+		#if(${cacheTools.isProdValid($!product.id)})
+		<div class="btnBuy"><button class='button-info button-small' onclick="addShoppingCar('$!product.id')">加入购物车</button></div>
+		#else
+		<div class="btnBuy">店铺已打烊</div>
+		#end
+	</div>
+	#end
+#end
+#end
+<hr style="clear:both;">
+<div class="cloumnTitle">
+	<i class="icon-home"></i>&nbsp;&nbsp;<b>我的联系方式:&nbsp;&nbsp;</b><label class="auxiliary-text">请选择您的联系方式，否则我们将无法送达&nbsp;&nbsp;<button class="btnAddressAdd button button-success button-small">添加联系地址...</button></label>
+</div>
+<div class="addressEdit">
+	<input type="hidden" name="id" value="">
+	<input name="name" data-rules="{required:true}" data-messages="{required:'姓名不能为空'}" class="input-normal placeholder" placeholder="姓名" type="text">
+	<select class="input-normal" name="gender">
+		<option value="0">先生</option>
+		<option value="1">女士</option>
+	</select>
+	<input name="mobile" value="" data-rules="{regexp:/^(1(([35][0-9])|(47)|[5][036789]|[8][012346789]))\d{8}$/}" data-messages="{regexp:'请输入正确的手机号码'}" class="input-normal placeholder" placeholder="手机" type="text">
+	<input name="phone" value=""  class="input-normal placeholder" placeholder="电话" type="text">
+	<input name="address" value="" size="45" data-rules="{required:true}" data-messages="{required:'联系地址不能为空'}" class="input-normal placeholder" placeholder="联系地址" type="text" style="width:308px;">
+	<button class="btnOk button button-primary button-small">确定</button>&nbsp;<button class="btnAddressCancel button button-danger button-small">取消</button>
+</div>
+<div class="peopleContact">
+#if($!peopleContact)
+	#foreach($contact in $peopleContact)
+		<div class="addressItem">
+			<input type="radio" name="myAddress" mobile="$!contact.mobile" #if($!velocityCount == 1) checked #end value="$!contact.toRevAddress()">&nbsp;&nbsp;<label class="myAddText">$!contact.toRevAddress()</label>&nbsp;&nbsp;
+			<span class="addOper" style="display:none">
+				<button 
+					addId="$!contact.id" 
+					addName="$!contact.name" 
+					addMobile="$!contact.mobile" 
+					addPhone="$!contact.phone" 
+					addGender="$!contact.gender"  
+					addAddress="$!contact.address"
+					class="btnAddressEdit button button-info button-small">编辑</button>&nbsp;<button addId="$!contact.id" class="btnRemove button button-danger button-small">删除</button>
+			</span>
+		</div>
+	#end
+#end
+</div>
+<div class="cloumnTitle">
+	<i class="icon-envelope"></i>&nbsp;&nbsp;<b>备注:</b> <label class="auxiliary-text">特殊口味、加米饭、带找零、几人用餐等，可在此注明... (可不填)</label>
+</div>
+<div style="text-align:left">
+	<textarea id="orderComment" style="width:1014px" ></textarea>
+	<br><br>
+	<button class="button button-primary" id="btnSubmit" >提交订购</button>
+</div>
+<script type="text/javascript">
+var Form = BUI.Form
+var form = new Form.HForm({
+  srcNode : '.addressEdit'
+});
+form.render();
+
+jQuery(document).ready(function(){	
+	jQuery(".placeholder").placeholder({labelMode:true});
+	
+	jQuery(".shoppingCarItem").mouseover(function(){
+		jQuery(this).find(".prodOper").show();
+	});
+	
+	jQuery(".shoppingCarItem").mouseout(function(){
+		jQuery(this).find(".prodOper").hide();		
+	});
+	
+	jQuery(".icon-plus").click(function(){
+		var prodId = jQuery(this).attr("prodId");
+		var current = jQuery(this).next().val();
+		var limitBuy = jQuery(this).attr("limitBuy");
+		current++;
+		if(current > limitBuy){
+			current = limitBuy;
+		}
+		jQuery(this).next().val(current);
+		var prodId = jQuery(this).attr("prodId");
+		var shoppingCarItem = jQuery(this).parent().parent().parent().parent();
+		updateQuantity(shoppingCarItem, prodId, current);
+	});
+	
+	jQuery(".icon-minus").click(function(){
+		var current = jQuery(this).prev().val();
+		current--;
+		if(current<=0) {
+			current = 0;
+		}
+		jQuery(this).prev().val(current);
+		var prodId = jQuery(this).attr("prodId");
+		var shoppingCarItem = jQuery(this).parent().parent().parent().parent();
+		updateQuantity(shoppingCarItem, prodId, current);
+	});
+	
+	jQuery(".quantityInput").change(function(){
+		var quantity = jQuery(this).val();
+		if(isDigist(quantity)){
+			var limitBuy = jQuery(this).attr("limitBuy");
+			if(quantity > limitBuy){
+				quantity = limitBuy;
+				jQuery(this).val(quantity);
+			}
+			var prodId = jQuery(this).attr("prodId");
+			var shoppingCarItem = jQuery(this).parent().parent().parent().parent();
+			updateQuantity(shoppingCarItem, prodId, quantity);
+		}
+	});
+	
+	function isDigist(str){
+		var r = /^[0-9]*[1-9][0-9]*$/
+		return r.test(str);
+	}
+	
+	function updateQuantity(node, prodId, quantity){
+		var timestamp = currentTime();
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/updateShoppingCar.json')?timestamp='+timestamp+'&prodId='+ prodId+'&quantity='+quantity,
+			success:function(data, textStatus){
+				if(data.success){
+					window.location.reload();
+				}
+			}
+		});
+	}
+	
+	jQuery(".btnDelete").click(function(){
+		var prodId = jQuery(this).attr("prodId");
+		var timestamp = currentTime();
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/removeFromShoppingCar.json')?timestamp='+timestamp+'&prodId='+ prodId,
+			success:function(data, textStatus){
+				if(data.success){
+					var selector = ".item"+prodId;
+					jQuery(selector).remove();
+					updateTotal();
+				}
+			}
+		});
+	});
+	
+	function updateTotal(){
+		var timestamp = currentTime();
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/getShoppingCarCharge.json')?timestamp='+timestamp,
+			success:function(data, textStatus){			
+				jQuery('.sum').find("span[name='prodSum']").empty().append(data.sum);
+				jQuery('.sum').find("span[name='prodCharge']").empty().append(data.charge);
+				jQuery('.sum').find("span[name='prodPay']").empty().append(data.total);
+				jQuery('.sum').find("span[name='prodTotalCredit']").empty().append(data.total);
+				toggleShoppingCar();
+			}
+		});
+	}
+	
+	jQuery(".addressItem").mouseover(addressItemMouseover);
+	
+	function addressItemMouseover(){
+		jQuery(this).find(".addOper").show();
+	}
+	
+	jQuery(".addressItem").mouseout(addressItemMouseout);
+	
+	function addressItemMouseout(){
+		jQuery(this).find(".addOper").hide();	
+	}
+	
+	jQuery(".myAddText").click(myAddTextClick);
+	
+	function myAddTextClick(){
+		jQuery(this).prev().click();
+	}
+	
+	jQuery(".btnAddressAdd").click(btnAddressAddClick);
+	
+	function btnAddressAddClick(){
+		jQuery(".addressEdit").find("input[name='id']").val('');
+		jQuery(".addressEdit").find("input[name='name']").val('');
+		jQuery(".addressEdit").find("select[name='gender']").attr("value",'0');
+		jQuery(".addressEdit").find("input[name='mobile']").val('');
+		jQuery(".addressEdit").find("input[name='phone']").val('');
+		jQuery(".addressEdit").find("input[name='address']").val('');
+		jQuery(".addressEdit").show();
+	}
+	
+	jQuery(".btnAddressEdit").click(btnAddressEditClick);
+	
+	function btnAddressEditClick(){
+		var id = jQuery(this).attr("addId");
+		var name = jQuery(this).attr("addName");
+		var gender = jQuery(this).attr("addGender");
+		var mobile = jQuery(this).attr("addMobile");
+		var phone = jQuery(this).attr("addPhone");
+		var address = jQuery(this).attr("addAddress");
+		jQuery(".addressEdit").find("input[name='id']").val(id);
+		jQuery(".addressEdit").find("input[name='name']").val(name);
+		jQuery(".addressEdit").find("select[name='gender']").attr("value",gender);
+		jQuery(".addressEdit").find("input[name='mobile']").val(mobile);
+		jQuery(".addressEdit").find("input[name='phone']").val(phone);
+		jQuery(".addressEdit").find("input[name='address']").val(address);
+		jQuery(".addressEdit").show();
+	}
+	
+	jQuery(".btnRemove").click(btnRemoveClick);
+	
+	function btnRemoveClick(){
+		var id = jQuery(this).attr("addId");
+		var timestamp = currentTime();
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/removePeopleContact.json')?timestamp='+timestamp+'&id='+ id,
+			success:function(data, textStatus){
+				rebind(data);
+			}
+		});
+	}
+	
+	jQuery(".btnAddressCancel").click(function(){
+		jQuery(".addressEdit").find("input[name='name']").val('');
+		jQuery(".addressEdit").find("input[name='mobile']").val('');
+		jQuery(".addressEdit").find("input[name='phone']").val('');
+		jQuery(".addressEdit").find("input[name='address']").val('');
+		jQuery(".addressEdit").hide();
+	});
+	
+	jQuery(".btnOk").click(function(){
+		var id = jQuery(".addressEdit").find("input[name='id']").val();
+		var gender = jQuery(".addressEdit").find("select[name='gender']").attr("value");
+		var name = jQuery(".addressEdit").find("input[name='name']").val();
+		var mobile = jQuery(".addressEdit").find("input[name='mobile']").val();
+		var phone = jQuery(".addressEdit").find("input[name='phone']").val();
+		
+		form.valid();
+	    var errorCount = jQuery.find('.x-icon-error').length;
+	    var valid = (errorCount == 0);
+		if(!valid) {
+			return;
+		}
+		var address = jQuery(".addressEdit").find("input[name='address']").val();
+		name = encodeURIComponent(removeHTMLTag(name));
+		mobile = encodeURIComponent(removeHTMLTag(mobile));
+		phone = encodeURIComponent(removeHTMLTag(phone));
+		address = encodeURIComponent(removeHTMLTag(address));
+		var timestamp = currentTime();
+		var para = "timestamp="+timestamp+"&id="+id+"&gender="+gender+"&name="+name+"&mobile="+mobile+"&phone="+phone+"&address="+address;
+		jQuery.ajax({
+			type: "get",
+			url: '$zhaile.setTarget('/json/modifyPeopleContact.json')?'+ para,
+			success:function(data, textStatus){
+				rebind(data);
+			}
+		});
+	});
+	
+	function rebind(data){
+		jQuery(".peopleContact").empty();
+		for(var i=0;i<data.length;i++) {
+			var checked = "";
+			if(i==0){
+				checked = "checked";
+			}
+			var addItem = data[i];
+			var revAddress = toRevAddress(addItem);
+			var item = "<div class='addressItem'>";
+			item += "<input type='radio' name='myAddress' "+checked+" value='"+revAddress+"' mobile='"+addItem.mobile+"'>&nbsp;&nbsp;<label class='myAddText'>"+revAddress+"</label>&nbsp;&nbsp;";
+			item += "<span class='addOper' style='display:none'>";
+			item += "<button ";
+			item += "addId='"+addItem.id+"' ";	
+			item += "addName='"+addItem.name+"' ";
+			item += "addMobile='"+addItem.mobile+"' ";
+			item += "addPhone='"+addItem.phone+"' ";
+			item += "addGender='"+addItem.gender+"' ";
+			item += "addAddress='"+addItem.address+"' ";
+			item += "class='btnAddressEdit button button-info button-small'>编辑</button>&nbsp;";
+			item += "<button addId="+addItem.id+" class='btnRemove button button-danger button-small'>删除</button>";
+			item += "</span>";
+			item += "</div>";
+			jQuery(".peopleContact").append(item);
+		}
+		jQuery(".addressEdit").hide();
+		jQuery(".addressItem").mouseover(addressItemMouseover);
+		jQuery(".addressItem").mouseout(addressItemMouseout);
+		jQuery(".myAddText").click(myAddTextClick);
+		jQuery(".btnAddressAdd").click(btnAddressAddClick);					
+		jQuery(".btnAddressEdit").click(btnAddressEditClick);
+		jQuery(".btnRemove").click(btnRemoveClick);
+	}
+	
+	function toRevAddress(data){
+		var gender = data.gender;
+		var sex = "";
+		if(gender == '0') {
+			sex = "先生";
+		} 
+		if(gender == '1') {
+			sex = "女士";
+		}
+		
+		var mobilephone = "";
+		if(data.mobile == "") {
+			mobilephone = "";
+		} else {
+			mobilephone = data.mobile + "(手机)";
+		}
+		
+		var telephone = "";
+		if(data.phone == "") {
+			telephone = "";
+		} else {
+			telephone = data.phone + "(座机)";
+		}
+		
+		var contact = data.address + " " + data.name + " " + sex + " " + mobilephone + " " + telephone + " ";
+		return contact;
+	}
+	
+	BUI.use('bui/overlay', function(overlay) {
+		function show() {
+			var timestamp = currentTime();
+			jQuery.ajax({
+				type: "get",
+				url: '$zhaile.setTarget("/json/reloadShoppingCar.vm")?timestamp='+timestamp,
+				success:function(data, textStatus){
+					var comment = removeHTMLTag(jQuery('#orderComment').val());
+					var contact = removeHTMLTag(jQuery("input[name='myAddress']:checked").val());
+					var mobile = jQuery("input[name='myAddress']:checked").attr("mobile");
+					var mapAdd = jQuery("#mapMyAddress").text();
+					jQuery("#formFeild_comment").val(comment);
+					jQuery("#formFeild_contact").val(contact);
+					jQuery("#formFeild_mobile").val(mobile);
+					jQuery("#formFeild_map").val(mapAdd);
+					data += "<br><div>联系方式:"+contact+"</div>";
+					data += "<br><div>地图地址:"+mapAdd+"</div>";
+					data += "<div>备注:"+comment+"</div>";
+					data += "<div style='color:red'>请核对您的送餐地址和地图地址是否接近，否则将影响送餐</div>";
+					data += "<br><div>支付方式:</div>";
+					#if($hasFlashGo)
+						setPaymentType(1);
+						data += "<div style='margin:5px;'><input type='radio' name='paymentType' onclick='setPaymentType(1)' checked><img src='img/thridPart/alipay.gif' alt='支付宝' width='68'/></div>";
+						data += "<div style='margin:5px;'><label style='margin-left:5px;'>因为有每日优惠产品，所以只支持支付宝方式付款</label></div>";
+					#else
+						data += "<div style='margin:5px;'><input type='radio' name='paymentType' onclick='setPaymentType(1)'><img src='img/thridPart/alipay.gif' alt='支付宝' width='68'/></div>";
+						data += "<div style='margin:5px;'><input type='radio' name='paymentType' onclick='setPaymentType(0)' checked><label style='margin-left:5px;'>货到付款</label></div>";
+					#end
+					
+					data += "<br>";
+					BUI.Message.Confirm(data, function() {
+						jQuery("#payment_form").submit();
+					}, 'question');
+				}
+			});
+		}
+
+		$('#btnSubmit').on('click', function() {
+			if(jQuery("input[name='myAddress']").length == 0){
+				alert('请添加您的联系方式，否则我们将无法送餐');
+				return;
+			}
+			show();
+		});
+	});
+	
+	function removeHTMLTag(str) {
+        str = str.replace(/<\/?[^>]*>/g,''); //去除HTML tag
+        str = str.replace(/[ | ]*\n/g,'\n'); //去除行尾空白
+        //str = str.replace(/\n[\s| | ]*\r/g,'\n'); //去除多余空行
+        str=str.replace(/&nbsp;/ig,'');//去掉&nbsp;
+        return str;
+	}
+});
+
+function setPaymentType(val){
+	jQuery("#formFeild_type").val(val);
+}
+</script>

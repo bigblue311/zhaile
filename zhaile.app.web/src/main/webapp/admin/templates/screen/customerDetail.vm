@@ -1,0 +1,143 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<style>
+	.detail{
+		width:100%;
+	}
+	
+	.detail th{
+		width:12%;
+		text-align:right;
+	}
+	
+	.detail td{
+		width:13%;
+		word-wrap:break-word; 
+		text-align:left;
+	}
+</style>
+<h1>基本信息</h1>
+	<hr>
+#if($!customer)
+	<table class="detail">
+		<tr>
+			<th>
+				用户昵称:
+			</th>
+			<td>
+				$!customer.customer.name (编号:$!customer.customer.id)
+			</td>
+			<th>
+				用户邮箱:
+			</th>
+			<td>
+				$!customer.customer.email
+			</td>
+			<th>
+				用户手机:
+			</th>
+			<td>
+				$!customer.customer.mobile
+			</td>
+			<th>
+				用户积分:
+			</th>
+			<td>
+				$!customer.credit.creditPoints
+			</td>
+		</tr>
+	</table>
+	<hr>
+#end
+
+<h1>联系方式</h1>
+<hr>
+#if($!customer)
+	#set ($contactList = $!customer.contactList)
+	#foreach($contact in $contactList)
+		<table class="detail">
+			<tr>
+				<th>
+					称呼:
+				</th>
+				<td>
+					$contact.name
+				</td>
+				<th>
+					性别:
+				</th>
+				<td>
+					$contact.gender
+				</td>
+				<th>
+					手机:
+				</th>
+				<td>
+					$contact.mobile
+				</td>
+				<th>
+					座机:
+				</th>
+				<td>
+					$contact.phone
+				</td>
+			</tr>
+			<tr>
+				<th>
+					注册时间:
+				</th>
+				<td>
+					$dateTools.DateToString($!customer.customer.gmtCreate)
+				</td>
+				<th>
+					最近修改时间:
+				</th>
+				<td>
+					$dateTools.DateToString($contact.gmtModify)
+				</td>
+				<th>
+					联系地址:
+				</th>
+				<td  colspan="3">
+					$contact.address
+				</td>
+			</tr>
+		</table>
+		<hr>
+	#end
+#end
+<h1>积分情况</h1>
+<hr>
+#if($!customer)
+	#set ($creditLogList = $!customer.creditLogList)
+	#foreach($creditLog in $creditLogList)
+		<table class="detail">
+			<tr>
+				<th>
+					积分:
+				</th>
+				<td>
+					$creditLog.creditPoint
+				</td>
+				<th>
+					行为:
+				</th>
+				<td>
+					$creditLog.userAction
+				</td>
+				<th>
+					原因:
+				</th>
+				<td>
+					$creditLog.userReason
+				</td>
+				<th>
+					记录时间:
+				</th>
+				<td>
+					$dateTools.DateToString($creditLog.gmtCreate)
+				</td>
+			</tr>
+		</table>
+		<hr>
+	#end
+#end

@@ -1,0 +1,127 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<style>
+	.progressTop{
+		margin-bottom:0px;
+	}
+</style>
+#if(!$!paymentStatus)
+
+#elseif($!paymentStatus.status == '0')
+<table style="width:1024px;valign:top;hegith:20px;background:white;margin: auto;">
+	<tr>
+		<td width="248px" class="progressbar"></td>
+		<td width="2px"></td>
+		<td width="24px">
+			<a href="#" onclick="receiptFunction('$!paymentStatus.id')"><img class="logoTip" tip="外卖小哥还没发现你的订单" src="./img/logo_S.png" width="24px"></a>
+		</td>
+		<td width="750px"></td>
+	</tr>
+</table>
+#elseif($!paymentStatus.status == '1')
+<table style="width:1024px;valign:top;hegith:20px;background:white;margin: auto;">
+	<tr>
+		<td width="498px" class="progressbar"></td>
+		<td width="2px"></td>
+		<td width="24px">
+			<a href="#" onclick="receiptFunction('$!paymentStatus.id')"><img class="logoTip" tip="外卖小哥正在玩命取单中" src="./img/logo_S.png" width="24px"></a>
+		</td>
+		<td width="500px"></td>
+	</tr>
+</table>
+#elseif($!paymentStatus.status == '2')
+<table style="width:1024px;valign:top;hegith:20px;background:white;margin: auto;">
+	<tr>
+		<td width="748px" class="progressbar" style="color:white"></td>
+		<td width="2px"></td>
+		<td width="24px">
+			<a href="#" onclick="receiptFunction('$!paymentStatus.id')"><img class="logoTip" tip="外卖小哥正在玩命向您奔来" src="./img/logo_S.png" width="24px"></a>
+		</td>
+		<td width="250px"></td>
+	</tr>
+</table>
+#elseif($!paymentStatus.status == '3')
+<table style="width:1024px;valign:top;hegith:20px;background:white;margin: auto;">
+	<tr>
+		<td width="998px" class="progressbar" style="color:white"></td>
+		<td width="2px"></td>
+		<td width="24px">
+			<a href="#" onclick="receiptFunction('$!paymentStatus.id')"><img class="logoTip" tip="使命必达" src="./img/logo_S.png" width="24px"></a>
+		</td>
+	</tr>
+</table>
+#elseif($!paymentStatus.status == '4')
+<table style="width:1024px;valign:top;hegith:20px;background:white;margin: auto;">
+	<tr>
+		<td width="998px" class="progressbar" style="color:white"></td>
+		<td width="2px"></td>
+		<td width="24px">
+			<a href="#" onclick="receiptFunction('$!paymentStatus.id')"><img class="logoTip" tip="未送到,请联系客服询问" src="./img/logo_S.png" width="24px"></a>
+		</td>
+	</tr>
+</table>
+#elseif($!paymentStatus.status == '5')
+<table style="width:1024px;valign:top;hegith:20px;background:white;margin: auto;">
+	<tr>
+		<td width="998px" class="progressbar" style="color:white;"></td>
+		<td width="2px"></td>
+		<td width="24px">
+			<a href="#" onclick="receiptFunction('$!paymentStatus.id')"><img class="logoTip" tip="很遗憾，订单被取消了" src="./img/logo_S.png" width="24px"></a>
+		</td>
+	</tr>
+</table>
+#end
+
+<script type="text/javascript">
+function receiptFunction(id){
+	  var timestamp = currentTime();
+	  var para = "?timestamp="+timestamp+"&id="+id;
+	  jQuery.ajax({
+			type: "get",
+			url: '$admin.setTarget('/json/orderRecipt.vm')'+ para,
+			success:function(data, textStatus){
+				var Overlay = BUI.Overlay;
+		        var dialog = new Overlay.Dialog({
+		          title:'外卖小票',
+		          width:550,
+		          height:550,
+		          bodyContent:data,
+		          success:function () {
+		            this.close();
+		          }
+		        });
+		        dialog.show();
+			}
+		});
+     }
+     
+var ProgressBar = BUI.ProgressBar;
+
+var Progressbar = ProgressBar.Base;
+var progressbar = new Progressbar({
+  elCls : 'progress progress-striped active progressTop',
+  render : '.progressbar',
+  tpl : '<span class="bar"></span>',
+  height:24,
+  percent:100
+});
+
+progressbar.render();
+
+var tip = jQuery(".logoTip").attr("tip");
+tip = tip +"<br>点击小人查看外卖单";
+
+BUI.use('bui/tooltip',function (Tooltip) {	
+  var t2 = new Tooltip.Tip({
+    trigger : '.logoTip',
+    visibleMode: 'visibility',
+    closeable: true,
+    alignType : 'bottom', //方向
+    showArrow : true, //不显示箭头
+    offset : 5, //距离左边的距离
+    elCls : 'tips tips-success',
+    title : tip,
+    titleTpl : '<span class="x-icon x-icon-small x-icon-success"><i class="icon icon-white icon-question"></i></span><div class="tips-content">{title}</div>'
+  });
+  t2.render();
+});
+</script>

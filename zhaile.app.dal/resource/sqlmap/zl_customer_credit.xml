@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CustomerCreditDO">
+
+  <typeAlias alias="CustomerCredit" type="com.zhaile.dal.model.CustomerCreditDO"/>
+
+  <resultMap id="RM" class="CustomerCredit">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="creditPoints" column="credit_points"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_customer_credit where id = #id#
+  </select>
+  
+  <insert id="insert" parameterClass="CustomerCredit">
+    <![CDATA[
+    insert into zl_customer_credit (
+      gmt_create,
+      gmt_modify,
+      customer_id,
+      credit_points
+    ) values (
+      now(), now(), #customerId#, #creditPoints#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="CustomerCredit">
+    update zl_customer_credit set 
+    <dynamic>
+      <isNotEmpty property="creditPoints">  
+      	<![CDATA[
+      		credit_points = #creditPoints#,
+      	]]>
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_customer_credit where id = #id#
+  </delete>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+		<isNotNull property="customerId">
+        	<![CDATA[
+        	customer_id = #customerId#
+        	]]>
+	    </isNotNull>
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="customerId">
+        @@sql not allowed
+	</isNull>
+  </sql>
+  
+  <select id="getByCustomerId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_customer_credit
+    <include refid="where" />
+  </select>
+</sqlMap>

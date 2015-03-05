@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="LogSearchDO">
+
+  <typeAlias alias="LogSearch" type="com.zhaile.dal.model.LogSearchDO"/>
+  <typeAlias alias="LogSearchStatistic" type="com.zhaile.dal.model.vo.LogSearchStatistic"/>
+
+  <resultMap id="RM" class="LogSearch">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="logId" column="log_id"/>
+    <result property="keyword" column="keyword"/>
+    <result property="tagId" column="tag_id"/>
+  </resultMap>
+  
+  <resultMap id="Statistic" class="LogSearchStatistic">
+    <result property="clickCount" column="click_count"/>
+    <result property="keyword" column="keyword"/>
+  </resultMap>
+  
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_log_search where id = #id#  
+  </select>
+  
+  <select id="getByIds" resultMap="RM">
+    select * from zl_log_search where id in
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </select>
+  
+  <insert id="insert" parameterClass="LogSearch">
+    <![CDATA[
+    insert into zl_log_search (
+      gmt_create,
+      gmt_modify,
+      log_id,
+      keyword,
+      tag_id
+    ) values (
+      now(), now(), #logId#, #keyword#, #tagId#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+  		<isNotNull property="customerId" prepend="and">
+	       	<![CDATA[
+	       	log_id in (select s.id from (select id from zl_log where op_type = '1' and
+	       	 	customer_id = #customerId#
+		    ) as s)
+		    ]]>
+		</isNotNull>
+	    <isNotNull property="keyword" prepend="and">
+       	<![CDATA[
+       	 	keyword like concat('%',#keyword#,'%')
+       	]]>
+       	</isNotNull>
+       	
+       	<include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="customerId">
+  	<isNull property="keyword">
+  	<include refid="Common.validModify" />
+  	</isNull>
+	</isNull>
+  </sql>
+  
+  <sql id="groupBy">
+  	group by keyword order by count(1) desc
+  </sql>
+  
+  <select id="getBylog" parameterClass="long" resultMap="RM">
+    select * from zl_log_search where log_id = #logId#
+  </select>
+  
+  <select id="getTop" parameterClass="java.util.HashMap" resultClass="java.lang.String">
+    SELECT keyword FROM zhaile.zl_log_search z group by keyword order by count(1) desc limit #limit#;
+  </select>
+  
+  <select id="getStatistic" parameterClass="java.util.HashMap" resultMap="Statistic">
+    SELECT count(1) as click_count, keyword FROM zl_log_search z group by keyword order by count(1) desc limit #limit#;
+  </select>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="Statistic">
+    select count(1) as click_count, keyword from zl_log_search 
+    <include refid="where" />
+    <include refid="groupBy" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from (
+     select count(1) from zl_log_search 
+    <include refid="where" />
+    <include refid="groupBy" />) as s
+  </select>
+</sqlMap>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CustomerCommentDO">
+
+  <typeAlias alias="CustomerComment" type="com.zhaile.dal.model.CustomerCommentDO"/>
+
+  <resultMap id="RM" class="CustomerComment">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="star" column="star"/>
+    <result property="content" column="content"/>
+    <result property="likeLevel" column="like_level"/>
+    <result property="prodId" column="prod_id"/>
+    <result property="shopId" column="shop_id"/>
+    <result property="ip" column="ip"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_customer_comment where id = #id#
+  </select>
+  
+  <select id="getByIds" resultMap="RM">
+    select * from zl_customer_comment where id in
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </select>
+  
+  <insert id="insert" parameterClass="CustomerComment">
+    <![CDATA[
+    insert into zl_customer_comment (
+      gmt_create,
+      gmt_modify,
+      customer_id,
+      star,
+      content,
+      like_level,
+      prod_id,
+      shop_id,
+      ip
+    ) values (
+      now(), now(), #customerId#, #star#, 
+      #content#, #likeLevel#, #prodId#, #shopId#, #ip#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="CustomerComment">
+    update zl_customer_comment set 
+    <dynamic>
+      <isNotEmpty property="star">  
+      	<![CDATA[
+           star = #star#,
+        ]]>
+      </isNotEmpty>  
+      <isNotEmpty property="content">  
+        <![CDATA[   
+           content = #content#,
+        ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="likeLevel">  
+        <![CDATA[   
+           like_level = #likeLevel#,
+        ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_customer_comment where id = #id#
+  </delete>
+  
+  <delete id="deleteInvalid">
+    delete from zl_customer_comment where content like '%url%'
+  </delete>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+		<isNotNull property="customerId" prepend="and">
+        	<![CDATA[
+        	customer_id = #customerId#
+        	]]> 
+	    </isNotNull>  
+	    <isNotNull property="prodId" prepend="and">
+	        <![CDATA[
+	        prod_id = #prodId#
+	        ]]> 
+	    </isNotNull>
+	    <isNotNull property="shopId" prepend="and">
+	        <![CDATA[
+	        shop_id = #shopId#
+	        ]]> 
+	    </isNotNull>
+	    <isNotNull property="shopIds" prepend="and">
+        	shop_id in
+        	<iterate open="(" close=")" conjunction="," property="shopIds"> 
+        		<![CDATA[
+		    	#shopIds[]# 
+		    	]]>
+		    </iterate>
+	    </isNotNull>
+	    <isNotNull property="good" prepend="and">
+	        <![CDATA[
+	        star in ('4','5')
+	        ]]> 
+	    </isNotNull>
+	    <isNotNull property="bad" prepend="and">
+	        <![CDATA[
+	        star in ('1','2')
+	        ]]> 
+	    </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="customerId">
+    <isNull property="prodId">
+    <isNull property="shopId">
+    <isNull property="shopIds">
+        <include refid="Common.validModify" />
+    </isNull>
+    </isNull>
+	</isNull>
+	</isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_customer_comment 
+    <include refid="where" />
+    <include refid="Common.orderByModify" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_customer_comment
+	<include refid="where" />
+  </select>
+</sqlMap>

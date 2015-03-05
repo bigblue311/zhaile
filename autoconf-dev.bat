@@ -1,0 +1,1 @@
+autoconfig.exe -u antx-dev.properties zhaile.app.web/target/*.war

@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+#set ($systemCache = $cacheTools.getSystemConfigcache())
+#set ($adCache = $cacheTools.getAdvertisementcache())
+#set ($employeeCache = $cacheTools.getEmployeecache())
+#set ($categoryCache = $cacheTools.getCategorycache())
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<base href="http://www.fyzhaile.com/" />
+<title>【富阳外卖】$title</title>
+<meta name="baidu-site-verification" content="M6oAuwgHZC" />
+<meta content="富阳外卖，富阳美食,富阳外卖外送,外卖富阳,富阳外卖电话,富阳网上外卖,富阳宅乐外卖电话,富阳宅乐" name="keywords">
+<meta content="富阳最新、最全、最方便的外卖信息，点餐.$systemCache.getConfig('ZHAILE_PHONE').value $systemCache.getConfig('ZHAILE_MOBILE').value" name="description">
+<link rel="icon" href="img/favicon.ico" mce_href="img/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="img/favicon.ico" mce_href="img/favicon.ico" type="image/x-icon"/>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+$control.setTemplate("resource.vm")
+<script type="text/javascript" src="javascripts/template/default.js"></script>
+<script type="text/javascript" src="javascripts/search/search.js"></script>
+<script type="text/javascript" src="javascripts/page/jquery.simplePagination.js"></script>
+<script type="text/javascript" src="javascripts/comment/comment.js"></script>
+<script type="text/javascript" src="javascripts/search/lucky.js"></script>
+
+<link rel="stylesheet" type="text/css" href="styles/template/default.css" />
+<link rel="stylesheet" type="text/css" href="styles/nav/nav.css"/>
+<link rel="stylesheet" type="text/css" href="styles/nav/rightNav.css"/>
+<link rel="stylesheet" type="text/css" href="styles/comment/comment.css"/>
+<link rel="stylesheet" type="text/css" href="styles/page/simplePagination.css"/>
+<link rel="stylesheet" type="text/css" href="styles/index.css"/>
+<link rel="stylesheet" type="text/css" href="styles/product/product.css" />
+<link rel="stylesheet" type="text/css" href="styles/search/search.css"/>
+<link rel="stylesheet" type="text/css" href="styles/search/lucky.css" />
+
+</head>
+<body>
+	<div id="login" style="text-align:center;">
+		$control.setTemplate("login.vm")
+	</div>
+	<div id="adTop" style="text-align:center;">
+		$control.setTemplate("adTop.vm")
+	</div>
+	<div id="bannerTop" style="width:100%;background:white;text-align:center;">
+		$control.setTemplate("bannerTop.vm")
+	</div>
+	<div id="menuTop" class="">
+		$control.setTemplate("menu.vm")
+	</div>
+	<div style="height:2px"></div>
+	<div id="paymentStatus">
+		
+	</div>
+	<div id="mainBody">
+		<table width="100%">
+			<tr>
+				<td valign="top" align="left" width="202px">
+					$control.setTemplate("leftMenu.vm")
+				</td>
+				<td valign="top" align="left">
+					$screen_placeholder
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="footerTop" style="text-align:center;">
+		<img src="/img/footerTop.png" width="1024px"/>
+	</div>
+	<div id="footer">
+		<table align="center" id="footerTable">
+			<tr>
+				<td align="center">
+					<table>
+						<tr>
+							<td>
+								<img alt="富阳宅乐网营业时间" src="/img/info1.png" />
+							</td>
+							<td align="left" valign="top" class="info">
+								<font size="3"><b>营业时间</b></font><br/>
+								<font size="2">$systemCache.getConfig('ZHAILE_OPEN').value - $systemCache.getConfig('ZHAILE_CLOSE').value</font>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td align="center">
+					<table>
+						<tr>
+							<td>
+								<img alt="富阳宅乐网配送方式" src="/img/info2.png" />
+							</td>
+							<td align="left" valign="top" class="info">
+								<font size="3"><b>配送方式</b></font><br/>
+								<font size="2">货到付款</font><br/>
+								<font size="2">宅乐配送（$systemCache.getConfig('DEFAULT_CHARGE').value元起）</font><br/>
+								<font size="2">店家自送（免费）</font>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td align="center">
+					<table>
+						<tr>
+							<td>
+								<img alt="富阳宅乐网客服电话$systemCache.getConfig('ZHAILE_PHONE').value $systemCache.getConfig('ZHAILE_MOBILE').value" src="/img/info3.png" />
+							</td>
+							<td align="left" valign="top" class="info">
+								<font size="3"><b>客服电话</b></font><br/>
+								<font size="2">$systemCache.getConfig('ZHAILE_PHONE').value</font><br/>
+								<font size="2">$systemCache.getConfig('ZHAILE_MOBILE').value</font>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td align="center">
+					<table>
+						<tr>
+							<td>
+								<img alt="富阳宅乐网业务合作" src="/img/info4.png" />
+							</td>
+							<td align="left" valign="top" class="info">
+								<font size="3"><b>业务合作</b></font><br/>
+								<font size="2">$systemCache.getConfig('ZHAILE_BUSINESS').value</font>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<form action="$zhaile.setTarget('search')" id="searchFrom" target="_blank">
+		<input type="hidden" name="keyword" id="_keyword_" value=""/>
+		<input type="hidden" name="shopId" id="_shopId_" value=""/>
+		<input type="hidden" name="categoryId" id="_categoryId_" value=""/>
+	</form>
+	<script type="text/javascript">		
+		function currentTime(){
+			var d = new Date(),str = '';
+			 str += d.getFullYear()+'-';
+			 str += getTimeStr(d.getMonth() + 1)+'-';
+			 str += getTimeStr(d.getDate())+' ';
+			 str += getTimeStr(d.getHours())+':'; 
+			 str += getTimeStr(d.getMinutes())+':'; 
+			 str += getTimeStr(d.getSeconds()); 
+			return str;
+		}
+		
+		function getTimeStr(t){
+			if(t < 10){
+				return "0"+t;
+			} else {
+				return t;
+			}
+		}
+		
+		function search(keyword,shopId,categoryId){
+			jQuery("#_keyword_").val(keyword);
+			jQuery("#_shopId_").val(shopId);
+			jQuery("#_categoryId_").val(categoryId);
+			jQuery("#searchFrom").submit();
+		}
+
+		jQuery('.hotCategory').click(function(){
+			var cateId = jQuery(this).attr('cateId');
+			var adId = jQuery(this).attr('adId');
+			var timestamp = currentTime();
+			var url = "$zhaile.setTarget('/search')?timestamp="+timestamp+"&categoryId="+cateId + "&adId="+adId;
+			window.location.replace(url);
+		});
+		
+		function showLogin(){
+			QC.Login.showPopup({
+				appId:"$systemCache.getConfig('QQ_API_ID').value",
+				redirectURI:"$zhaile.setTarget('qccallback')"
+			});
+		}
+	</script>
+	<div style="text-align:center">
+		<a target="_blank" class="auxiliary-text" href="http://www.hao123.com/">hao123</a> | <a target="_blank" class="auxiliary-text" href="$zhaile.setTarget('aboutus')#aboutus">关于我们</a> | <a target="_blank" class="auxiliary-text" href="$zhaile.setTarget('aboutus')#openShop">我要开店</a> | <a target="_blank" class="auxiliary-text" href="$zhaile.setTarget('aboutus')#aboutService">服务协议及条款</a> | <a target="_blank" class="auxiliary-text" href="$zhaile.setTarget('aboutus')#contactUs">联系我们</a>
+		<br/><br/>
+		<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1000452982'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s4.cnzz.com/z_stat.php%3Fid%3D1000452982%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+		Copyright 2003-2014, 版权所有ZHAILE.COM 备案号：<a target="blank" href="http://www.miitbeian.gov.cn/" class="auxiliary-text">浙ICP备13006808号</a>
+	</div>
+	$control.setTemplate("map.vm")
+</body>
+</html>

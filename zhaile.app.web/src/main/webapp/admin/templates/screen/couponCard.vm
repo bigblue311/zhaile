@@ -1,0 +1,247 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+#set($couponMeta = $coupon.couponMeta)
+#set($couponCard = $coupon.couponCard)
+#set($customer = $coupon.customer.customer)
+<style>
+	.detail{
+		width:100%;
+	}
+	
+	.detail th{
+		width:15%;
+		text-align:right;
+		padding-bottom:10px;
+		vertical-align:top;
+	}
+	
+	.detail td{
+		width:35%;
+		word-wrap:break-word; 
+		text-align:left;
+		padding-bottom:10px;
+		vertical-align:top;
+		padding-left:5px;
+	}
+	
+	.prodDetail{
+		width:100%;
+	}
+	
+	.prodImg{
+		width:200px;
+		vertical-align:top;
+	}
+	
+	.prodImg img{
+		width:200px;
+		height:128px;
+	}
+	
+	.prodItem{
+		vertical-align:top;
+	}
+	
+	.prodItem table{
+		vertical-align:top;
+		width:100%;
+		height:100px;
+	}
+	
+	.prodItem table th{
+		text-align:right;
+		vertical-align:top;
+		width:10%;
+		padding-bottom:10px;
+	}
+	
+	.prodItem table td{
+		word-wrap:break-word; 
+		text-align:left;
+		width:40%;
+		vertical-align:top;
+		padding-left:5px;
+	}
+</style>
+<h1>基本信息</h1>
+<hr>
+<div style="display:none" id="couponEdit">
+<form id="couponEditForm">
+	<div class="row">
+        <div>
+          <p>
+            <label>实体卡号：</label><input id="cardId" data-rules="{required:true,max:20}" type="text" style="margin-left:4px;" value="$!couponCard.cardId">
+            <select id="enable" class="input-small">
+            	<option #if($!couponCard.enable == '0')selected#end value="0">有效</option>
+            	<option #if($!couponCard.enable == '1')selected#end value="1">无效</option>
+            </select>
+            <select id="locked" class="input-small">
+            	<option #if($!couponCard.locked == '0')selected#end value="0">冻结</option>
+            	<option #if($!couponCard.locked == '1')selected#end value="1">解冻</option>
+            </select>
+          </p>
+          <p>
+            <label>卡内余额：</label><input id="balance" data-rules="{required:true,number:true}" type="text" value="$!couponCard.balance" style="margin-left:4px;">元
+          </p>
+          <p>
+            <label>抵扣次数：</label><input id="countDown" data-rules="{required:true,number:true}" type="text" value="$!couponCard.countDown" style="margin-left:4px;">次
+          </p>
+          <p>
+            <label>有效日期：</label>
+            <input type="text" class="calendar" name="validFrom" id="validFrom" value="$dateTools.DateToString($!coupon.validFrom)">
+					至
+			<input type="text" class="calendar" name="validTo" id="validTo" value="$dateTools.DateToString($!coupon.validTo)">
+          </p>
+    	</div>
+    </div>
+    </form>
+</div>
+<table class="prodDetail">
+	<tr>
+		<td class="prodImg">
+			<img src="$!couponMeta.imgSrc">
+			<div>卡券编号: $!couponCard.id</div>
+			<div>实体卡号: $!couponCard.cardId</div>
+			<div>
+				<button class="btnCouponEdit button button-info button-small">编辑...</button>
+			</div>
+		</td>
+		<td class="prodItem">
+		<table>
+			<tr>
+				<th>
+					卡券名称:
+				</th>
+				<td>
+					$!couponMeta.name
+					#if($!couponCard.enable == '0')<label style='color:green'>有效</label>#else<label style='color:red'>无效</label>#end
+					#if($!couponCard.locked == '0')&nbsp;&nbsp;<label style='color:red'>已冻结</label>#end
+				</td>
+				<th>
+					用户名称:
+				</th>
+				<td>
+					$!customer.name
+				</td>
+			</tr>
+			<tr>
+				<th>
+					有效时间:
+				</th>
+				<td>
+					$dateTools.DateToString($!coupon.validFrom) 至 $dateTools.DateToString($!coupon.validTo)
+				</td>
+				<th>
+					卡内余额:
+				</th>
+				<td>
+					$!couponCard.balance 元 $!couponCard.countDown 次 
+				</td>
+			</tr>
+			<tr>
+				<th>
+					使用规则:
+				</th>
+				<td>
+					$!couponMeta.couponDesc
+				</td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+</table>
+<script type="text/javascript">
+BUI.use('bui/form',function(Form){
+    new Form.Form({
+      srcNode : '#couponEditForm'
+    }).render();
+});
+
+function validateFrom(){
+	 var errorCount = jQuery.find('.x-field-error').length;
+	 return errorCount == 0;
+}
+
+jQuery(document).ready(function(){
+	var Calendar = BUI.Calendar;
+	
+	var validFrom = new Calendar.DatePicker({
+	  	trigger:'#validFrom',
+	  	selectedDate : new Date(),
+	  	autoRender : true
+	});
+	
+	var validTo = new Calendar.DatePicker({
+		trigger:'#validTo',
+		selectedDate : new Date(),
+		autoRender : true
+	});
+	
+	var Overlay = BUI.Overlay;
+	
+	var couponDialog = new Overlay.Dialog({
+	    title:'编辑卡券',
+	    width:600,
+	    height:300,
+	    contentId:'couponEditForm',
+	    success:function () {
+	   	if(validateFrom()){
+	   		couponCallback();
+	    }}
+ 	});
+	
+	jQuery(".btnCouponEdit").click(function(){
+	   	couponDialog.show();
+	});
+	
+	function couponCallback(){
+		var id = jQuery(".bui-stdmod-body #couponId").val();
+		var name = jQuery(".bui-stdmod-body #cardName").val();
+		var enable = jQuery(".bui-stdmod-body #enable").val();
+	 	var validLength = jQuery(".bui-stdmod-body #validLength").val();
+	 	var validUnit = jQuery(".bui-stdmod-body #validUnit").val();
+	 	var shopId = jQuery(".bui-stdmod-body #shopId").val();
+	 	var amount = jQuery(".bui-stdmod-body #amount").val();
+	 	var total = jQuery(".bui-stdmod-body #total").val();
+	 	var limitBuy = jQuery(".bui-stdmod-body #limitBuy").val();
+	 	var chargable = jQuery(".bui-stdmod-body #chargable").val();
+	 	var topupable = jQuery(".bui-stdmod-body #topupable").val();
+	 	var refundable = jQuery(".bui-stdmod-body #refundable").val();
+	 	var deductable = jQuery(".bui-stdmod-body #deductable").val();
+	 	var deductCount = jQuery(".bui-stdmod-body #deductCount").val();
+	 	var fullsent = jQuery(".bui-stdmod-body #fullsent").val();
+	 	var sales = jQuery(".bui-stdmod-body #sales").val();
+	 	var imgSrc = jQuery(".bui-stdmod-body #imgSrc").attr("src");
+	 	var couponDesc = jQuery(".bui-stdmod-body #couponDesc").val();
+  	 
+	   	var timestamp = currentTime();
+	    var para = "?timestamp="+timestamp;
+	    para += "&id="+id;
+	    para += "&name="+encodeURIComponent(name);
+	   	para += "&enable="+enable;
+	    para += "&validLength="+validLength;
+	    para += "&validUnit="+validUnit;
+	    para += "&shopId="+shopId;
+	    para += "&amount="+amount;
+	    para += "&total="+total;
+	    para += "&limitBuy="+limitBuy;
+	    para += "&chargable="+chargable;
+	    para += "&topupable="+topupable;
+	    para += "&refundable="+refundable;
+	    para += "&deductable="+deductable;
+	    para += "&deductCount="+deductCount;
+	    para += "&fullsent="+fullsent;
+	    para += "&sales="+sales;
+	   	para += "&couponDesc="+couponDesc;
+	    para += "&imgSrc="+imgSrc;
+
+	    jQuery.ajax({
+			type: "get",
+			url: '$admin.setTarget('/json/updateCouponMeta.json')'+ para,
+			success:function(data, textStatus){
+				couponDialog.close();
+			   	window.location.reload();
+			}
+		});
+  	}
+});
+</script>

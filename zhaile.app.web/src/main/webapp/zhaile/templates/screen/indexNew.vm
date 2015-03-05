@@ -1,0 +1,522 @@
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+#set ($contentCache = $cacheTools.getSystemcontentcache())
+<style>
+	.indexTitle {
+		border-bottom: 2px solid #cccccc;
+		text-align: left;
+		margin-bottom: 5px;
+		font-size: 18px;
+		height: 25px;
+		font-weight: bold;
+		color: #F39801;
+		clear:both;
+		padding-top:26px;
+	}
+	
+	.indexTitle .indexDot {
+		background: red;
+		margin-right:8px;
+		display:inline-block;
+	}
+	
+	.hotShop .hotShopTitle{
+		font-size: 16px;
+		font-weight: bold;
+		color: black;
+		float: left;
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	
+	.hotShop .hotShopSubTitle{
+		font-size: 16px;
+		color: #F39801;
+		float: right;
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	
+	.hotShop img{
+		width:260px;
+		height:190px;
+	}
+	
+	.hotShop .hotShopDesc{
+		padding-top: 10px;
+		padding-bottom: 10px;
+		background: whitesmoke;
+		margin-top: 5px;
+	}
+	
+	.hotShop .hotShopDesc .hotShopNote{
+		font-size: 14px;
+		color: black;
+		display: block;
+		font-weight: bold;
+	}
+	
+	.hotShop .hotShopDesc .hotShopSubNote{
+		font-size:14px;
+		display:block;
+	}
+	
+	.bangpai{
+		float:left;
+		width:812px;
+		border-bottom:1px dashed lightgrey;
+		padding:10px;
+		text-align:left;
+	}
+	
+	.bangpaiInfo{
+		float:left;
+		padding:10px;
+		text-align:left;
+		width:161px;
+	}
+	
+	.bangpai div{
+		padding:7px;
+		padding-left:0px;
+		font-size:14px;
+		clear:both;
+	}
+	
+	.bangpai span{
+		display:block;
+		float:left;
+	}
+	
+	.badge{
+		margin-right:10px;
+	}
+	
+	#shopNew1{
+		float:left;
+		width:250px;
+		height:350px;
+		background:whitesmoke;
+		padding:5px;
+	}
+	
+	.shopNewContent{
+		background: whitesmoke;
+		text-align: left;
+		font-size: 13px;
+		line-height: 30px;
+		Text-indent: 36px;
+		padding: 10px;
+	}
+	
+	#shopNewContent1{
+		display: none;
+		z-index: 50;
+		position:relative;
+		height: 340px;
+		width: 744px;
+		float: left;
+	}
+	
+	#shopNew2{
+		height:100px;
+		background:whitesmoke;
+		padding:5px;
+	}
+	
+	#shopNewContent2{
+		display: none;
+		z-index: 50;
+		position:relative;
+		height: 230px;
+	}
+	
+	#shopNew3{
+		height:100px;
+		background:whitesmoke;
+		padding:5px;
+		margin-top:15px;
+	}
+	
+	#shopNewContent3{
+		display: none;
+		z-index: 50;
+		position:relative;
+		height: 105px;
+	}
+	
+	#shopNew4{
+		height:100px;
+		background:whitesmoke;
+		padding:5px;
+	}
+	
+	#shopNewContent4{
+		display: none;
+		z-index: 50;
+		position:relative;
+		height: 230px;
+	}
+	
+	#shopNew5{
+		float:left;
+		width:182px;
+		height:300px;
+	}
+	
+	#shopNewContent5{
+		display: none;
+		z-index: 50;
+		position:relative;
+		height: 340px;
+		width: 822px;
+		float: left;
+	}
+	
+	.marginTop{
+		margin-top:15px;
+	}
+	
+	.marginLeft{
+		margin-left:10px;
+	}
+</style>
+<script type="text/javascript">
+	jQuery(document).ready(function(){
+		//showContent();
+	});
+	
+	function showContent(){
+		jQuery("#shopNew1").mouseover(function(){
+			jQuery("#shopNewContent1").show();
+			jQuery("#shopMiddle").hide();
+			jQuery("#shopNew5").hide();
+		});
+		
+		jQuery("#shopNew1").mouseout(function(){
+			jQuery("#shopNewContent1").hide();
+			jQuery("#shopMiddle").show();
+			jQuery("#shopNew5").show();
+		});
+		
+		jQuery("#shopNew2").mouseover(function(){
+			jQuery("#shopNewContent2").show();
+			jQuery("#shopNew3").hide();
+			jQuery("#shopNew4").hide();
+		});
+		
+		jQuery("#shopNew2").mouseout(function(){
+			jQuery("#shopNewContent2").hide();
+			jQuery("#shopNew3").show();
+			jQuery("#shopNew4").show();
+		});
+		
+		jQuery("#shopNew3").mouseover(function(){
+			jQuery("#shopNewContent3").show();
+			jQuery("#shopNew4").hide();
+		});
+		
+		jQuery("#shopNew3").mouseout(function(){
+			jQuery("#shopNewContent3").hide();
+			jQuery("#shopNew4").show();
+		});
+		
+		jQuery("#shopNew4").mouseover(function(){
+			jQuery("#shopNew4").removeClass("marginTop");
+			jQuery("#shopNewContent4").show();
+			jQuery("#shopNew3").hide();
+			jQuery("#shopNew2").hide();
+		});
+		
+		jQuery("#shopNew4").mouseout(function(){
+			jQuery("#shopNew4").addClass("marginTop");
+			jQuery("#shopNewContent4").hide();
+			jQuery("#shopNew3").show();
+			jQuery("#shopNew2").show();
+		});
+		
+		jQuery("#shopNew5").mouseover(function(){
+			jQuery("#shopNew5").removeClass("marginLeft");
+			jQuery("#shopNewContent5").show();
+			jQuery("#shopMiddle").hide();
+			jQuery("#shopNew1").hide();
+		});
+		
+		jQuery("#shopNew5").mouseout(function(){
+			jQuery("#shopNew5").addClass("marginLeft");
+			jQuery("#shopNewContent5").hide();
+			jQuery("#shopMiddle").show();
+			jQuery("#shopNew1").show();
+		});
+	}
+	
+	function shopNewHidden(){
+		jQuery("#shopNew1").hide();
+		jQuery("#shopMiddle").hide();
+		jQuery("#shopNew2").hide();
+		jQuery("#shopNew3").hide();
+		jQuery("#shopNew4").hide();
+		jQuery("#shopNew5").hide();
+	}
+</script>
+<div>
+	<div style="float:left">
+		$control.setTemplate("adWindow.vm")
+	</div>
+	<div style="float:left;margin-left:10px;">
+		#set($lucky =  $cacheTools.getValidLucky())
+		<a href="$zhaile.setTarget('lucky')" target="_blank"><img src="$lucky.imgSrc" style="width:182px;height:282px" alt="外卖餐品推荐"/></a>
+	</div>
+</div>
+<div style="float:left;width:832px;">
+	<div class="indexTitle"><span class="indexDot">&nbsp;&nbsp;</span><span>热门店铺</span></div>
+	<div class="hotShop">
+		#set ($hotShop1 = $contentCache.getContent("1"))
+		<div style="float:left;width:260px;">
+			<div>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop1.shopId"><span class="hotShopTitle">
+
+$hotShop1.shopName</span></a>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop1.shopId"><span class="hotShopSubTitle">
+
+$hotShop1.shopDesc</span></a>
+			</div>
+			<div>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop1.shopId"><img src="$hotShop1.img1"/></a>
+			</div>
+			<div class="hotShopDesc">
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop1.shopId"><span class="hotShopNote">
+
+$hotShop1.title</span></a>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop1.shopId"><span class="hotShopSubNote auxiliary-text">
+
+$hotShop1.subtitle</span></a>
+			</div>
+		</div>
+		#set ($hotShop2 = $contentCache.getContent("2"))
+		<div style="float:left;width:260px;margin-left:26px;">
+			<div>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop2.shopId"><span class="hotShopTitle">
+
+$hotShop2.shopName</span></a>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop2.shopId"><span class="hotShopSubTitle">
+
+$hotShop2.shopDesc</span></a>
+			</div>
+			<div>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop2.shopId"><img src="$hotShop2.img1"/></a>
+			</div>
+			<div class="hotShopDesc">
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop2.shopId"><span class="hotShopNote">
+
+$hotShop2.title</span></a>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop2.shopId"><span class="hotShopSubNote auxiliary-text">
+
+$hotShop2.subtitle</span></a>
+			</div>
+		</div>
+		#set ($hotShop3 = $contentCache.getContent("3"))
+		<div style="float:left;width:260px;margin-left:26px;">
+			<div>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop3.shopId"><span class="hotShopTitle">
+
+$hotShop3.shopName</span></a>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop3.shopId"><span class="hotShopSubTitle">
+
+$hotShop3.shopDesc</span></a>
+			</div>
+			<div>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop3.shopId"><img src="$hotShop3.img1"/></a>
+			</div>
+			<div class="hotShopDesc">
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop3.shopId"><span class="hotShopNote">
+
+$hotShop3.title</span></a>
+				<a target="_blank" href="$zhaile.setTarget('shop')?id=$hotShop3.shopId"><span class="hotShopSubNote auxiliary-text">
+
+$hotShop3.subtitle</span></a>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="float:left;width: 178px;height: 321px;margin-left:10px;">
+	<div class="indexTitle"><span class="indexDot">&nbsp;&nbsp;</span><span>宅乐热卖</span></div>
+	<div class="top10Div">
+	#if($!hotProduct)
+		#foreach($product in $hotProduct)
+			<div>
+			<table width="100%">
+				<tr>
+					<td align="left">
+						<a class="hotProduct" prodId="$product.id" adId=""><span class="count">#if($velocityCount<10)0#end
+
+$velocityCount</span> $product.name</a>
+					</td>
+					<td align="right">
+						<span class="price">￥$product.price 元</span></a>
+					</td>
+				</tr>
+			</table>
+			</div>
+		#end
+	#end
+	</div>
+</div>
+<div>
+#set ($shopNew1 = $contentCache.getContent("4"))
+<div class="indexTitle"><span class="indexDot">&nbsp;&nbsp;</span><span>$shopNew1.shopName</span></div>
+<div id="shopNew1">
+	<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew1.shopId"><img style="width:240px;height:240px;margin-bottom:30px;" 
+
+src="$shopNew1.img1"></a>
+	<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew1.shopId"><span style="display:block;font-size:16px;color:black;">
+
+$shopNew1.title</span></a>
+	<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew1.shopId"><span style="display:block;font-size:14px;padding-top:5px;" 
+
+class="auxiliary-text">$shopNew1.subtitle</span></a>
+</div>
+<div id="shopNewContent1" class="shopNewContent">
+	$shopNew1.content
+</div>
+<div id="shopMiddle" style="float:left;width:546px;height:300px;margin-left:26px;">
+	#set ($shopNew2 = $contentCache.getContent("5"))
+	<div id="shopNew2">
+		<div style="float:left;width:260px;">
+			<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew2.shopId"><img style="height:100px;width:260px;" 
+
+src="$shopNew2.img1"/></a>
+		</div>
+		<div style="float:left;width:260px;margin-left:16px;margin-top:20px;">
+			<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew2.shopId"><span style="display:block;padding:5px;font-
+
+size:16px;color:black;">$shopNew2.title</span></a>
+			<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew2.shopId"><span style="display:block;font-size:14px;padding-
+
+top:5px;" class="auxiliary-text">$shopNew2.subtitle</span></a>
+		</div>
+	</div>
+	<div id="shopNewContent2" class="shopNewContent">
+		$shopNew2.content
+	</div>
+	#set ($shopNew3 = $contentCache.getContent("6"))
+	<div id="shopNew3">
+		<div style="float:left;width:260px;margin-top:20px;">
+			<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew3.shopId"><span style="display:block;padding:5px;font-
+
+size:16px;color:black;">$shopNew3.title</span></a>
+			<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew3.shopId"><span style="display:block;font-size:14px;padding-
+
+top:5px;" class="auxiliary-text">$shopNew3.subtitle</span></a>
+		</div>
+		<div style="float:left;width:260px;margin-left:16px;">
+			<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew3.shopId"><img style="height:100px;width:260px;" 
+
+src="$shopNew3.img1"/></a>
+		</div>
+	</div>
+	
+	<div id="shopNewContent3" class="shopNewContent">
+		$shopNew3.content
+	</div>
+	
+	#set ($shopNew4 = $contentCache.getContent("7"))
+	<div id="shopNewContent4" class="shopNewContent">
+		$shopNew4.content
+	</div>
+	<div id="shopNew4" class="marginTop">
+		<div style="float:left;width:260px;">
+			<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew4.shopId"><img style="height:100px;width:260px;" 
+
+src="$shopNew4.img1"/></a>
+		</div>
+		<div style="float:left;width:260px;margin-left:16px;margin-top:20px;">
+			<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew4.shopId"><span style="display:block;padding:5px;font-
+
+size:16px;color:black;">$shopNew4.title</span></a>
+			<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew4.shopId"><span style="display:block;font-size:14px;padding-
+
+top:5px;" class="auxiliary-text">$shopNew4.subtitle</span></a>
+		</div>
+	</div>
+</div>
+#set ($shopNew5 = $contentCache.getContent("8"))
+<div id="shopNewContent5" class="shopNewContent">
+	$shopNew5.content
+</div>
+<div id="shopNew5" class="marginLeft">
+	<div>
+		<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew5.shopId"><img style="width:182px;height:235px;" 
+
+src="$shopNew5.img1"/></a>
+	</div>
+	<div style="background:whitesmoke;padding-top:30px;height:120px;">
+		<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew5.shopId"><span style="display:block;padding:5px;font-
+
+size:16px;color:black;">$shopNew5.title</span></a>
+		<a target="_blank" href="$zhaile.setTarget('shop')?id=$shopNew5.shopId"><span style="display:block;font-size:14px;padding:5px;" 
+
+class="auxiliary-text">$shopNew5.subtitle</span></a>
+	</div>
+</div>
+</div>
+#if($cacheTools.getSwitch('BANGPAI_SWITCH'))
+<div class="indexTitle"><span class="indexDot">&nbsp;&nbsp;</span><span>宅乐帮派</span></div>
+#set ($bangpai1 = $contentCache.getContent("9"))
+<div class="bangpai">
+	<div style="font-size:16px;">
+		$bangpai1.title<span class="badge badge-error">$bangpai1.info3</span>
+	</div>
+	<div>
+		#if($!bangpai1.tag1)<span class="badge badge-warning">$bangpai1.tag1</span>#end 
+		#if($!bangpai1.tag2)<span class="badge badge-warning">$bangpai1.tag2</span>#end 
+		#if($!bangpai1.tag3)<span class="badge badge-warning">$bangpai1.tag3</span>#end 
+		#if($!bangpai1.tag4)<span class="badge badge-warning">$bangpai1.tag4</span>#end 
+		#if($!bangpai1.tag5)<span class="badge badge-warning">$bangpai1.tag5</span>#end 
+	</div>
+	<div>
+		<span class="auxiliary-text">人均消费：</span>
+		<span>$bangpai1.info1</span>
+	</div>
+	<div>
+		<span class="auxiliary-text">行程概览：</span>
+		<span style="width:735px;">$bangpai1.content</span>
+	</div>
+	<div>
+		<span class="auxiliary-text">出发日期：</span>
+		<span>$bangpai1.info2</span>
+	</div>
+</div>
+<div class="bangpaiInfo" >
+	<span style="font-size:16px;display:block;margin-bottom:20px;">如果你需要</span>
+	<span class="badge">聚会场地</span><span class="badge">江湖救急</span>
+	<span class="badge">美食推荐</span><span class="badge">宅男腐女</span>
+	<span class="badge">优惠信息</span>
+	<span style="font-size:14px;display:block;margin-top:20px;">加入宅乐微信</span>
+	<span style="font-size:14px;display:block;margin-top:20px;">飞鸽传书给宅乐帮派！</span>
+</div>
+#set ($bangpai2 = $contentCache.getContent("10"))
+<div class="bangpai">
+	<div style="font-size:16px;">
+		$bangpai2.title<span class="badge badge-success">$bangpai2.info3</span>
+	</div>
+	<div>
+		#if($!bangpai1.tag1)<span class="badge badge-warning">$bangpai2.tag1</span>#end 
+		#if($!bangpai1.tag2)<span class="badge badge-warning">$bangpai2.tag2</span>#end 
+		#if($!bangpai1.tag3)<span class="badge badge-warning">$bangpai2.tag3</span>#end 
+		#if($!bangpai1.tag4)<span class="badge badge-warning">$bangpai2.tag4</span>#end 
+		#if($!bangpai1.tag5)<span class="badge badge-warning">$bangpai2.tag5</span>#end 
+	</div>
+	<div>
+		<span class="auxiliary-text">人均消费：</span>
+		<span>$bangpai2.info1</span>
+	</div>
+	<div>
+		<span class="auxiliary-text">行程概览：</span>
+		<span style="width:735px;">$bangpai2.content</span>
+	</div>
+	<div>
+		<span class="auxiliary-text">出发日期：</span>
+		<span>$bangpai2.info2</span>
+	</div>
+</div>
+#end

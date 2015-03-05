@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CustomerDO">
+
+  <typeAlias alias="Customer" type="com.zhaile.dal.model.CustomerDO"/>
+
+  <resultMap id="RM" class="Customer">
+    <result property="id" column="id"/>
+    <result property="name" column="name"/>
+    <result property="nick" column="nick"/>
+    <result property="password" column="password"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="headImage" column="head_image"/>
+    <result property="thirdPartUser" column="third_part_user"/>
+    <result property="thirdPartUserId" column="third_part_user_id"/>
+    <result property="email" column="email"/>
+    <result property="mobile" column="mobile"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_customer where id = #id#  
+  </select>
+  
+  <select id="loginByName" parameterClass="java.util.HashMap" resultMap="RM">
+    <![CDATA[
+    select * from zl_customer where name = #name# and password = #password# and third_part_user_id is null
+    ]]>
+    <include refid="Common.orderById" /> 
+  </select>
+  
+  <select id="loginByEmail" parameterClass="java.util.HashMap" resultMap="RM">
+    <![CDATA[
+    select * from zl_customer where email = #email# and password = #password# and third_part_user_id is null
+    ]]>
+    <include refid="Common.orderById" /> 
+  </select>
+  
+  <select id="loginByMobile" parameterClass="java.util.HashMap" resultMap="RM">
+    <![CDATA[
+    select * from zl_customer where mobile = #mobile# and password = #password# and third_part_user_id is null
+    ]]>
+    <include refid="Common.orderById" /> 
+  </select>
+  
+  <select id="checkByMobile" parameterClass="java.util.HashMap" resultMap="RM">
+    <![CDATA[
+    select * from zl_customer where mobile = #mobile# and name = #name# and third_part_user_id is null
+    ]]>
+    <include refid="Common.orderById" /> 
+  </select>
+  
+  <update id="updateFromThridPart" parameterClass="Customer">
+    <![CDATA[
+    update zl_customer set name = #name#
+    	where third_part_user = #thirdPartUser# and third_part_user_id = #thirdPartUserId#
+    ]]>
+  </update>
+  
+  <select id="loginFromThridPart" parameterClass="java.util.HashMap" resultMap="RM">
+    <![CDATA[
+    select * from zl_customer where third_part_user = #thirdPartUser# and third_part_user_id = #thirdPartUserId#
+    ]]>
+  </select>
+  
+  <select id="getByName" parameterClass="java.util.HashMap" resultMap="RM">
+    <![CDATA[
+    select * from zl_customer where name = #name# and third_part_user_id is null 
+    ]]>
+    <include refid="Common.orderById" /> 
+  </select>
+  
+  <select id="getByEmail" parameterClass="java.util.HashMap" resultMap="RM">
+    <![CDATA[
+    select * from zl_customer where email = #email# and third_part_user_id is null 
+    ]]>
+    <include refid="Common.orderById" /> 
+  </select>
+  
+  <select id="getByMobile" parameterClass="java.util.HashMap" resultMap="RM">
+    <![CDATA[
+    select * from zl_customer where mobile = #mobile# and third_part_user_id is null 
+    ]]>
+    <include refid="Common.orderById" /> 
+  </select>
+   
+  <insert id="insert" parameterClass="Customer">
+    <![CDATA[
+    insert into zl_customer (
+      name,
+      nick,
+      password,
+      gmt_create,
+      gmt_modify,
+      head_image,
+      third_part_user,
+      third_part_user_id,
+      email,
+      mobile
+    ) values (
+      #name#, #nick#, #password#, now(), now(), #headImage#, #thirdPartUser#, #thirdPartUserId#, #email#, #mobile#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="Customer">
+    update zl_customer set 
+    <dynamic>
+       <isNotEmpty property="name">  
+         <![CDATA[
+           name = #name#,
+         ]]>
+      </isNotEmpty>
+      <isNotEmpty property="password">  
+         <![CDATA[
+           password = #password#,
+         ]]>
+      </isNotEmpty>  
+      <isNotEmpty property="headImage">  
+         <![CDATA[
+           head_image = #headImage#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="email">  
+         <![CDATA[
+           email = #email#,
+         ]]> 
+      </isNotEmpty>
+      <isNotEmpty property="mobile">  
+         <![CDATA[
+           mobile = #mobile#,
+         ]]> 
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#  
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_customer where id = #id#
+  </delete>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+	    <isNotEmpty property="name" prepend="and">
+        	<![CDATA[ 
+        	name like concat('%',#name#,'%')
+        	]]>
+	    </isNotEmpty>
+	    <isNotEmpty property="email" prepend="and">
+        	<![CDATA[ 
+        	email like concat('%',#email#,'%')
+        	]]>
+	    </isNotEmpty>
+	    <isNotEmpty property="mobile" prepend="and">
+        	<![CDATA[ 
+        	mobile like concat('%',#mobile#,'%')
+        	]]>
+	    </isNotEmpty>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="name">
+  	<isNull property="email">
+  	<isNull property="mobile">
+        <include refid="Common.validModify" />
+    </isNull>
+    </isNull>
+	</isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_customer 
+    <include refid="where" />
+    <include refid="Common.orderByModify" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_customer
+	<include refid="where" />
+  </select>
+</sqlMap>

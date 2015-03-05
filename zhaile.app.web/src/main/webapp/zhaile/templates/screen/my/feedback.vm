@@ -1,0 +1,13 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style>
+	.myTitle{
+		margin:10px;
+		font-size:large;
+		font-weight: bold;
+	}
+</style>
+<div class="myTitle">
+	投诉建议
+</div>
+<hr>
+$control.setTemplate("underconstruction.vm")

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<group>
+		<property name="jdbc.url" defaultValue="jdbc:mysql://localhost:3306/zhaile" description="数据连接字符串"/>
+		<property name="jdbc.username" defaultValue="root" description="登录名"/>
+		<property name="jdbc.password" defaultValue="adminadmin" description="密码"/>
+	</group>
+	<script>
+		<generate template="config/dataSource.xml" destfile="ibatis/dataSource.xml"/>
+	</script>
+</config>

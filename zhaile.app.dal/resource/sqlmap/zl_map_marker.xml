@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="MapMarkerDO">
+
+  <typeAlias alias="MapMarker" type="com.zhaile.dal.model.MapMarkerDO"/>
+
+  <resultMap id="RM" class="MapMarker">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="content" column="content"/>
+    <result property="validFrom" column="valid_from"/>
+    <result property="validTo" column="valid_to"/>
+    <result property="charge" column="charge"/>
+    <result property="status" column="status"/>
+    <result property="contact" column="contact"/>
+    <result property="lng" column="lng"/>
+    <result property="lat" column="lat"/>
+    <result property="title" column="title"/>
+    <result property="icon" column="icon"/>
+    <result property="address" column="address"/>
+  </resultMap>
+
+  <select id="getAll" resultMap="RM">
+    select * from zl_map_marker  
+  </select>
+  
+  <insert id="insert" parameterClass="MapMarker">
+    <![CDATA[
+    insert into zl_map_marker (
+      gmt_create,
+      gmt_modify,
+      content,
+      valid_from,
+      valid_to,
+      charge,
+      status,
+      contact,
+      lng,
+      lat,
+      title,
+      icon,
+      address
+    ) values (
+      now(), now(), #content#, #validFrom#, #validTo#, #charge#, #status#, #contact#, #lng#, #lat#, #title#, #icon#, #address#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <update id="update" parameterClass="MapMarker">
+    update zl_map_marker set 
+    <isNotEmpty property="content">  
+      	<![CDATA[
+      		content = #content#,
+      	]]>
+    </isNotEmpty>
+    <isNotEmpty property="charge">  
+      	<![CDATA[
+      		charge = #charge#,
+      	]]>
+    </isNotEmpty>
+    <isNotEmpty property="status">  
+      	<![CDATA[
+      		status = #status#,
+      	]]>
+    </isNotEmpty>
+    <isNotEmpty property="lng">  
+      	<![CDATA[
+      		lng = #lng#,
+      	]]>
+    </isNotEmpty>
+    <isNotEmpty property="lat">  
+      	<![CDATA[
+      		lat = #lat#,
+      	]]>
+    </isNotEmpty>
+    <isNotEmpty property="title">  
+      	<![CDATA[
+      		title = #title#,
+      	]]>
+    </isNotEmpty>
+    <isNotEmpty property="icon">  
+      	<![CDATA[
+      		icon = #icon#,
+      	]]>
+    </isNotEmpty>
+    <isNotEmpty property="address">  
+      	<![CDATA[
+      		address = #address#,
+      	]]>
+    </isNotEmpty>
+    	gmt_modify = now()
+    where
+      id = #id#
+  </update>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+  		<isNotNull property="id" prepend="and">
+        	<![CDATA[
+        	id = #id#
+        	]]> 
+	    </isNotNull>
+	    <isNotNull property="validFrom" prepend="and">
+	    	<![CDATA[
+        	valid_from <= #validFrom#
+        	 ]]>
+        </isNotNull>
+        <isNotNull property="validTo" prepend="and">
+	    	<![CDATA[
+        	valid_to >= #validTo#
+        	 ]]>
+        </isNotNull>
+        <isNotNull property="contact" prepend="and">
+	    	<![CDATA[
+        	contact like concat('%',#contact#,'%')
+        	 ]]>
+        </isNotNull>
+        <isNotNull property="status" prepend="and">
+	    	<![CDATA[
+        	status = #status#
+        	 ]]>
+        </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="id">
+  	<isNull property="validFrom">
+  	<isNull property="validTo">
+  	<isNull property="contact">
+  	<isEmpty property="status">
+        <include refid="Common.validModify" />
+    </isEmpty>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+  </sql>
+  
+  <select id="getTodayValid" resultMap="RM">
+  	<![CDATA[
+    select * from zl_map_marker where valid_from <= now() and valid_to >= now() and status = '1';
+     ]]>
+  </select>
+  
+  <select id="getTasks" resultMap="RM">
+    select * from zl_map_marker where status = '0';
+  </select>
+  
+  <select id="getTaskCount" resultClass="java.lang.Integer">
+    select count(*) from zl_map_marker where status = '0';
+  </select>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_map_marker 
+    <include refid="where" />
+    <include refid="Common.orderById" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_map_marker
+	<include refid="where" />
+  </select>
+</sqlMap>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="OrderDO">
+
+  <typeAlias alias="Order" type="com.zhaile.dal.model.OrderDO"/>
+
+  <resultMap id="RM" class="Order">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="customerId" column="customer_id"/>
+    <result property="prodId" column="prod_id"/>
+    <result property="quantity" column="quantity"/>
+    <result property="price" column="price"/>
+    <result property="paymentId" column="payment_id"/>
+    <result property="shopId" column="shop_id"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_transaction_order where id = #id#  
+  </select>
+  
+  <select id="getByIds" resultMap="RM">
+    select * from zl_transaction_order where id in
+	<iterate open="(" close=")" conjunction="," > 
+    	#[]# 
+    </iterate>
+  </select>
+   
+  <insert id="insert" parameterClass="Order">
+    <![CDATA[
+    insert into zl_transaction_order (
+      gmt_create,
+      gmt_modify,
+      customer_id,
+      prod_id,
+      quantity,
+      price,
+      payment_id,
+      shop_id
+    ) values (
+      now(), now(), #customerId#, #prodId#, #quantity#, #price#, #paymentId# , 
+      (select shop_id from zl_shop_product where enable = '0' and id = #prodId#)
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+		<isNotNull property="customerId" prepend="and">
+        	<![CDATA[
+        	customer_id = #customerId#
+        	]]> 
+	    </isNotNull>
+	    <isNotNull property="customerName" prepend="and">
+        	<![CDATA[
+        	customer_id in (select c.id from (select id from zl_customer where name like 
+        		concat('%',#customerName#,'%')
+        	) as c)
+        	]]> 
+	    </isNotNull>  
+	    <isNotNull property="paymentId" prepend="and">
+	        <![CDATA[
+	        payment_id = #paymentId#
+	        ]]> 
+	    </isNotNull>
+	    <isNotNull property="shopId" prepend="and">
+	        shop_id in (
+				<iterate open="(" close=")" conjunction="," property="shopId"> 
+		    		#shopId[]#
+		    	</iterate>
+			) 
+	    </isNotNull>
+	    <isNotNull property="shopName" prepend="and">
+        	<![CDATA[
+        	shop_id in (select shop.id from 
+        		(select id from zl_shop where enable = '0' and name like concat('%',#shopName#,'%')) 
+			as shop)
+        	]]> 
+	    </isNotNull>
+	    <isNotNull property="productId" prepend="and">
+	        <![CDATA[
+	        prod_id = #productId#
+	        ]]> 
+	    </isNotNull>
+	    <isNotNull property="status" prepend="and">
+	        <![CDATA[
+	        payment_id in (select pay.id from 
+	        	(select id from zl_transaction_payment where status = #status#) 
+	        as pay)
+	        ]]> 
+	    </isNotNull>
+	    <isNotNull property="employeeId" prepend="and">
+	        <![CDATA[
+	        payment_id in (select pay.id from 
+	        	(select id FROM zl_transaction_payment where employee_id = #employeeId#) 
+	        as pay)
+	        ]]> 
+	    </isNotNull>
+	    <isNotNull property="source" prepend="and">
+	        <![CDATA[
+	        payment_id in (select pay.id from 
+	        	(select id FROM zl_transaction_payment where source = #source#) 
+	        as pay)
+	        ]]> 
+	    </isNotNull>
+	    <include refid="Common.queryModify" />
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="customerId">
+  	<isNull property="customerName">
+    <isNull property="paymentId">
+    <isNull property="shopId">
+    <isNull property="shopName">
+    <isNull property="status">
+    <isNull property="productId">
+    <isNull property="employeeId">
+    <isNull property="source">
+        <include refid="Common.validModify" />
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+    </isNull>
+	</isNull>
+	</isNull>
+  </sql>
+  
+  <select id="getPage" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_transaction_order 
+    <include refid="where" />
+    <include refid="Common.orderByModify" />
+    <include refid="Common.pageSql" />
+  </select>
+  
+  <select id="getCount" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    select count(*) from zl_transaction_order
+	<include refid="where" />
+  </select>
+</sqlMap>

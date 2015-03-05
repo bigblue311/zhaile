@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="SystemContentDO">
+
+  <typeAlias alias="SystemContent" type="com.zhaile.dal.model.SystemContentDO"/>
+
+  <resultMap id="RM" class="SystemContent">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="title" column="title"/>
+    <result property="subtitle" column="subtitle"/>
+    <result property="position" column="position"/>
+    <result property="shopId" column="shop_id"/>
+    <result property="shopName" column="shop_name"/>
+    <result property="shopDesc" column="shop_desc"/>
+    <result property="info1" column="info1"/>
+    <result property="info2" column="info2"/>
+    <result property="info3" column="info3"/>
+    <result property="info4" column="info4"/>
+    <result property="info5" column="info5"/>
+    <result property="tag1" column="tag1"/>
+    <result property="tag2" column="tag2"/>
+    <result property="tag3" column="tag3"/>
+    <result property="tag4" column="tag4"/>
+    <result property="tag5" column="tag5"/>
+    <result property="img1" column="img1"/>
+    <result property="img2" column="img2"/>
+    <result property="img3" column="img3"/>
+    <result property="img4" column="img4"/>
+    <result property="img5" column="img5"/>
+    <result property="content" column="content"/>
+  </resultMap>
+
+  <select id="getAll" resultMap="RM">
+    select * from zl_system_content  
+  </select>
+  
+  <update id="update" parameterClass="SystemContent">
+    update zl_system_content set 
+   <dynamic>
+      <isNotEmpty property="title">  
+	    <![CDATA[
+	    	title = #title#,
+	    ]]>
+      </isNotEmpty>
+      <isNotEmpty property="position">  
+	    <![CDATA[
+	    	position = #position#,
+	    ]]>
+      </isNotEmpty>
+      <isNotEmpty property="shopId">  
+	    <![CDATA[
+	    	shop_id = #shopId#,
+	    ]]>
+      </isNotEmpty>
+     </dynamic>
+    	subtitle = #subtitle#, 
+    	shop_name = #shopName#,
+    	shop_desc = #shopDesc#,
+    	info1 = #info1#,
+    	info2 = #info2#,
+    	info3 = #info3#,
+    	info4 = #info4#,
+    	info5 = #info5#,
+    	tag1 = #tag1#,
+    	tag2 = #tag2#,
+    	tag3 = #tag3#,
+    	tag4 = #tag4#,
+    	tag5 = #tag5#,
+    	img1 = #img1#,
+    	img2 = #img2#,
+    	img3 = #img3#,
+    	img4 = #img4#,
+    	img5 = #img5#,
+    	content = #content#,
+    	gmt_modify = now()
+    where
+      id = #id#
+  </update>
+</sqlMap>

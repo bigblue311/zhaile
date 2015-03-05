@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ShopTagDO">
+
+  <typeAlias alias="ShopTag" type="com.zhaile.dal.model.ShopTagDO"/>
+
+  <resultMap id="RM" class="ShopTag">
+    <result property="id" column="id"/>
+    <result property="gmtCreate" column="gmt_create"/>
+    <result property="gmtModify" column="gmt_modify"/>
+    <result property="foreignId" column="foreign_id"/>
+    <result property="foreignKeyType" column="foreign_key_type"/>
+    <result property="content" column="content"/>
+    <result property="createdById" column="created_by_id"/>
+    <result property="createdByType" column="created_by_type"/>
+    <result property="searchCount" column="search_count"/>
+  </resultMap>
+
+  <select id="getById" parameterClass="java.lang.Long" resultMap="RM">
+    select * from zl_shop_tag where id = #id#  
+  </select>
+   
+  <insert id="insert" parameterClass="ShopTag">
+    <![CDATA[
+    insert into zl_shop_tag (
+      gmt_create,
+      gmt_modify,
+      foreign_id,
+      foreign_key_type,
+      content,
+      created_by_id,
+      created_by_type,
+      search_count
+    ) values (
+      now(), now(), #foreignId#, #foreignKeyType#, #content#, #createdById#, #createdByType#, #searchCount#
+    )
+    ]]>
+    <selectKey resultClass="long" keyProperty="id">    
+		<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+	</selectKey>
+  </insert>
+
+  <update id="update" parameterClass="ShopTag">
+    update zl_shop_tag set 
+    <dynamic>
+      <isNotEmpty property="content">  
+      	<![CDATA[
+      		content = #content#,
+      	]]>
+      </isNotEmpty>
+      <isNotEmpty property="searchCount">  
+      	<![CDATA[
+      		search_count = search_count+#searchCount#,
+      	]]>
+      </isNotEmpty>
+    </dynamic>
+      gmt_modify = now()
+    where
+      id = #id#
+  </update>
+
+  <delete id="deleteById" parameterClass="java.lang.Long">
+    delete from zl_shop_tag where id = #id#
+  </delete>
+  
+  <sql id="where">
+  	<include refid="validate" />
+  	<dynamic prepend="where">
+		<isNotNull property="foreignId" prepend="and">
+        	<![CDATA[
+        	foreign_id = #foreignId#
+        	]]>
+	    </isNotNull>
+	    <isNotNull property="foreignKeyType" prepend="and">
+        	<![CDATA[
+        	foreign_key_type = #foreignKeyType#
+        	]]>
+	    </isNotNull>
+	    <isNotEmpty property="content" prepend="and">
+        	<![CDATA[ 
+        	content like concat('%',#content#,'%')
+        	]]>
+	    </isNotEmpty>
+  	</dynamic>
+  </sql>
+  
+  <sql id="validate">
+  	<isNull property="foreignId">
+  	<isNull property="foreignKeyType">
+  	<isNull property="content">
+        @@sql not allowed
+    </isNull>
+	</isNull>
+	</isNull>
+  </sql>
+  
+  <select id="getByForeignId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_shop_tag
+    <include refid="where" />
+    order by search_count desc limit 10
+  </select>
+  
+  <select id="getAllByShopId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_shop_tag 
+    where (foreign_key_type = '2' and foreign_id = #foreignId#) or 
+    (foreign_key_type = '3' and foreign_id in (select s.id from (select id from zl_shop_product where enable = '0' and shop_id = #foreignId# limit 10) as s))
+    order by search_count desc limit 10
+  </select>
+  
+  <select id="getAllByCateId" parameterClass="java.util.HashMap" resultMap="RM">
+    select * from zl_shop_tag 
+    where 
+    (foreign_key_type = '2' and foreign_id in (select s.id from (select shop_id from zl_shop_product where enable='0' and category_id = #foreignId# limit 10)as s)) or 
+    (foreign_key_type = '3' and foreign_id in (select s.id from (select id      from zl_shop_product where enable='0' and category_id = #foreignId# limit 10)as s))
+    order by search_count desc limit 10
+  </select>
+</sqlMap>
